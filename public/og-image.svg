@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="word" x1="72" y1="168" x2="1050" y2="550" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E5322D"/>
+      <stop offset="1" stop-color="#310F18" stop-opacity=".16"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="matrix(460 220 -180 376 936 106)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9F2631" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#05050A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <path fill="#05050A" d="M0 0h1200v630H0z"/>
+  <path fill="url(#glow)" d="M0 0h1200v630H0z"/>
+  <path stroke="#fff" stroke-opacity=".1" d="M64 70h1072M64 560h1072"/>
+  <text x="66" y="126" fill="#9A9AA5" font-family="Arial,sans-serif" font-size="17" letter-spacing="5">FRONTEND DEVELOPER / UI-UX DESIGNER / TECH CREATOR</text>
+  <text x="54" y="405" fill="url(#word)" font-family="Impact,Arial Narrow,sans-serif" font-size="290" letter-spacing="-8">KASIF</text>
+  <circle cx="850" cy="394" r="13" fill="#E5322D"/>
+  <text x="70" y="493" fill="#F5F5F5" font-family="Arial,sans-serif" font-size="25" letter-spacing="2">IDEAS INTO INTERFACES PEOPLE FEEL.</text>
+  <text x="1075" y="594" fill="#9A9AA5" font-family="Arial,sans-serif" font-size="15" text-anchor="end" letter-spacing="3">MD KASIF UDDIN · INDIA</text>
+</svg>

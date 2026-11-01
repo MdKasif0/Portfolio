@@ -1,0 +1,105 @@
+# KASIF Portfolio
+
+A cinematic, responsive, single-page portfolio for Md Kasif Uddin, built with Next.js App Router, TypeScript, Tailwind CSS, Framer Motion, and Lenis. The site uses static export and is configured to publish on Netlify.
+
+## Run locally
+
+```bash
+npm install
+npm run dev
+```
+
+Open the local URL printed by Next.js. To create and test the production export:
+
+```bash
+npm run lint
+npm run build
+python3 -m http.server 8000 --directory out
+```
+
+The static site is emitted to `out/`. Netlify uses `npm run build` and publishes that directory.
+
+## Project structure
+
+```text
+.eslintrc.json            Next.js ESLint configuration
+README.md                 Setup, content placeholders, and deploy guide
+netlify.toml              Netlify build and publish settings
+next.config.mjs           Static export and image settings
+package.json              Scripts and dependencies
+package-lock.json         Locked npm dependency tree
+postcss.config.mjs         Tailwind/PostCSS integration
+tailwind.config.ts        Tailwind theme configuration
+tsconfig.json             TypeScript configuration
+app/
+  globals.css             Design system, responsive layout, and motion styles
+  layout.tsx              Fonts, document shell, SEO and social metadata
+  page.tsx                Single-page section composition
+  robots.ts               Search crawler rules and sitemap reference
+  sitemap.ts              Static sitemap for /
+components/
+  about-journey.tsx       Raw-to-Real, About, process, and Journey sections
+  agent-build/
+    AgentCursor.tsx       Multiplayer cursor visual, persona tags, and status
+    BuildProvider.tsx     Client-only state machine, seeded director, reveal, tour, and replay context
+    BuildInspector.tsx    Floating live design-tool selection inspector
+    ControlBar.tsx        Speed, sound, progress, skip, and completion controls
+    CursorLayer.tsx       Fixed overlay with cursors and active wireframe
+    DimensionChip.tsx     Selection dimensions
+    WireframeBox.tsx      Selection handles and text/image placeholder
+    buildMode.config.ts   Feature defaults and agent palette
+    types.ts              Build state, layer, and cursor types
+    useBuildScript.ts     Seeded six-act timeline with per-section choreography
+  contact-footer.tsx      Contact section, social links, and site footer
+  collab-recognition.tsx  Collaborator strip and recognition panel
+  hero-section.tsx        Hero, portrait, stats, and showreel trigger
+  motion-shell.tsx        Motion preference, Lenis lifecycle, and reveal polish
+  showreel-modal.tsx      Shared keyboard-accessible showreel dialog
+  site-nav.tsx            Sticky navigation, mobile menu, and scroll progress
+  work-section.tsx        Filterable, searchable, paginated project cards
+data/
+  content.ts              Typed, editable portfolio copy and links
+public/
+  og-image.svg            Social-sharing preview artwork
+  hero-cutout.png         Supplied transparent avatar used in the hero
+```
+
+## Content and assets to replace
+
+Update the typed source in `data/content.ts` and add files under `public/`. Replace every bracketed placeholder before launch:
+
+- **Portrait:** the supplied transparent avatar is installed at `public/hero-cutout.png`; replace it only if you want to use another portrait.
+- **Showreel:** replace `hero.reelEmbedUrl` with the YouTube or X video URL.
+- **CV:** replace `hero.cvHref` with the real downloadable CV path or URL.
+- **Project URLs and details:** replace each project `[PLACEHOLDER]` URL and `[YEAR]`. Cookie and ShiftKit also need a real category and description.
+- **Project thumbnails:** add real images for GitRoasted, ReviewPilot, GreenBoard, Gravites Network, AI Checkers Arena, Cookie, and ShiftKit; replace the CSS thumbnail previews in `components/work-section.tsx`.
+- **Collaborator logos:** add supplied logo assets for Blackbox AI, Kimi, SuperApp, yapper.so, Glass Editor, and startblock.shop; the current strip uses text wordmarks.
+- **Contact email:** replace `contact.email` with the real address. The email row intentionally remains plain text until this is supplied.
+- **Stats and aggregate count:** replace the `[N]` hero stats and recognition `count` with confirmed figures; preserve the supplied six brand collaborations.
+- **Years and dates:** replace `[YEAR]` in project years, education, recognition rows, timeline periods, and milestones with confirmed dates.
+- **Recognition proof:** replace `recognition.proofHref` with a real proof or portfolio URL.
+- **Raw-to-Real assets:** supply the project name and year plus its Figma wireframe and final UI screenshots.
+- **Footer note:** replace `footer.note` with the desired copyright/year line.
+- **Site domain:** replace `siteUrl` in `data/content.ts` with the production origin. It currently resolves to the reserved `portfolio.invalid` placeholder for metadata, robots, and sitemap output.
+- **Social preview artwork:** replace `public/og-image.svg` if you want a custom brand image.
+
+No unprovided email address, award, year, or project statistic is fabricated. Keep placeholder values until you can confirm them.
+
+## Netlify deploy checklist
+
+1. Connect the repository to Netlify and use the repository root as the base directory.
+2. Set the build command to `npm run build`; set the publish directory to `out` (also configured in `netlify.toml`).
+3. Confirm the deploy succeeds and that `/`, `/robots.txt`, and `/sitemap.xml` are served from the published output.
+4. Replace `siteUrl` with the production HTTPS origin, add the portrait and project assets, and replace the content placeholders.
+5. Add the custom domain in Netlify, enable HTTPS, and redeploy after updating the site origin.
+6. Run Lighthouse on the deployed production URL for mobile and desktop. Confirm the performance, accessibility, and SEO targets (90+) with real assets and content; score results depend on the final media, hosting, and browser environment.
+
+## Notes
+
+- The Motion toggle disables Lenis and visual motion; the system also honors `prefers-reduced-motion`.
+- Agent Build Mode runs once per browser session, then restores the original DOM and interaction state. Use **Replay build** in the footer to run it again; press Escape or use the control bar's × to skip.
+- Tune the intro delay, default speed, sound, cursor caps, and session behavior in `components/agent-build/buildMode.config.ts`. Set `enabled: false` to disable the feature without removing its components. Keep `data-layer` markers on meaningful content if sections are edited.
+- The director maps marked layers into a deterministic ~35-second six-act desktop sequence (scan, blueprint, build, polish, finale, handoff); the mobile version is shorter, capped at 10 cursors, and omits trails. Replay reuses the same seeded sequence. In development, the control bar includes a timeline scrubber for inspecting and seeking the build.
+- The mobile navigation expands into a full-screen menu and closes on selection or Escape.
+- The project filter tabs, showreel dialog, and Raw-to-Real range slider support keyboard interaction.
+- Next Image is used for the hero portrait; add any future raster images with `next/image`.

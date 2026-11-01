@@ -1,0 +1,134 @@
+"use client";
+
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import Lenis from "lenis";
+import { BuildProvider } from "@/components/agent-build/BuildProvider";
+
+const MotionPreferenceContext = createContext<{
+  motionEnabled: boolean;
+  setMotionEnabled: (enabled: boolean) => void;
+} | null>(null);
+
+export function useMotionPreference() {
+  const context = useContext(MotionPreferenceContext);
+  if (!context) throw new Error("useMotionPreference must be used within MotionShell");
+  return context;
+}
+
+export function MotionShell({ children }: { children: ReactNode }) {
+  const [motionEnabled, setMotionEnabled] = useState(true);
+  const [lenisInstance, setLenisInstance] = useState<Lenis | null>(null);
+
+  useEffect(() => {
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setMotionEnabled(!preference.matches);
+
+    const updatePreference = (event: MediaQueryListEvent) => setMotionEnabled(!event.matches);
+    preference.addEventListener("change", updatePreference);
+    return () => preference.removeEventListener("change", updatePreference);
+  }, []);
+
+  useEffect(() => {
+    if (!motionEnabled) return;
+
+    const lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+    setLenisInstance(lenis);
+    let frame = 0;
+    const raf = (time: number) => {
+      lenis.raf(time);
+      frame = window.requestAnimationFrame(raf);
+    };
+
+    frame = window.requestAnimationFrame(raf);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      setLenisInstance(null);
+      lenis.destroy();
+    };
+  }, [motionEnabled]);
+
+  const scrollTo = (target: number, duration: number) => {
+    if (lenisInstance) {
+      lenisInstance.scrollTo(target, {
+        duration,
+        immediate: duration === 0,
+        easing: (value) => value < 0.5 ? 4 * value ** 3 : 1 - (-2 * value + 2) ** 3 / 2
+      });
+    } else {
+      window.scrollTo({ top: target, behavior: duration === 0 ? "auto" : "smooth" });
+    }
+  };
+  const cancelScroll = () => {
+    if (lenisInstance) {
+      lenisInstance.scrollTo(window.scrollY, { immediate: true, force: true });
+    } else {
+      window.scrollTo({ top: window.scrollY, behavior: "auto" });
+    }
+  };
+
+  return (
+    <MotionPreferenceContext.Provider value={{ motionEnabled, setMotionEnabled }}>
+      <div className={motionEnabled ? "motion-enabled" : "motion-disabled"} data-motion={motionEnabled ? "on" : "off"}>
+        <MotionPolish />
+        <BuildProvider motionEnabled={motionEnabled} scrollTo={scrollTo} cancelScroll={cancelScroll}>
+          {children}
+        </BuildProvider>
+      </div>
+    </MotionPreferenceContext.Provider>
+  );
+}
+
+function MotionPolish() {
+  const { motionEnabled } = useMotionPreference();
+
+  useEffect(() => {
+    const targets = Array.from(document.querySelectorAll<HTMLElement>(".display-title:not(.hero-name)"));
+    if (!motionEnabled || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      targets.forEach((target) => target.classList.remove("motion-reveal-pending", "motion-reveal-visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("motion-reveal-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.18 });
+
+    targets.forEach((target) => {
+      target.classList.add("motion-reveal-pending");
+      observer.observe(target);
+    });
+
+    const moveMagnetically = (event: PointerEvent) => {
+      if (!(event.currentTarget instanceof HTMLElement)) return;
+      const element = event.currentTarget;
+      const bounds = element.getBoundingClientRect();
+      const offsetX = (event.clientX - bounds.left - bounds.width / 2) * 0.12;
+      const offsetY = (event.clientY - bounds.top - bounds.height / 2) * 0.12;
+      element.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+    };
+    const resetMagnet = (event: PointerEvent) => {
+      if (event.currentTarget instanceof HTMLElement) event.currentTarget.style.transform = "";
+    };
+    const magnets = Array.from(document.querySelectorAll<HTMLElement>(".magnetic-cta"));
+    magnets.forEach((element) => {
+      element.addEventListener("pointermove", moveMagnetically);
+      element.addEventListener("pointerleave", resetMagnet);
+    });
+
+    return () => {
+      observer.disconnect();
+      magnets.forEach((element) => {
+        element.removeEventListener("pointermove", moveMagnetically);
+        element.removeEventListener("pointerleave", resetMagnet);
+        element.style.transform = "";
+      });
+      targets.forEach((target) => target.classList.remove("motion-reveal-pending", "motion-reveal-visible"));
+    };
+  }, [motionEnabled]);
+
+  return null;
+}
