@@ -4,7 +4,7 @@ export const buildModeConfig = {
   speedDefault: 1,
   autoStartMs: 1200,
   autoDismissMs: 6000,
-  runOncePerSession: true,
+  runOncePerSession: false,
   soundDefault: false,
   sectionPauseMs: 620,
   taskDurationMs: 300,

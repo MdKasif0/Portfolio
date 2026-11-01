@@ -97,7 +97,7 @@ No unprovided email address, award, year, or project statistic is fabricated. Ke
 ## Notes
 
 - The Motion toggle disables Lenis and visual motion; the system also honors `prefers-reduced-motion`.
-- Agent Build Mode runs once per browser session, then restores the original DOM and interaction state. Use **Replay build** in the footer to run it again; press Escape or use the control bar's × to skip.
+- Agent Build Mode automatically runs after every page load, then restores the original DOM and interaction state. Use **Replay build** in the footer to run it again; press Escape or use the control bar's × to skip.
 - Tune the intro delay, default speed, sound, cursor caps, and session behavior in `components/agent-build/buildMode.config.ts`. Set `enabled: false` to disable the feature without removing its components. Keep `data-layer` markers on meaningful content if sections are edited.
 - The director maps marked layers into a deterministic ~35-second six-act desktop sequence (scan, blueprint, build, polish, finale, handoff); the mobile version is shorter, capped at 10 cursors, and omits trails. Replay reuses the same seeded sequence. In development, the control bar includes a timeline scrubber for inspecting and seeking the build.
 - The mobile navigation expands into a full-screen menu and closes on selection or Escape.
