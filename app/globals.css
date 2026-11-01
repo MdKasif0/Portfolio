@@ -621,7 +621,7 @@ button { font: inherit; }
 .agent-inspector-layer > span:nth-child(2) { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .agent-inspector-layer > span:last-child { color: #4ade80; font-size: 6px; }
 .agent-inspector-layer-dot { width: 6px; height: 6px; border: 1px solid #93c5fd; }
-.agent-wireframe { position: fixed; z-index: 112; display: flex; align-items: flex-start; justify-content: flex-start; border: 1px solid #3b82f6; box-shadow: 0 0 0 1px rgba(59,130,246,.16), 0 0 20px rgba(59,130,246,.1); pointer-events: none; animation: agent-frame-arrive .18s ease-out both; }
+.agent-wireframe { position: fixed; z-index: 112; display: flex; align-items: flex-start; justify-content: flex-start; border: 1px solid #3b82f6; box-shadow: 0 0 0 1px rgba(59,130,246,.16), 0 0 20px rgba(59,130,246,.1); pointer-events: none; animation: agent-frame-cycle var(--wireframe-duration,510ms) cubic-bezier(.2,.7,.2,1) both; }
 .agent-wireframe.is-image { align-items: center; justify-content: center; background: rgba(90,95,108,.3); }
 .agent-handle { position: absolute; width: 5px; height: 5px; border: 1px solid #3b82f6; background: white; }
 .agent-handle.top-left { top: -3px; left: -3px; }
@@ -634,7 +634,7 @@ button { font: inherit; }
 .agent-typing-text { display: block; max-width: 100%; overflow: hidden; color: rgba(255,255,255,.82); white-space: normal; }
 .agent-ibeam { display: inline-block; width: 1px; height: 1em; margin-left: 2px; vertical-align: text-bottom; background: #3b82f6; animation: agent-ibeam-blink .75s steps(2) infinite; }
 @keyframes agent-ibeam-blink { 50% { opacity: 0; } }
-@keyframes agent-frame-arrive { from { opacity: 0; transform: scale(.985); } to { opacity: 1; transform: scale(1); } }
+@keyframes agent-frame-cycle { 0% { opacity: 0; transform: scale(.985); } 14% { opacity: 1; transform: scale(1); } 68% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.012); } }
 @keyframes agent-cursor-exit { 35% { opacity: 1; } 100% { opacity: 0; transform: translate3d(calc(100vw + 40px), -120px, 0) rotate(30deg); } }
 .agent-sparkle { position: fixed; z-index: 113; width: 9px; height: 9px; pointer-events: none; animation: agent-sparkle-pop .55s ease-out both; }
 .agent-sparkle::before, .agent-sparkle::after { position: absolute; top: 4px; left: 0; width: 9px; height: 1px; content: ""; background: white; }

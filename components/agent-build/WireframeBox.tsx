@@ -1,3 +1,6 @@
+"use client";
+
+import { useLayoutEffect, useRef } from "react";
 import type { CSSProperties } from "react";
 import { DimensionChip } from "@/components/agent-build/DimensionChip";
 import type { BuildLayer } from "@/components/agent-build/types";
@@ -5,16 +8,32 @@ import type { BuildLayer } from "@/components/agent-build/types";
 export function WireframeBox({
   layer,
   style,
-  typedText
+  typedText,
+  durationMs
 }: {
   layer: BuildLayer;
   style: CSSProperties;
   typedText: string;
+  durationMs: number;
 }) {
+  const frameRef = useRef<HTMLDivElement>(null);
   const isImage = layer.type === "image" || layer.type === "card";
 
+  useLayoutEffect(() => {
+    const node = frameRef.current;
+    if (!node) return;
+    node.style.animation = "none";
+    void node.offsetWidth;
+    node.style.animation = "";
+  }, [layer.id]);
+
   return (
-    <div className={`agent-wireframe${isImage ? " is-image" : ""}`} style={style} aria-hidden="true">
+    <div
+      ref={frameRef}
+      className={`agent-wireframe${isImage ? " is-image" : ""}`}
+      style={{ ...style, "--wireframe-duration": `${durationMs}ms` } as CSSProperties}
+      aria-hidden="true"
+    >
       {isImage ? (
         <span className="agent-image-placeholder">
           <svg viewBox="0 0 16 16" fill="none">

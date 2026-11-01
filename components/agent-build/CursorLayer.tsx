@@ -13,13 +13,15 @@ export function CursorLayer({
   positions,
   frame,
   typedText,
-  finishing
+  finishing,
+  speed
 }: {
   visible: boolean;
   positions: CursorPosition[];
   frame: BuildFrame | null;
   typedText: string;
   finishing: boolean;
+  speed: number;
 }) {
   const trailRef = useRef<HTMLCanvasElement>(null);
   const trailPointsRef = useRef<Array<Array<{ x: number; y: number; at: number }>>>([]);
@@ -76,12 +78,19 @@ export function CursorLayer({
   return (
     <div className="agent-cursor-layer" aria-hidden="true">
       <canvas ref={trailRef} className="agent-trail-canvas" />
-      {frame && wireframeStyle && <WireframeBox key={frame.layer.id} layer={frame.layer} style={wireframeStyle} typedText={typedText} />}
+      {frame && wireframeStyle && (
+        <WireframeBox
+          layer={frame.layer}
+          style={wireframeStyle}
+          typedText={typedText}
+          durationMs={Math.max(180, (frame.endsAt - frame.startedAt) / speed)}
+        />
+      )}
       {frame && <BuildInspector frame={frame} />}
       {positions.map((position, index) => (
         <AgentCursor key={index} id={index} {...position} finishing={finishing} />
       ))}
-      {frame && <span key={frame.layer.id} className="agent-sparkle" style={{ left: rect?.x, top: (rect?.y ?? 0) - window.scrollY }} />}
+      {frame && <span className="agent-sparkle" style={{ left: rect?.x, top: (rect?.y ?? 0) - window.scrollY }} />}
     </div>
   );
 }

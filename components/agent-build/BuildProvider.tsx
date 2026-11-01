@@ -546,6 +546,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         frame={frame}
         typedText={typedText}
         finishing={phase === "finishing"}
+        speed={speed}
       />
       {visible && (
         <ControlBar
