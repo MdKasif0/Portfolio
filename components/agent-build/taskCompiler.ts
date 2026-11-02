@@ -11,6 +11,30 @@ import type {
   CursorPosition
 } from "./types";
 
+const SCENE_WINDOWS: Record<string, number> = {
+  nav: 0,
+  top: 0,
+  hero: 0,
+  work: 1,
+  collaborators: 2,
+  recognition: 3,
+  "raw-real": 4,
+  about: 5,
+  journey: 6,
+  contact: 6,
+  footer: 6
+};
+
+const CORE_ACTION_TYPES: BuildAction[] = [
+  "DRAW_BOX",
+  "TYPE",
+  "RESIZE_TEXT",
+  "STYLE",
+  "DROP_IMAGE",
+  "COPY_PASTE",
+  "PICK_SYMBOL"
+];
+
 // Standard canonical recipes matching section C
 const CANONICAL_RECIPES: Record<LayerType, BuildAction[]> = {
   card: ["DRAW_BOX", "FILL", "ROUND_CORNERS"],
@@ -64,10 +88,15 @@ export function compileBuildTasks(
 
   const windowSize = Math.max(480, viewportHeight * buildModeConfig.windowHeightFactor);
 
-  // Group layers by camera window
+  // Group layers by camera window (using 7 canonical scenes when section names exist)
   const grouped = new Map<number, BuildLayer[]>();
   layers.forEach((layer) => {
-    const windowId = Math.floor((layer.rect.y + Math.min(layer.rect.height / 2, 1)) / windowSize);
+    let windowId = layer.windowId;
+    if (SCENE_WINDOWS[layer.section] !== undefined) {
+      windowId = SCENE_WINDOWS[layer.section];
+    } else if (windowId === undefined || windowId === 0) {
+      windowId = Math.floor((layer.rect.y + Math.min(layer.rect.height / 2, 1)) / windowSize);
+    }
     layer.windowId = windowId;
     const windowLayers = grouped.get(windowId) ?? [];
     windowLayers.push(layer);
@@ -182,6 +211,45 @@ export function compileBuildTasks(
       });
     });
 
+    // Ensure every window has the complete mix of all 7 core action types
+    const presentActions = new Set<BuildAction>(rawTasks.map((t) => t.action));
+    const missingActions = CORE_ACTION_TYPES.filter((a) => !presentActions.has(a));
+
+    if (missingActions.length > 0 && win.layers.length > 0) {
+      missingActions.forEach((missingAction, mIdx) => {
+        const hostLayer = win.layers[mIdx % win.layers.length];
+        const seed = hash(`${win.id}:assist:${missingAction}:${hostLayer.id}`);
+        const taskId = `${hostLayer.id}:ASSIST_${missingAction}:${mIdx}`;
+        const duration = calculateActionDuration(missingAction, hostLayer, seed, mobile);
+        const details = buildTaskDetails(missingAction, hostLayer, mIdx, seed);
+
+        const targetX = hostLayer.rect.x + hostLayer.rect.width / 2;
+        const targetY = hostLayer.rect.y + hostLayer.rect.height / 2;
+
+        rawTasks.push({
+          id: taskId,
+          layerId: hostLayer.id,
+          layer: hostLayer,
+          action: missingAction,
+          dependencies: [], // assist sub-actions ready to interleave smoothly
+          targetPoint: { x: targetX, y: targetY },
+          dragFrom: { x: hostLayer.rect.x, y: hostLayer.rect.y },
+          dragTo: { x: hostLayer.rect.x + hostLayer.rect.width, y: hostLayer.rect.y + hostLayer.rect.height },
+          duration,
+          details,
+          windowId: win.id,
+          windowStartedAt: win.startsAt,
+          windowEndsAt: 0,
+          agentId: 0,
+          scheduledStart: 0,
+          travelStartedAt: 0,
+          travelDuration: 0,
+          actStartedAt: 0,
+          actEndsAt: 0
+        });
+      });
+    }
+
     // ─────────────────────────────────────────────────────────────
     // SCHEDULER: Execute Invariants on the task pool
     // Invariant 1: Every agent always holds >= 2 ready tasks. If not, it EXITS.
@@ -236,20 +304,35 @@ export function compileBuildTasks(
       const taskReadyTime = getEarliestReadyTime(targetTask)!;
 
       const nonExitedAgents = activeAgents.filter((a) => !a.exited);
-      // Agents available at or before task ready time (or within 250ms window)
-      const availableAgents = nonExitedAgents
-        .filter((a) => a.availableAt <= taskReadyTime + 50)
-        .sort((a, b) => Math.abs(a.availableAt - taskReadyTime) - Math.abs(b.availableAt - taskReadyTime));
 
-      if (availableAgents.length > 0) {
-        // Prefer agent closest in distance
-        availableAgents.sort((a, b) => {
+      // Cleanly exit any agent that has been idle for more than 180ms without a ready task
+      nonExitedAgents.forEach((agent) => {
+        if (taskReadyTime - agent.availableAt > 180) {
+          agent.exited = true;
+          agent.exitStartedAt = agent.availableAt;
+          agent.exitEndsAt = agent.availableAt + 350;
+        }
+      });
+
+      const currentActive = activeAgents.filter((a) => !a.exited);
+
+      // An agent is eligible if it finishes right around taskReadyTime (within 120ms)
+      const eligibleAgents = currentActive.filter(
+        (a) => a.availableAt <= taskReadyTime + 80 && taskReadyTime - a.availableAt <= 180
+      );
+
+      if (eligibleAgents.length > 0) {
+        // Prefer agent that matches timing closest and proximity
+        eligibleAgents.sort((a, b) => {
+          const timeDiffA = Math.abs(a.availableAt - taskReadyTime);
+          const timeDiffB = Math.abs(b.availableAt - taskReadyTime);
+          if (Math.abs(timeDiffA - timeDiffB) > 60) return timeDiffA - timeDiffB;
           const distA = Math.hypot(targetTask.targetPoint.x - a.currentX, targetTask.targetPoint.y - a.currentY);
           const distB = Math.hypot(targetTask.targetPoint.x - b.currentX, targetTask.targetPoint.y - b.currentY);
           return distA - distB;
         });
 
-        const agent = availableAgents[0];
+        const agent = eligibleAgents[0];
         const dist = Math.hypot(targetTask.targetPoint.x - agent.currentX, targetTask.targetPoint.y - agent.currentY);
         const travelDuration = Math.round(Math.min(420, Math.max(160, dist * 0.35)));
 
@@ -271,8 +354,8 @@ export function compileBuildTasks(
 
         taskFinishTimes.set(targetTask.id, actEndsAt);
         remainingTasks.delete(targetTask);
-      } else if (nonExitedAgents.length < targetAgentCount) {
-        // Invariant 2: Active agents < targetAgentCount -> SPAWN NEW AGENT at taskReadyTime!
+      } else if (currentActive.length < targetAgentCount) {
+        // Invariant 2: Active agents < targetAgentCount -> Spawn new parallel agent at taskReadyTime!
         const color = agentColors[agentIdCounter % agentColors.length];
         const name = agentNames[agentIdCounter % agentNames.length];
         const spawnX = (typeof window !== "undefined" ? window.innerWidth / 2 : 600) - 70 + (agentIdCounter % 8) * 18;
@@ -311,9 +394,9 @@ export function compileBuildTasks(
         taskFinishTimes.set(targetTask.id, actEndsAt);
         remainingTasks.delete(targetTask);
       } else {
-        // Concurrency cap reached: assign to the agent that finishes earliest
-        nonExitedAgents.sort((a, b) => a.availableAt - b.availableAt);
-        const agent = nonExitedAgents[0];
+        // Concurrency cap reached (14 agents): assign to the agent that finishes earliest
+        currentActive.sort((a, b) => a.availableAt - b.availableAt);
+        const agent = currentActive[0];
 
         const dist = Math.hypot(targetTask.targetPoint.x - agent.currentX, targetTask.targetPoint.y - agent.currentY);
         const travelDuration = Math.round(Math.min(420, Math.max(160, dist * 0.35)));
@@ -387,7 +470,7 @@ export function compileBuildTasks(
     });
 
     const windowDuration = win.endsAt - win.startsAt;
-    nextWindowStart = win.startsAt + windowDuration * buildModeConfig.windowHandoffProgress;
+    nextWindowStart = Math.max(0, Math.min(win.endsAt - 120, win.startsAt + windowDuration * buildModeConfig.windowHandoffProgress));
   });
 
   return allScheduledFrames.sort((a, b) => a.startedAt - b.startedAt || a.cursorId - b.cursorId);
@@ -769,8 +852,11 @@ export function createCursorPositions(
         fromY = queue[activeTaskIndex - 1].targetPoint.y - scrollY;
       }
 
-      // Bezier curve with slight arch lift
-      const lift = Math.min(50, Math.abs(targetX - fromX) * 0.1 + 12);
+      // Bezier curve with slight arch lift (tailored for personality)
+      const isShowy = (agentId % 3) === 2;
+      const lift = isShowy
+        ? Math.min(65, Math.abs(targetX - fromX) * 0.16 + 22)
+        : Math.min(45, Math.abs(targetX - fromX) * 0.1 + 10);
       const curX = (1 - e) * fromX + e * targetX;
       const curY = (1 - e) * fromY + e * targetY - Math.sin(travelProg * Math.PI) * lift;
 
@@ -833,6 +919,23 @@ export function createCursorPositions(
       chipKind = "gap";
     }
 
+    // Finale QA verification accents
+    if (activeWindow >= 6 || windowFrames.length < 5) {
+      const lastWindowEnd = Math.max(...windowFrames.map((f) => f.endsAt));
+      if (time >= lastWindowEnd - 1200 && time < lastWindowEnd) {
+        if (agentId === 1) {
+          chipText = "contrast 7.2:1 ✓";
+          chipKind = "qa";
+        } else if (agentId === 2) {
+          chipText = "align 0px ✓";
+          chipKind = "qa";
+        } else if (agentId === 3) {
+          chipText = "aria-label ✓";
+          chipKind = "qa";
+        }
+      }
+    }
+
     positions.push({
       agentId,
       x: targetX + overshoot,
@@ -853,6 +956,28 @@ export function createCursorPositions(
       progress: actProgress
     });
   });
+
+  // Soft repulsion between active cursors to prevent overlapping
+  for (let i = 0; i < positions.length; i++) {
+    for (let j = i + 1; j < positions.length; j++) {
+      const a = positions[i];
+      const b = positions[j];
+      if (a.active && b.active && (a.state === "act" || a.state === "travel") && (b.state === "act" || b.state === "travel")) {
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist > 0 && dist < 32) {
+          const force = ((32 - dist) / 32) * 5;
+          const nx = (dx / dist) * force;
+          const ny = (dy / dist) * force;
+          b.x += nx;
+          b.y += ny;
+          a.x -= nx;
+          a.y -= ny;
+        }
+      }
+    }
+  }
 
   return positions;
 }

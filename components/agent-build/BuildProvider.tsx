@@ -74,7 +74,6 @@ const sectionOrder = [
   "footer"
 ];
 
-const easeInOut = (value: number) => (value < 0.5 ? 4 * value ** 3 : 1 - (-2 * value + 2) ** 3 / 2);
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 function layerType(value: string | undefined): LayerType {
@@ -224,6 +223,8 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   const [announcement, setAnnouncement] = useState("");
   const [debugEnabled, setDebugEnabled] = useState(false);
   const [isTestScene, setIsTestScene] = useState(false);
+  const [shockwave, setShockwave] = useState<{ x: number; y: number } | null>(null);
+  const [lightsOn, setLightsOn] = useState(false);
 
   const [debugMetrics, setDebugMetrics] = useState<BuildDebugMetrics>({
     workRatio: 100,
@@ -253,9 +254,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   const pausedAtRef = useRef<number | null>(null);
   const lastUiUpdateRef = useRef(0);
   const qualityOverBudgetRef = useRef(0);
-  const lastTourWindowRef = useRef<number | null>(null);
   const lastTourScrollTargetRef = useRef<number | null>(null);
-  const lastTourScrollAtRef = useRef(0);
   const takeoverRef = useRef(false);
   const phaseRef = useRef(phase);
   const scrollToRef = useRef(scrollTo);
@@ -293,6 +292,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
       (cursorLimit <= buildModeConfig.mobileAgentLimit ? buildModeConfig.mobileTimeScale : 1),
     ...script.map((frame) => frame.endsAt)
   );
+  const buildEndTime = Math.max(1, ...buildWindows.map((window) => window.end));
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -353,6 +353,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
       return;
     }
 
+    if (!isTestScene) scrollToRef.current(0, 0);
     const activeLayers = isTestScene ? createTestSceneLayers() : collectLayers();
     layersRef.current = activeLayers;
     setLayers(activeLayers);
@@ -363,9 +364,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     setLayersDone(0);
     setTouring(true);
     takeoverRef.current = false;
-    lastTourWindowRef.current = null;
     lastTourScrollTargetRef.current = null;
-    lastTourScrollAtRef.current = 0;
     setCompletedLayerNames([]);
     revealedRef.current.clear();
     completedNamesRef.current = [];
@@ -413,9 +412,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     const mobile = window.matchMedia("(max-width: 700px)").matches;
     setAgentCount(mobile ? buildModeConfig.mobileAgentLimit : 12);
     setCursorLimit(cursorCount());
-    lastTourWindowRef.current = null;
     lastTourScrollTargetRef.current = null;
-    lastTourScrollAtRef.current = 0;
     window.setTimeout(startBuild, buildModeConfig.autoStartMs);
   }, [cleanup, motionEnabled, resetDebugMetrics, startBuild]);
 
@@ -562,7 +559,6 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
 
     let raf = 0;
     let lastCursorUpdate = 0;
-    let lastCameraCheckAt = 0;
     let finishing = false;
 
     const tick = (now: number) => {
@@ -640,9 +636,10 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         setElapsedMs(realElapsed);
         setTimelineProgress(timelineTime / timelineDuration);
 
-        // Update active agent count based on active cursors
-        const activeCount = positions.filter((p) => p.active && p.state !== "exit").length;
-        setAgentCount(Math.max(activeCount, 8));
+        // Agent counter ramps 18 -> 30 as building progresses
+        const progressRatio = script.length ? Math.min(1, completed / script.length) : 0;
+        const rampedAgents = Math.min(30, Math.max(18, Math.round(18 + progressRatio * 12)));
+        setAgentCount(rampedAgents);
 
         setDirectorAct(directorActAt(timelineTime, cursorLimit <= buildModeConfig.mobileAgentLimit));
         setFrames(activeFrames);
@@ -659,50 +656,14 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         }
       }
 
-      if (touring && currentWindow && !isTestScene && now - lastCameraCheckAt >= 250) {
-        lastCameraCheckAt = now;
-        const activeCameraTasks = script.filter(
-          (item) =>
-            item.windowId === currentWindow.id &&
-            item.startedAt <= timelineTime &&
-            item.endsAt > timelineTime
-        );
-        const cameraTasks = activeCameraTasks.length
-          ? activeCameraTasks
-          : script.filter(
-              (item) =>
-                item.windowId === currentWindow.id &&
-                item.startedAt <= timelineTime + buildModeConfig.cameraLookAheadMs &&
-                item.endsAt > timelineTime
-            );
-        if (cameraTasks.length) {
-          const focusY =
-            cameraTasks.reduce((sum, item) => sum + item.layer.rect.y + item.layer.rect.height / 2, 0) /
-            cameraTasks.length;
-          const navBottom = document.querySelector<HTMLElement>(".site-nav")?.getBoundingClientRect().bottom ?? 0;
-          const controlTop =
-            document.querySelector<HTMLElement>(".agent-control-bar")?.getBoundingClientRect().top ??
-            window.innerHeight - 80;
-          const safeTop = Math.max(0, navBottom) + 20;
-          const safeBottom = Math.min(window.innerHeight, controlTop) - 20;
-          const viewportFocusY = (safeTop + Math.max(safeTop, safeBottom)) / 2;
-          const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-          const target = clamp(focusY - viewportFocusY, 0, maxScroll);
-          const isNewWindow = currentWindow.id !== lastTourWindowRef.current;
-          const targetChanged =
-            lastTourScrollTargetRef.current === null ||
-            Math.abs(target - lastTourScrollTargetRef.current) >=
-              window.innerHeight * buildModeConfig.cameraRetargetThreshold;
-          const cooldownElapsed = now - lastTourScrollAtRef.current >= buildModeConfig.cameraRetargetCooldownMs;
-
-          if (isNewWindow || (targetChanged && cooldownElapsed)) {
-            lastTourWindowRef.current = currentWindow.id;
-            lastTourScrollTargetRef.current = target;
-            lastTourScrollAtRef.current = now;
-            const distanceInViewports = Math.abs(target - window.scrollY) / Math.max(1, window.innerHeight);
-            const duration = clamp(1.4 + distanceInViewports * 0.2, 1.4, 2.2);
-            scrollToRef.current(target, duration);
-          }
+      if (touring && !isTestScene) {
+        const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        const timelineTarget = maxScroll * clamp(timelineTime / buildEndTime, 0, 1);
+        const previousTarget = lastTourScrollTargetRef.current ?? 0;
+        const target = Math.max(previousTarget, window.scrollY, timelineTarget);
+        if (lastTourScrollTargetRef.current === null || target - previousTarget >= 1) {
+          lastTourScrollTargetRef.current = target;
+          scrollToRef.current(target, 0);
         }
       }
 
@@ -750,6 +711,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
       window.cancelAnimationFrame(raf);
     };
   }, [
+    buildEndTime,
     buildWindows,
     cursorLimit,
     debugEnabled,
@@ -764,11 +726,25 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
 
   useEffect(() => {
     if (phase !== "finishing") return;
-    const timer = window.setTimeout(() => {
+    const buttonEl = document.querySelector<HTMLElement>(".agent-control-bar .agent-primary-button");
+    const rect = buttonEl?.getBoundingClientRect();
+    const clickX = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+    const clickY = rect ? rect.top + rect.height / 2 : window.innerHeight - 35;
+
+    setShockwave({ x: clickX, y: clickY });
+    setLightsOn(true);
+    playSound();
+
+    const shockwaveTimer = window.setTimeout(() => {
+      setShockwave(null);
+      setLightsOn(false);
+    }, 950);
+
+    const finishTimer = window.setTimeout(() => {
       cleanup();
       setPhase("done");
       setAnnouncement("Site built, interactive now");
-      setLayersDone(layersRef.current.length);
+      setLayersDone(layersRef.current.length || 364);
       setElapsedMs(Math.max(0, finishingAtRef.current - startedAtRef.current));
       if (buildModeConfig.runOncePerSession) {
         try {
@@ -777,11 +753,14 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
           // Session storage is optional.
         }
       }
-      if (!takeoverRef.current && !isTestScene) scrollToRef.current(0, 1.6);
       finishTimerRef.current = window.setTimeout(() => setVisible(false), buildModeConfig.autoDismissMs);
     }, 850);
-    return () => window.clearTimeout(timer);
-  }, [cleanup, isTestScene, phase]);
+
+    return () => {
+      window.clearTimeout(shockwaveTimer);
+      window.clearTimeout(finishTimer);
+    };
+  }, [cleanup, isTestScene, phase, playSound]);
 
   useEffect(
     () => () => {
@@ -810,30 +789,22 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         >
           <span className="agent-curtain-mark">K</span>
           <span className="agent-curtain-cursors">
-            {Array.from({ length: agentCount }, (_, index) => (
-              <span
-                key={index}
-                className="agent-curtain-cursor"
-                style={{
-                  "--cursor-color": agentColors[index % agentColors.length],
-                  "--orbit-angle": `${(360 / Math.max(1, agentCount)) * index}deg`,
-                  "--orbit-radius": `${24 + (index % 3) * 9}px`
-                } as CSSProperties}
-              >
-                <svg viewBox="0 0 20 24" fill="none">
-                  <path
-                    d="M2 1.5 18 14l-7 .7-3.8 6.1L2 1.5Z"
-                    fill="currentColor"
-                    stroke="#08080D"
-                    strokeWidth="1.25"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-            ))}
+            <i />
+            <i />
+            <i />
+            <i />
           </span>
         </div>
       )}
+      {/* Finale Shockwave Ring & Lights On Flash */}
+      {shockwave && (
+        <div
+          className="agent-shockwave-ring"
+          style={{ left: shockwave.x, top: shockwave.y }}
+          aria-hidden="true"
+        />
+      )}
+      {lightsOn && <div className="agent-lights-on" aria-hidden="true" />}
       <CursorLayer
         visible={visible && (phase === "building" || phase === "finishing")}
         positions={positions}
@@ -885,10 +856,12 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
 
 function directorActAt(time: number, mobile: boolean) {
   const scale = mobile ? buildModeConfig.mobileTimeScale : 1;
-  if (time < 1_500 * scale) return "scan";
-  if (time < 6_650 * scale) return "blueprint";
-  if (time < 23_400 * scale) return "build";
-  if (time < 30_900 * scale) return "polish";
-  if (time < 34_900 * scale) return "finale";
-  return "handoff";
+  if (time < 9_000 * scale) return "hero";
+  if (time < 17_000 * scale) return "work grid";
+  if (time < 20_000 * scale) return "collab strip";
+  if (time < 26_000 * scale) return "recognition";
+  if (time < 30_000 * scale) return "raw → real";
+  if (time < 36_000 * scale) return "about";
+  if (time < 43_000 * scale) return "contact";
+  return "finale";
 }

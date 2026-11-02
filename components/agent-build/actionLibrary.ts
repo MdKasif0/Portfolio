@@ -257,49 +257,50 @@ export function calculateActionDuration(
   seed: number,
   mobile: boolean
 ): number {
-  const durationScale = mobile ? buildModeConfig.mobileActionTimeScale : 1;
+  // Scale to achieve the canonical 42-44s duration across all 7 scenes
+  const durationScale = (mobile ? buildModeConfig.mobileActionTimeScale : 1) * 1.28;
 
   switch (action) {
     case "DRAW_BOX":
     case "DRAW_TEXTBOX": {
       // 500 - 900ms as requested in spec
-      const base = 520 + (seed % 280);
+      const base = 580 + (seed % 260);
       return base * durationScale;
     }
     case "TYPE":
     case "RETYPE": {
       const charCount = Math.min(layer.text.length, 120);
-      // 22-45ms per character
-      const perChar = 24 + (seed % 16);
-      const baseDuration = Math.max(260, charCount * perChar);
+      // 24-42ms per character
+      const perChar = 28 + (seed % 14);
+      const baseDuration = Math.max(340, charCount * perChar);
       return baseDuration * durationScale;
     }
     case "RESIZE_TEXT":
-      return 360 * durationScale;
+      return 460 * durationScale;
     case "FILL":
-      return 220 * durationScale;
+      return 280 * durationScale;
     case "ROUND_CORNERS":
-      return 240 * durationScale;
+      return 300 * durationScale;
     case "STYLE":
-      return 220 * durationScale;
+      return 280 * durationScale;
     case "DROP_IMAGE":
     case "SWAP_IMAGE":
-      return 380 * durationScale;
+      return 460 * durationScale;
     case "CROP":
-      return 300 * durationScale;
+      return 380 * durationScale;
     case "COPY_PASTE":
-      return 280 * durationScale;
+      return 360 * durationScale;
     case "OPEN_PICKER":
     case "PICK_SYMBOL":
-      return 240 * durationScale;
+      return 300 * durationScale;
     case "DROP":
     case "SCALE":
     case "RECOLOR":
     case "ADD_SYMBOL":
-      return 220 * durationScale;
+      return 280 * durationScale;
     case "DRAW_LINE":
-      return 360 * durationScale;
+      return 420 * durationScale;
     default:
-      return 200 * durationScale;
+      return 240 * durationScale;
   }
 }
