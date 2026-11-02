@@ -23,10 +23,8 @@ export function CursorLayer({
 
   return (
     <div className="agent-cursor-layer" data-quality-limited={qualityLimited} aria-hidden="true">
-      {/* Active wireframe selection boxes */}
       {frames.map((frame) => {
         const rect = frame.layer.rect;
-        const currentTask = frame.tasks?.find((t) => t.action === frame.activeAction);
         const style: CSSProperties = {
           left: 0,
           top: 0,
@@ -34,9 +32,8 @@ export function CursorLayer({
           height: rect.height,
           transform: `translate3d(${rect.x}px, ${rect.y - window.scrollY}px, 0)`,
           "--action-progress": frame.actionProgress ?? 0,
-          "--wireframe-duration": `${Math.max(400, frame.endsAt - frame.startedAt - frame.travelDuration)}ms`
+          "--wireframe-duration": `${Math.max(500, frame.endsAt - frame.startedAt - frame.travelDuration)}ms`
         } as CSSProperties;
-
         return (
           <Fragment key={`${frame.cursorId}-${frame.layer.id}`}>
             <WireframeBox
@@ -45,7 +42,6 @@ export function CursorLayer({
               action={frame.activeAction ?? frame.recipe[0]}
               typedText={frame.typedText ?? frame.layer.text}
               actionProgress={frame.actionProgress ?? 0}
-              details={currentTask?.details}
             />
             {!qualityLimited && (
               <i
@@ -60,19 +56,10 @@ export function CursorLayer({
           </Fragment>
         );
       })}
-
-      {/* Inspector summary panel */}
       {primaryFrame && <BuildInspector frame={primaryFrame} />}
-
-      {/* Render active cursors (only active agents on screen, NO idle cursors) */}
-      {positions.map((position) =>
-        position.active ? (
-          <AgentCursor
-            key={position.agentId}
-            {...position}
-          />
-        ) : null
-      )}
+      {positions.map((position, index) => position.active ? (
+        <AgentCursor key={index} id={index} {...position} />
+      ) : null)}
     </div>
   );
 }

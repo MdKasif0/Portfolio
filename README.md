@@ -71,24 +71,24 @@ public/
 
 ## Content and assets to replace
 
-Update the typed source in `data/content.ts` and add files under `public/`. Replace every bracketed placeholder before launch:
+Edit `data/content.ts`; unset values use `undefined` and are omitted from the rendered page.
 
 - **Portrait:** the supplied transparent avatar is installed at `public/hero-cutout.png`; replace it only if you want to use another portrait.
 - **Showreel:** replace `hero.reelEmbedUrl` with the YouTube or X video URL.
 - **CV:** replace `hero.cvHref` with the real downloadable CV path or URL.
-- **Project URLs and details:** replace each project `[PLACEHOLDER]` URL and `[YEAR]`. Cookie and ShiftKit also need a real category and description.
+- **Project URLs and details:** add confirmed URLs, years, categories, and descriptions. Projects without enough details to present are omitted until those fields are supplied.
 - **Project thumbnails:** add real images for GitRoasted, ReviewPilot, GreenBoard, Gravites Network, AI Checkers Arena, Cookie, and ShiftKit; replace the CSS thumbnail previews in `components/work-section.tsx`.
 - **Collaborator logos:** add supplied logo assets for Blackbox AI, Kimi, SuperApp, yapper.so, Glass Editor, and startblock.shop; the current strip uses text wordmarks.
-- **Contact email:** replace `contact.email` with the real address. The email row intentionally remains plain text until this is supplied.
-- **Stats and aggregate count:** replace the `[N]` hero stats and recognition `count` with confirmed figures; preserve the supplied six brand collaborations.
-- **Years and dates:** replace `[YEAR]` in project years, education, recognition rows, timeline periods, and milestones with confirmed dates.
+- **Contact email:** set `contact.email` to the real address; the email row appears only when supplied.
+- **Stats and aggregate count:** supply confirmed figures for optional hero stats and the recognition count; preserve the supplied six brand collaborations.
+- **Years and dates:** supply confirmed project, education, recognition, timeline, and milestone dates.
 - **Recognition proof:** replace `recognition.proofHref` with a real proof or portfolio URL.
 - **Raw-to-Real assets:** supply the project name and year plus its Figma wireframe and final UI screenshots.
-- **Footer note:** replace `footer.note` with the desired copyright/year line.
-- **Site domain:** replace `siteUrl` in `data/content.ts` with the production origin. It currently resolves to the reserved `portfolio.invalid` placeholder for metadata, robots, and sitemap output.
+- **Footer note:** set `footer.note` to the desired copyright/year line.
+- **Site domain:** set `siteUrl` in `data/content.ts` to the production origin. Metadata, robots, and sitemap output omit the domain-dependent values until then.
 - **Social preview artwork:** replace `public/og-image.svg` if you want a custom brand image.
 
-No unprovided email address, award, year, or project statistic is fabricated. Keep placeholder values until you can confirm them.
+No unprovided email address, award, year, or project statistic is fabricated. Missing fields are listed in the development console and omitted from the page.
 
 ## Netlify deploy checklist
 

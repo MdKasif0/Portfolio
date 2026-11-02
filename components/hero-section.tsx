@@ -6,11 +6,12 @@ import Image from "next/image";
 import { portfolioContent } from "@/data/content";
 import { useMotionPreference } from "@/components/motion-shell";
 import { ShowreelModal } from "@/components/showreel-modal";
+import { Magnetic } from "@/components/design-system";
 
 const hero = portfolioContent.hero;
 
-function AnimatedStat({ value, label, active, motionEnabled }: { value: string; label: string; active: boolean; motionEnabled: boolean }) {
-  const numericValue = Number(value);
+function AnimatedStat({ value, label, active, motionEnabled }: { value?: string; label: string; active: boolean; motionEnabled: boolean }) {
+  const numericValue = value ? Number(value) : Number.NaN;
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ function AnimatedStat({ value, label, active, motionEnabled }: { value: string; 
   return (
     <div className="hero-stat" data-layer="text">
       <span className="hero-stat-value" data-layer="text">
-        {Number.isFinite(numericValue) && motionEnabled ? count : value}
+        {Number.isFinite(numericValue) && motionEnabled && active ? count : value}
         <span className="stat-period">.</span>
       </span>
       <span className="hero-stat-label" data-layer="text">{label}</span>
@@ -55,10 +56,19 @@ export function HeroSection() {
   const imageY = useTransform(scrollYProgress, [0, 1], [0, 48]);
 
   useEffect(() => {
-    const updateVisibility = () => setEntranceReady(motionEnabled && document.visibilityState === "visible");
-    updateVisibility();
+    const updateVisibility = () => {
+      setEntranceReady(
+        motionEnabled &&
+        document.documentElement.dataset.motion === "ready" &&
+        document.visibilityState === "visible"
+      );
+    };
+    const frame = window.requestAnimationFrame(updateVisibility);
     document.addEventListener("visibilitychange", updateVisibility);
-    return () => document.removeEventListener("visibilitychange", updateVisibility);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.removeEventListener("visibilitychange", updateVisibility);
+    };
   }, [motionEnabled]);
 
   return (
@@ -68,13 +78,14 @@ export function HeroSection() {
           <motion.div
             className="hero-backdrop-word"
             data-layer="text"
+            data-kind="background-word"
             style={{ y: motionEnabled ? backgroundY : 0 }}
           >
             {hero.backgroundWord}
           </motion.div>
         </div>
 
-        <div className="hero-topline section-shell">
+        <div className="hero-topline section-shell container-x">
           <div className="hero-eyebrow">
             {hero.eyebrow.map((line) => <span data-layer="text" key={line}>{line}</span>)}
           </div>
@@ -84,6 +95,7 @@ export function HeroSection() {
         <motion.div
           className="hero-portrait"
           data-layer="image"
+          data-kind="cutout"
           aria-label="Portrait of Md Kasif Uddin"
           style={{ y: motionEnabled ? imageY : 0 }}
         >
@@ -103,10 +115,10 @@ export function HeroSection() {
           {!cutoutLoaded && <span className="portrait-placeholder">{hero.cutoutPlaceholder}</span>}
         </motion.div>
 
-        <div className="hero-copy section-shell">
+        <div className="hero-copy section-shell container-x">
           <div className="hero-copy-inner">
-            <p className="hero-script hero-reveal-line" data-layer="text">{hero.greeting}</p>
-            <h1 id="hero-title" className="display-title hero-name hero-reveal-line" data-layer="text">
+            <p className="hero-script hero-reveal-line" data-layer="text" data-kind="script">{hero.greeting}</p>
+            <h1 id="hero-title" className="display-title hero-name hero-reveal-line" data-layer="text" data-kind="wordmark">
               {portfolioContent.identity.displayName}<span className="title-period">.</span>
             </h1>
             <div className="hero-disciplines hero-reveal-line" data-layer="text">
@@ -114,7 +126,9 @@ export function HeroSection() {
             </div>
             <p className="hero-introduction hero-reveal-line" data-layer="text">{hero.introduction}</p>
             <div className="hero-actions hero-reveal-line">
-              <a className="hero-cta magnetic-cta" data-layer="button" href="#work">{hero.workCta}<span aria-hidden="true">↓</span></a>
+              <Magnetic>
+                <a className="hero-cta magnetic-cta" data-layer="button" data-kind="cta" href="#work">{hero.workCta}<span aria-hidden="true">↓</span></a>
+              </Magnetic>
               <span className="hero-location" data-layer="text">
                 <svg data-layer="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 6.7c0 3.2-5 7.3-5 7.3S3 9.9 3 6.7a5 5 0 1 1 10 0Z" /><circle cx="8" cy="6.5" r="1.5" /></svg>
                 {hero.location}
@@ -123,7 +137,7 @@ export function HeroSection() {
           </div>
         </div>
 
-        <div className="hero-reel section-shell">
+        <div className="hero-reel section-shell container-x">
           <button className="reel-trigger" data-layer="button" type="button" onClick={() => setReelOpen(true)}>
             <span className="reel-play" data-layer="icon" aria-hidden="true"><span /></span>
             <span className="reel-label" data-layer="text">{hero.reelLabel}</span>
@@ -134,14 +148,16 @@ export function HeroSection() {
         <aside className="hero-aside">
           <div className="hero-aside-note" data-layer="text"><span aria-hidden="true">✳</span><em>{hero.asideNote}</em></div>
           <div className="hero-stats" ref={statsRef}>
-            {hero.stats.map((stat) => <AnimatedStat key={stat.label} {...stat} active={statsActive} motionEnabled={motionEnabled} />)}
-            <a className={`cv-link${hero.cvHref === "[PLACEHOLDER]" ? " cv-link-placeholder" : ""}`} data-layer="button" href={hero.cvHref === "[PLACEHOLDER]" ? undefined : hero.cvHref} aria-disabled={hero.cvHref === "[PLACEHOLDER]"}>
-              <span aria-hidden="true">↓</span> {hero.cvLabel}
-            </a>
+            {hero.stats.filter((stat) => stat.value).map((stat) => <AnimatedStat key={stat.label} {...stat} active={statsActive} motionEnabled={motionEnabled} />)}
+            {hero.cvHref && (
+              <a className="cv-link" data-layer="button" data-kind="cta" href={hero.cvHref}>
+                <span aria-hidden="true">↓</span> {hero.cvLabel}
+              </a>
+            )}
           </div>
         </aside>
 
-        <div className="hero-bottomline section-shell">
+        <div className="hero-bottomline section-shell container-x">
           <a data-layer="text" href="#work">{hero.scrollLabel}</a>
           <span data-layer="text">{hero.footerLabel}</span>
         </div>

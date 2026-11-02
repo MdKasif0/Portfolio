@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
 import { portfolioContent } from "@/data/content";
 
-const siteOrigin = portfolioContent.siteUrl.replace("[PLACEHOLDER]", "portfolio.invalid");
+const siteOrigin = portfolioContent.siteUrl ? new URL(portfolioContent.siteUrl).origin : undefined;
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  if (!siteOrigin) return [];
   return [{
     url: `${siteOrigin}/`,
     changeFrequency: "monthly",

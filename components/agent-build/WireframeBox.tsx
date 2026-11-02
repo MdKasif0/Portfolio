@@ -5,29 +5,26 @@ import type { CSSProperties } from "react";
 import { DimensionChip } from "@/components/agent-build/DimensionChip";
 import { GhostLayer } from "@/components/agent-build/GhostLayer";
 import { ToolChrome } from "@/components/agent-build/ToolChrome";
-import type { BuildAction, BuildLayer, TaskDetails } from "@/components/agent-build/types";
+import type { BuildAction, BuildLayer } from "@/components/agent-build/types";
 
 export function WireframeBox({
   layer,
   style,
   action,
   typedText,
-  actionProgress,
-  details
+  actionProgress
 }: {
   layer: BuildLayer;
   style: CSSProperties;
   action: BuildAction;
   typedText: string;
   actionProgress: number;
-  details?: TaskDetails;
 }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const isImage = layer.type === "image" || layer.type === "card";
   const drawing = action === "DRAW_BOX" || action === "DRAW_TEXTBOX" || action === "DRAW_LINE";
   const filling = action === "FILL";
   const roundCorners = action === "ROUND_CORNERS";
-  const isCopyPaste = action === "COPY_PASTE";
   const progress = Math.max(0, Math.min(1, actionProgress));
   const dimensionProgress = drawing ? progress : 1;
 
@@ -42,7 +39,7 @@ export function WireframeBox({
   return (
     <div
       ref={frameRef}
-      className={`agent-wireframe${isImage ? " is-image" : ""}${drawing ? " is-drawing" : ""}${filling ? " is-filling" : ""}${roundCorners ? " is-rounding" : ""}${isCopyPaste ? " is-clone" : ""}`}
+      className={`agent-wireframe${isImage ? " is-image" : ""}${drawing ? " is-drawing" : ""}${filling ? " is-filling" : ""}${roundCorners ? " is-rounding" : ""}`}
       data-action={action}
       style={{
         ...style,
@@ -54,23 +51,14 @@ export function WireframeBox({
       } as CSSProperties}
       aria-hidden="true"
     >
-      <GhostLayer layer={layer} action={action} text={typedText} progress={progress} details={details} />
-      {(action === "TYPE" || action === "RETYPE") && <i className="agent-ibeam" />}
-
-      {/* 4 Crisp white square corner handles with electric blue borders */}
+      <GhostLayer layer={layer} action={action} text={typedText} />
+      {action === "TYPE" && <i className="agent-ibeam" />}
       <i className="agent-handle top-left" />
       <i className="agent-handle top-right" />
       <i className="agent-handle bottom-left" />
       <i className="agent-handle bottom-right" />
-
-      {/* Live W x H Dimension Chip */}
-      <DimensionChip
-        width={layer.rect.width * dimensionProgress}
-        height={layer.rect.height * dimensionProgress}
-      />
-
-      {/* Tool chrome popup near cursor/box */}
-      <ToolChrome action={action} layer={layer} details={details} progress={progress} />
+      <DimensionChip width={layer.rect.width * dimensionProgress} height={layer.rect.height * dimensionProgress} />
+      <ToolChrome action={action} layer={layer} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { portfolioContent } from "@/data/content";
 import { ShowreelModal } from "@/components/showreel-modal";
 import { useAgentBuild } from "@/components/agent-build/BuildProvider";
+import { Magnetic, SectionHeader } from "@/components/design-system";
 
 type IconName = typeof portfolioContent.contact.socials[number]["icon"] | typeof portfolioContent.footer.socialLinks[number]["icon"] | "email" | "coffee";
 
@@ -25,26 +26,34 @@ export function ContactSection() {
 
   return (
     <>
-      <section className="contact-section section-shell" id="contact" data-scene="contact" aria-labelledby="contact-heading">
-        <p className="eyebrow" data-layer="text"><span>{contact.eyebrow.slice(0, 2)}</span> / {contact.eyebrow.slice(5)}</p>
-        <h2 className="display-title contact-heading" data-layer="text" id="contact-heading">
-          {contact.title}<i className="title-period">.</i>
-        </h2>
+      <section className="contact-section section-shell container-x" id="contact" data-scene="contact" aria-labelledby="contact-heading">
+        <SectionHeader
+          index="04"
+          label="YOUR NEXT STORY"
+          titleLines={["LET'S WORK", "TOGETHER"]}
+          titleClassName="contact-heading"
+          id="contact-heading"
+        />
 
         <div className="contact-grid">
           <div className="contact-intro">
             <p data-layer="text">{contact.introduction}</p>
-            <a className="contact-cta magnetic-cta" data-layer="button" href={contact.socials[0].href} target="_blank" rel="noreferrer">
-              {contact.cta}<span aria-hidden="true">↗</span>
-            </a>
+            <Magnetic>
+              <a className="contact-cta magnetic-cta" data-layer="button" data-kind="cta" href={contact.socials[0].href} target="_blank" rel="noreferrer">
+                {contact.cta}<span aria-hidden="true">↗</span>
+              </a>
+            </Magnetic>
           </div>
 
-          <div className="contact-details" aria-label="Contact details">
-            <div className="contact-row" data-layer="line" id="contact-email">
-              <span className="contact-icon" data-layer="icon"><ContactIcon name="email" /></span>
-              <span className="contact-label" data-layer="text">{contact.emailLabel}</span>
-              <span className="contact-value" data-layer="text">{contact.email}</span>
-            </div>
+          <div className="contact-details">
+            {contact.email && (
+              <a className="contact-row" data-layer="line" data-kind="contact" id="contact-email" href={`mailto:${contact.email}`}>
+                <span className="contact-icon" data-layer="icon"><ContactIcon name="email" /></span>
+                <span className="contact-label" data-layer="text">{contact.emailLabel}</span>
+                <span className="contact-value" data-layer="text">{contact.email}</span>
+                <span className="contact-arrow" data-layer="icon" aria-hidden="true">↗</span>
+              </a>
+            )}
             {contact.socials.map((item) => (
               <a className="contact-row" data-layer="line" href={item.href} target="_blank" rel="noreferrer" key={item.label}>
                 <span className="contact-icon" data-layer="icon"><ContactIcon name={item.icon} /></span>
@@ -60,7 +69,7 @@ export function ContactSection() {
             </div>
           </div>
 
-          <button className="showreel-card" data-layer="card" type="button" onClick={() => setReelOpen(true)} aria-label={contact.modalLabel}>
+          <button className="showreel-card" data-layer="card" type="button" onClick={() => setReelOpen(true)}>
             <span className="showreel-kicker" data-layer="text">{contact.cardKicker}</span>
             <span className="showreel-title" data-layer="text">{contact.cardTitleWhite}<br /><i>{contact.cardTitleRed}<b>.</b></i></span>
             <span className="showreel-play" data-layer="icon" aria-hidden="true"><span /></span>
@@ -78,14 +87,14 @@ export function SiteFooter() {
   const { replayBuild } = useAgentBuild();
 
   return (
-    <footer className="site-footer section-shell" data-scene="footer">
+    <footer className="site-footer section-shell container-x" data-scene="footer">
       <a className="footer-wordmark" data-layer="text" href="#top" aria-label="Kasif, back to top">
         KASIF<span className="title-period">.</span>
       </a>
       <p className="footer-project-prompt" data-layer="text">{footer.projectPrompt}<span aria-hidden="true"> ↗</span></p>
       <button className="footer-replay-build" data-layer="button" type="button" onClick={replayBuild}>Replay build <span aria-hidden="true">↗</span></button>
       <nav className="footer-socials" aria-label="Social links">
-        {footer.socialLinks.map((item) => (
+        {footer.socialLinks.filter((item) => item.href).map((item) => (
           <a
             href={item.href || "#contact-email"}
             data-layer="button"
@@ -98,7 +107,9 @@ export function SiteFooter() {
           </a>
         ))}
       </nav>
-      <p className="footer-copyright" data-layer="text">© {portfolioContent.identity.name} · {footer.note}</p>
+      <p className="footer-copyright" data-layer="text">
+        © {portfolioContent.identity.name}{footer.note && <> · {footer.note}</>}
+      </p>
     </footer>
   );
 }

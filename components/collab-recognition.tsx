@@ -1,4 +1,5 @@
 import { portfolioContent } from "@/data/content";
+import { SectionHeader } from "@/components/design-system";
 
 const collaborators = portfolioContent.collaborators;
 const recognition = portfolioContent.recognition;
@@ -29,15 +30,15 @@ export function CollaboratorStrip() {
   const marqueeNames = [...collaborators.names, ...collaborators.names];
 
   return (
-    <section className="collab-strip section-shell" data-build-section="collaborators" data-scene="collaborators" aria-label="Collaborations">
+    <section className="collab-strip section-shell container-x" data-build-section="collaborators" data-scene="collaborators" aria-label="Collaborations">
       <div className="collab-strip-label">
-        <span data-layer="text">{collaborators.label}</span>
-        <strong data-layer="text">{collaborators.title}</strong>
+        <span data-layer="text" data-kind="eyebrow">{collaborators.label}</span>
+        <strong data-layer="text" data-kind="headline">{collaborators.title}</strong>
       </div>
       <div className="collab-marquee">
         <div className="collab-marquee-track">
           {marqueeNames.map((name, index) => (
-            <span className={`collab-wordmark wordmark-${index % collaborators.names.length}`} data-layer="text" key={`${name}-${index}`}>{name}</span>
+            <span className={`collab-wordmark wordmark-${index % collaborators.names.length}`} data-layer="text" data-kind="logo" key={`${name}-${index}`}>{name}</span>
           ))}
         </div>
       </div>
@@ -47,33 +48,35 @@ export function CollaboratorStrip() {
 
 export function RecognitionSection() {
   return (
-    <section className="recognition-section section-shell" id="recognition" data-scene="recognition" aria-labelledby="recognition-heading">
+    <section className="recognition-section section-shell container-x" id="recognition" data-scene="recognition" aria-labelledby="recognition-heading">
       <div className="recognition-intro">
-        <p className="eyebrow" data-layer="text">{recognition.eyebrow}</p>
-        <h2 className="display-title recognition-heading" data-layer="text" id="recognition-heading">
-          <span>{recognition.titleWhite}<i className="title-period recognition-white-period">.</i></span>
-          <span className="recognition-red">{recognition.titleRed}<i className="title-period">.</i></span>
-        </h2>
-        <div className="recognition-count">
-          <LaurelWreath />
-          <span className="recognition-number" data-layer="text">{recognition.count}</span>
-          <span className="recognition-count-label" data-layer="text">{recognition.countLabel}</span>
-        </div>
+        <SectionHeader
+          label={recognition.eyebrow}
+          titleLines={[recognition.titleWhite, recognition.titleRed]}
+          accentLastLine
+          whiteFirstPeriod
+          titleClassName="recognition-heading"
+          id="recognition-heading"
+        />
+        {recognition.count && recognition.countLabel && (
+          <div className="recognition-count" data-layer="card" data-kind="recognition-count">
+            <LaurelWreath />
+            <span className="recognition-number" data-layer="text" data-kind="stat">{recognition.count}</span>
+            <span className="recognition-count-label" data-layer="text">{recognition.countLabel}</span>
+          </div>
+        )}
         <p className="recognition-summary" data-layer="text">{recognition.summary}</p>
-        <a
-          className={`recognition-proof${recognition.proofHref === "[PLACEHOLDER]" ? " is-placeholder" : ""}`}
-          data-layer="button"
-          href={recognition.proofHref === "[PLACEHOLDER]" ? undefined : recognition.proofHref}
-          aria-disabled={recognition.proofHref === "[PLACEHOLDER]"}
-        >
-          {recognition.proofLabel} <span aria-hidden="true">↗</span>
-        </a>
+        {recognition.proofHref && (
+          <a className="recognition-proof" data-layer="button" data-kind="cta" href={recognition.proofHref}>
+            {recognition.proofLabel} <span aria-hidden="true">↗</span>
+          </a>
+        )}
       </div>
 
       <div className="recognition-list">
         <div className="recognition-list-heading">
           <span data-layer="text">{recognition.listLabel}</span>
-          <span data-layer="text">{recognition.yearColumn}</span>
+          {recognition.entries.some((entry) => entry.year) && <span data-layer="text">{recognition.yearColumn}</span>}
         </div>
         <ol>
           {recognition.entries.map((entry, index) => (
@@ -83,7 +86,7 @@ export function RecognitionSection() {
                 <h3 data-layer="text">{entry.title}</h3>
                 <p data-layer="text">{entry.subtitle}</p>
               </div>
-              <span className="recognition-year" data-layer="text">{entry.year}</span>
+              {entry.year && <span className="recognition-year" data-layer="text">{entry.year}</span>}
             </li>
           ))}
         </ol>

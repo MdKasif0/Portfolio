@@ -11,24 +11,44 @@ import {
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
   type HTMLAttributes,
   type ReactNode
 } from "react";
+import { useMotionPreference } from "@/components/motion-shell";
 
 const revealViewport = { once: true, amount: 0.2 } as const;
 const expoOut = [0.16, 1, 0.3, 1] as const;
 
 function useRevealReady() {
+  const { motionEnabled } = useMotionPreference();
   const [ready, setReady] = useState(false);
   const [safe, setSafe] = useState(false);
 
   useEffect(() => {
-    if (document.documentElement.dataset.motion !== "ready") return;
-    setReady(true);
-    const timer = window.setTimeout(() => setSafe(true), 2500);
-    return () => window.clearTimeout(timer);
-  }, []);
+    if (!motionEnabled) {
+      setReady(false);
+      setSafe(true);
+      return;
+    }
+
+    let timer: number | undefined;
+    const activate = () => {
+      if (document.documentElement.dataset.motion !== "ready") return false;
+      setReady(true);
+      timer = window.setTimeout(() => setSafe(true), 2500);
+      return true;
+    };
+
+    if (activate()) return () => window.clearTimeout(timer);
+    const observer = new MutationObserver(() => {
+      if (activate()) observer.disconnect();
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-motion"] });
+    return () => {
+      observer.disconnect();
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, [motionEnabled]);
 
   return { ready, safe };
 }
@@ -73,16 +93,20 @@ export function RevealFade({
 export function RevealLines({
   lines,
   className,
-  accentLastLine = false
+  accentLastLine = false,
+  whiteFirstPeriod = false,
+  id
 }: {
   lines: string[];
   className?: string;
   accentLastLine?: boolean;
+  whiteFirstPeriod?: boolean;
+  id?: string;
 }) {
   const { ready, safe } = useRevealReady();
 
   return (
-    <h2 className={`section-header-title display-title${className ? ` ${className}` : ""}`}>
+    <h2 id={id} className={`section-header-title display-title${className ? ` ${className}` : ""}`}>
       {lines.map((line, index) => {
         const isAccent = accentLastLine && index === lines.length - 1;
         const motionProps: MotionProps = {
@@ -103,7 +127,7 @@ export function RevealLines({
             key={`${line}-${index}`}
           >
             <MotionLine className={isAccent ? "is-accent" : undefined} {...motionProps}>
-              {line}<i className="title-period">.</i>
+              {line}<i className={`title-period${whiteFirstPeriod && index === 0 ? " white-period" : ""}`}>.</i>
             </MotionLine>
           </span>
         );
@@ -113,11 +137,13 @@ export function RevealLines({
 }
 
 export function CountUp({ value, active }: { value: number; active: boolean }) {
-  const [count, setCount] = useState(active ? value : 0);
+  const { motionEnabled } = useMotionPreference();
+  const [count, setCount] = useState(value);
 
   useEffect(() => {
-    if (!active) return;
+    if (!active || !motionEnabled) return;
     const started = performance.now();
+    setCount(0);
     let frame = 0;
     const tick = (now: number) => {
       const progress = Math.min(1, (now - started) / 1500);
@@ -126,9 +152,9 @@ export function CountUp({ value, active }: { value: number; active: boolean }) {
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [active, value]);
+  }, [active, motionEnabled, value]);
 
-  return <>{count}</>;
+  return <>{active && motionEnabled ? count : value}</>;
 }
 
 export function Magnetic({
@@ -138,6 +164,7 @@ export function Magnetic({
   children: ReactNode;
   className?: string;
 }) {
+  const { motionEnabled } = useMotionPreference();
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -145,6 +172,7 @@ export function Magnetic({
   const springY = useSpring(y, { stiffness: 240, damping: 20 });
 
   const move = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!motionEnabled) return;
     const bounds = event.currentTarget.getBoundingClientRect();
     x.set((event.clientX - bounds.left - bounds.width / 2) * 0.1);
     y.set((event.clientY - bounds.top - bounds.height / 2) * 0.1);
@@ -158,7 +186,7 @@ export function Magnetic({
     <motion.div
       ref={ref}
       className={className}
-      style={{ x: springX, y: springY }}
+      style={{ x: motionEnabled ? springX : 0, y: motionEnabled ? springY : 0 }}
       onPointerMove={move}
       onPointerLeave={reset}
     >
@@ -191,6 +219,7 @@ export function Tilt({
   children: ReactNode;
   className?: string;
 }) {
+  const { motionEnabled } = useMotionPreference();
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
   const springX = useSpring(rotateX, { stiffness: 180, damping: 24 });
@@ -203,8 +232,9 @@ export function Tilt({
   return (
     <motion.div
       className={className}
-      style={{ transform }}
+      style={{ transform: motionEnabled ? transform : undefined }}
       onPointerMove={(event) => {
+        if (!motionEnabled) return;
         const bounds = event.currentTarget.getBoundingClientRect();
         rotateX.set(((event.clientY - bounds.top) / bounds.height - 0.5) * -4);
         rotateY.set(((event.clientX - bounds.left) / bounds.width - 0.5) * 4);
@@ -226,8 +256,10 @@ export function SectionHeader({
   accentLastLine = false,
   aside,
   action,
-  id,
+  titleClassName,
+  whiteFirstPeriod = false,
   className,
+  id,
   eyebrowLayer = true
 }: {
   index?: string;
@@ -236,8 +268,10 @@ export function SectionHeader({
   accentLastLine?: boolean;
   aside?: ReactNode;
   action?: ReactNode;
-  id?: string;
+  titleClassName?: string;
+  whiteFirstPeriod?: boolean;
   className?: string;
+  id?: string;
   eyebrowLayer?: boolean;
 }) {
   const { ready, safe } = useRevealReady();
@@ -264,7 +298,13 @@ export function SectionHeader({
             transition={{ duration: 0.8, ease: expoOut, delay: 0.08 }}
           />
         </p>
-        <RevealLines lines={titleLines} accentLastLine={accentLastLine} />
+        <RevealLines
+          id={id}
+          className={titleClassName}
+          lines={titleLines}
+          accentLastLine={accentLastLine}
+          whiteFirstPeriod={whiteFirstPeriod}
+        />
       </div>
       {(aside || action) && (
         <div className="section-header-aside">
@@ -306,5 +346,3 @@ export function ContentDiagnostics({ missing }: { missing: string[] }) {
   }, [missing]);
   return null;
 }
-
-export type RulerStyle = CSSProperties;
