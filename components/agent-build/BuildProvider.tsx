@@ -8,16 +8,33 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type ReactNode
 } from "react";
-import { buildModeConfig } from "@/components/agent-build/buildMode.config";
+import { buildModeConfig, agentColors, agentNames } from "@/components/agent-build/buildMode.config";
 import { BuildDebugPanel } from "@/components/agent-build/BuildDebugPanel";
 import { ControlBar } from "@/components/agent-build/ControlBar";
 import { CursorLayer } from "@/components/agent-build/CursorLayer";
 import { LayerProgressPanel } from "@/components/agent-build/LayerProgressPanel";
 import { useBuildScript } from "@/components/agent-build/useBuildScript";
-import { getActionAt, getActionProgress, getBuildMetrics, getTypedText } from "@/components/agent-build/taskCompiler";
-import type { BuildAction, BuildDebugMetrics, BuildFrame, BuildLayer, BuildPhase, CursorPosition, LayerType } from "@/components/agent-build/types";
+import {
+  getActionAt,
+  getActionProgress,
+  getBuildMetrics,
+  getTypedText,
+  createTestSceneLayers,
+  createCursorPositions
+} from "./taskCompiler";
+import type {
+  BuildAction,
+  BuildDebugMetrics,
+  BuildFrame,
+  BuildLayer,
+  BuildPhase,
+  BuildTask,
+  CursorPosition,
+  LayerType
+} from "@/components/agent-build/types";
 
 type BuildContextValue = { replayBuild: () => void };
 const BuildContext = createContext<BuildContextValue | null>(null);
@@ -36,6 +53,7 @@ type ElementSnapshot = {
   hadRevealedClass: boolean;
   inert: boolean;
 };
+
 type BuildProviderProps = {
   children: ReactNode;
   motionEnabled: boolean;
@@ -43,12 +61,26 @@ type BuildProviderProps = {
   cancelScroll: () => void;
 };
 
-const sectionOrder = ["nav", "top", "work", "collaborators", "recognition", "raw-real", "about", "journey", "contact", "footer"];
-const easeInOut = (value: number) => value < 0.5 ? 4 * value ** 3 : 1 - (-2 * value + 2) ** 3 / 2;
+const sectionOrder = [
+  "nav",
+  "top",
+  "work",
+  "collaborators",
+  "recognition",
+  "raw-real",
+  "about",
+  "journey",
+  "contact",
+  "footer"
+];
+
+const easeInOut = (value: number) => (value < 0.5 ? 4 * value ** 3 : 1 - (-2 * value + 2) ** 3 / 2);
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 function layerType(value: string | undefined): LayerType {
-  if (value === "image" || value === "button" || value === "card" || value === "line" || value === "icon") return value;
+  if (value === "image" || value === "button" || value === "card" || value === "line" || value === "icon") {
+    return value;
+  }
   return "text";
 }
 
@@ -56,22 +88,29 @@ function collectLayers(): BuildLayer[] {
   const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-layer]"));
   const ids = new Map<HTMLElement, string>();
   elements.forEach((element, index) => {
-    const section = element.closest<HTMLElement>("header.site-nav") ? "nav"
-      : element.closest<HTMLElement>("footer") ? "footer"
-      : element.closest<HTMLElement>("section[id]")?.id
-      ?? element.closest<HTMLElement>("[data-build-section]")?.dataset.buildSection
-      ?? "page";
+    const section =
+      element.closest<HTMLElement>("header.site-nav")
+        ? "nav"
+        : element.closest<HTMLElement>("footer")
+        ? "footer"
+        : element.closest<HTMLElement>("section[id]")?.id ??
+          element.closest<HTMLElement>("[data-build-section]")?.dataset.buildSection ??
+          "page";
     ids.set(element, element.dataset.buildId || `${section}-${index}`);
   });
+
   const order = new Map(sectionOrder.map((section, index) => [section, index]));
   return elements
     .map((element, index) => {
       const bounds = element.getBoundingClientRect();
-      const section = element.closest<HTMLElement>("header.site-nav") ? "nav"
-        : element.closest<HTMLElement>("footer") ? "footer"
-        : element.closest<HTMLElement>("section[id]")?.id
-        ?? element.closest<HTMLElement>("[data-build-section]")?.dataset.buildSection
-        ?? "page";
+      const section =
+        element.closest<HTMLElement>("header.site-nav")
+          ? "nav"
+          : element.closest<HTMLElement>("footer")
+          ? "footer"
+          : element.closest<HTMLElement>("section[id]")?.id ??
+            element.closest<HTMLElement>("[data-build-section]")?.dataset.buildSection ??
+            "page";
       const style = window.getComputedStyle(element);
       const parentElement = element.parentElement?.closest<HTMLElement>("[data-layer]") ?? null;
       let depth = 0;
@@ -80,8 +119,11 @@ function collectLayers(): BuildLayer[] {
         depth += 1;
         ancestor = ancestor.parentElement?.closest<HTMLElement>("[data-layer]") ?? null;
       }
-      const image = element.matches("img") ? element as HTMLImageElement : element.querySelector<HTMLImageElement>("img");
+      const image = element.matches("img")
+        ? (element as HTMLImageElement)
+        : element.querySelector<HTMLImageElement>("img");
       const backgroundImage = style.backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1] ?? "";
+
       return {
         id: ids.get(element) ?? `${section}-${index}`,
         element,
@@ -124,6 +166,7 @@ function collectLayers(): BuildLayer[] {
 
 function setHidden(elements: BuildLayer[], snapshots: ElementSnapshot[]) {
   elements.forEach(({ element }) => {
+    if (!element || !element.classList) return;
     snapshots.push({
       element,
       hadHiddenClass: element.classList.contains("agent-layer-hidden"),
@@ -143,6 +186,7 @@ function setHidden(elements: BuildLayer[], snapshots: ElementSnapshot[]) {
 
 function restoreLayers(snapshots: ElementSnapshot[]) {
   snapshots.forEach(({ element, hadHiddenClass, hadHiddenImageClass, hadReadyClass, hadRevealedClass, inert }) => {
+    if (!element || !element.classList) return;
     if (!hadHiddenClass) element.classList.remove("agent-layer-hidden");
     if (!hadHiddenImageClass) element.classList.remove("agent-layer-hidden-image");
     if (!hadReadyClass) element.classList.remove("agent-build-ready");
@@ -153,9 +197,9 @@ function restoreLayers(snapshots: ElementSnapshot[]) {
 }
 
 function cursorCount() {
-  return window.matchMedia("(max-width: 700px)").matches
+  return typeof window !== "undefined" && window.matchMedia("(max-width: 700px)").matches
     ? buildModeConfig.mobileAgentLimit
-    : buildModeConfig.agentCountRange[1];
+    : buildModeConfig.maxRenderedCursors;
 }
 
 export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll }: BuildProviderProps) {
@@ -164,7 +208,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   const [layers, setLayers] = useState<BuildLayer[]>([]);
   const [scannedLayerCount, setScannedLayerCount] = useState(0);
   const [agentCount, setAgentCount] = useState<number>(buildModeConfig.agentCountRange[0]);
-  const [cursorLimit, setCursorLimit] = useState<number>(buildModeConfig.agentCountRange[1]);
+  const [cursorLimit, setCursorLimit] = useState<number>(buildModeConfig.maxRenderedCursors);
   const [layersDone, setLayersDone] = useState(0);
   const [speed, setSpeed] = useState<number>(buildModeConfig.speedDefault);
   const [muted, setMuted] = useState<boolean>(buildModeConfig.soundDefault);
@@ -179,6 +223,8 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   const [touring, setTouring] = useState(true);
   const [announcement, setAnnouncement] = useState("");
   const [debugEnabled, setDebugEnabled] = useState(false);
+  const [isTestScene, setIsTestScene] = useState(false);
+
   const [debugMetrics, setDebugMetrics] = useState<BuildDebugMetrics>({
     workRatio: 100,
     longestGap: 0,
@@ -191,8 +237,10 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     actionCounts: {},
     activeWindow: 0,
     windowCount: 0,
-    sampledFrames: 0
+    sampledFrames: 0,
+    queueDepthDistribution: {}
   });
+
   const reportedIdleViolationsRef = useRef(new Set<number>());
   const layersRef = useRef<BuildLayer[]>([]);
   const cursorPositionsRef = useRef<CursorPosition[]>([]);
@@ -204,29 +252,10 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   const finishingAtRef = useRef(0);
   const pausedAtRef = useRef<number | null>(null);
   const lastUiUpdateRef = useRef(0);
-  const lastRuntimeSampleAtRef = useRef(0);
-  const runtimeSampleRef = useRef({
-    busy: 0,
-    capacity: 0,
-    longestGap: 0,
-    longestEmptyGap: 0,
-    emptyGapStartedAt: null as number | null,
-    samples: 0
-  });
-  const runtimeLastActiveRef = useRef(new Map<number, number>());
-  const runtimeWindowStatsRef = useRef(new Map<number, {
-    samples: number;
-    minCursors: number;
-    maxCursors: number;
-    middleSamples: number;
-    middleMinCursors: number;
-    middleMaxCursors: number;
-    actionCounts: Partial<Record<BuildAction, number>>;
-  }>());
-  const runtimeActionCountsRef = useRef<Partial<Record<BuildAction, number>>>({});
-  const lastSampledWindowRef = useRef<number | null>(null);
   const qualityOverBudgetRef = useRef(0);
   const lastTourWindowRef = useRef<number | null>(null);
+  const lastTourScrollTargetRef = useRef<number | null>(null);
+  const lastTourScrollAtRef = useRef(0);
   const takeoverRef = useRef(false);
   const phaseRef = useRef(phase);
   const scrollToRef = useRef(scrollTo);
@@ -239,22 +268,39 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   scrollToRef.current = scrollTo;
   cancelScrollRef.current = cancelScroll;
   speedRef.current = speed;
+
   const script = useBuildScript(
     layers,
     cursorLimit,
     cursorLimit <= buildModeConfig.mobileAgentLimit
   );
-  const buildWindows = useMemo(() => Array.from(new Map(script.map((item) => [
-    item.windowId,
-    { id: item.windowId, start: item.windowStartedAt, end: item.windowEndsAt }
-  ])).values()).sort((a, b) => a.start - b.start), [script]);
+
+  const buildWindows = useMemo(
+    () =>
+      Array.from(
+        new Map(
+          script.map((item) => [
+            item.windowId,
+            { id: item.windowId, start: item.windowStartedAt, end: item.windowEndsAt }
+          ])
+        ).values()
+      ).sort((a, b) => a.start - b.start),
+    [script]
+  );
+
   const timelineDuration = Math.max(
-    buildModeConfig.productionDurationMs * (cursorLimit <= buildModeConfig.mobileAgentLimit ? buildModeConfig.mobileTimeScale : 1),
+    buildModeConfig.productionDurationMs *
+      (cursorLimit <= buildModeConfig.mobileAgentLimit ? buildModeConfig.mobileTimeScale : 1),
     ...script.map((frame) => frame.endsAt)
   );
 
   useEffect(() => {
-    setDebugEnabled(new URLSearchParams(window.location.search).get("buildDebug") === "1");
+    if (typeof window === "undefined") return;
+    const searchParams = new URLSearchParams(window.location.search);
+    setDebugEnabled(searchParams.get("buildDebug") === "1");
+    if (searchParams.get("testScene") === "1") {
+      setIsTestScene(true);
+    }
     setScannedLayerCount(document.querySelectorAll("[data-layer]").length);
   }, []);
 
@@ -271,7 +317,8 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
       actionCounts: {},
       activeWindow: 0,
       windowCount: 0,
-      sampledFrames: 0
+      sampledFrames: 0,
+      queueDepthDistribution: {}
     });
   }, []);
 
@@ -305,22 +352,28 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
       setAnnouncement("Site built, interactive now");
       return;
     }
-    const found = collectLayers();
-    const activeLayers = found.length ? found : [];
+
+    const activeLayers = isTestScene ? createTestSceneLayers() : collectLayers();
     layersRef.current = activeLayers;
     setLayers(activeLayers);
+
     const mobile = window.matchMedia("(max-width: 700px)").matches;
-    setAgentCount(mobile ? buildModeConfig.mobileAgentLimit : buildModeConfig.agentCountRange[0]);
+    setAgentCount(mobile ? buildModeConfig.mobileAgentLimit : 12);
     setCursorLimit(cursorCount());
     setLayersDone(0);
     setTouring(true);
     takeoverRef.current = false;
     lastTourWindowRef.current = null;
-    setCompletedLayerNames([]);
+    lastTourScrollTargetRef.current = null;
+    lastTourScrollAtRef.current = 0;
     setCompletedLayerNames([]);
     revealedRef.current.clear();
     completedNamesRef.current = [];
-    setHidden(activeLayers, snapshotsRef.current);
+
+    if (!isTestScene) {
+      setHidden(activeLayers, snapshotsRef.current);
+    }
+
     startedAtRef.current = performance.now();
     timelineTimeRef.current = 0;
     lastTickAtRef.current = startedAtRef.current;
@@ -328,21 +381,9 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     setElapsedMs(0);
     setTimelineProgress(0);
     resetDebugMetrics();
-    runtimeSampleRef.current = {
-      busy: 0,
-      capacity: 0,
-      longestGap: 0,
-      longestEmptyGap: 0,
-      emptyGapStartedAt: null,
-      samples: 0
-    };
-    runtimeLastActiveRef.current.clear();
-    runtimeWindowStatsRef.current.clear();
-    runtimeActionCountsRef.current = {};
-    lastSampledWindowRef.current = null;
+
     qualityOverBudgetRef.current = 0;
     setQualityLimited(false);
-    lastRuntimeSampleAtRef.current = 0;
     setDirectorAct("scan");
     setFrames([]);
     setPositions([]);
@@ -350,14 +391,15 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     setVisible(true);
     setPhase("building");
     setAnnouncement("");
+
     if (buildModeConfig.runOncePerSession) {
       try {
         window.sessionStorage.setItem(buildModeConfig.completionStorageKey, "started");
       } catch {
-        // Session storage is optional; the current run remains functional.
+        // Session storage is optional.
       }
     }
-  }, [motionEnabled, resetDebugMetrics]);
+  }, [isTestScene, motionEnabled, resetDebugMetrics]);
 
   const replayBuild = useCallback(() => {
     if (!buildModeConfig.enabled || !motionEnabled || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -369,9 +411,12 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     setPhase("scanning");
     setVisible(true);
     const mobile = window.matchMedia("(max-width: 700px)").matches;
-    setAgentCount(mobile ? buildModeConfig.mobileAgentLimit : buildModeConfig.agentCountRange[0]);
+    setAgentCount(mobile ? buildModeConfig.mobileAgentLimit : 12);
     setCursorLimit(cursorCount());
-    window.setTimeout(startBuild, 180);
+    lastTourWindowRef.current = null;
+    lastTourScrollTargetRef.current = null;
+    lastTourScrollAtRef.current = 0;
+    window.setTimeout(startBuild, buildModeConfig.autoStartMs);
   }, [cleanup, motionEnabled, resetDebugMetrics, startBuild]);
 
   const dismiss = useCallback(() => {
@@ -379,7 +424,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   }, []);
 
   const cycleSpeed = useCallback(() => {
-    setSpeed((current) => current === 1 ? 2 : current === 2 ? 4 : 1);
+    setSpeed((current) => (current === 1 ? 2 : current === 2 ? 4 : 1));
   }, []);
 
   const playSound = useCallback(() => {
@@ -406,26 +451,31 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     setMuted((current) => !current);
   }, []);
 
-  const seekTimeline = useCallback((progress: number) => {
-    if (phaseRef.current !== "building") return;
-    const targetTime = clamp(progress, 0, 1) * timelineDuration;
-    if (targetTime < timelineTimeRef.current) {
-      script.forEach((item) => {
-        if (item.endsAt <= targetTime) return;
-        if (revealedRef.current.delete(item.layer.id)) {
-          item.layer.element.classList.add("agent-layer-hidden");
-          if (item.layer.type === "image" || item.layer.type === "card") {
-            item.layer.element.classList.add("agent-layer-hidden-image");
+  const seekTimeline = useCallback(
+    (progress: number) => {
+      if (phaseRef.current !== "building") return;
+      const targetTime = clamp(progress, 0, 1) * timelineDuration;
+      if (targetTime < timelineTimeRef.current) {
+        script.forEach((item) => {
+          if (item.endsAt <= targetTime) return;
+          if (revealedRef.current.delete(item.layer.id)) {
+            if (item.layer.element && item.layer.element.classList) {
+              item.layer.element.classList.add("agent-layer-hidden");
+              if (item.layer.type === "image" || item.layer.type === "card") {
+                item.layer.element.classList.add("agent-layer-hidden-image");
+              }
+              item.layer.element.classList.remove("agent-layer-revealed");
+              item.layer.element.inert = true;
+            }
           }
-          item.layer.element.classList.remove("agent-layer-revealed");
-          item.layer.element.inert = true;
-        }
-      });
-    }
-    timelineTimeRef.current = targetTime;
-    lastTickAtRef.current = performance.now();
-    setTimelineProgress(targetTime / timelineDuration);
-  }, [script, timelineDuration]);
+        });
+      }
+      timelineTimeRef.current = targetTime;
+      lastTickAtRef.current = performance.now();
+      setTimelineProgress(targetTime / timelineDuration);
+    },
+    [script, timelineDuration]
+  );
 
   useEffect(() => {
     if (!buildModeConfig.enabled) return;
@@ -446,8 +496,8 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
 
     const mobile = window.matchMedia("(max-width: 700px)").matches;
     setSpeed(mobile ? buildModeConfig.mobileSpeedDefault : buildModeConfig.speedDefault);
-    setAgentCount(mobile ? buildModeConfig.mobileAgentLimit : buildModeConfig.agentCountRange[0]);
-    setCursorLimit(mobile ? buildModeConfig.mobileAgentLimit : buildModeConfig.agentCountRange[1]);
+    setAgentCount(mobile ? buildModeConfig.mobileAgentLimit : 12);
+    setCursorLimit(cursorCount());
     setPhase("scanning");
     setVisible(true);
     const timer = window.setTimeout(startBuild, buildModeConfig.autoStartMs);
@@ -500,6 +550,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     };
   }, [phase, skipBuild]);
 
+  // Main RAF tick loop
   useEffect(() => {
     if (phase !== "building" || script.length === 0) {
       if (phase === "building" && script.length === 0) {
@@ -511,49 +562,63 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
 
     let raf = 0;
     let lastCursorUpdate = 0;
+    let lastCameraCheckAt = 0;
     let finishing = false;
+
     const tick = (now: number) => {
       if (document.hidden) return;
       const realElapsed = now - startedAtRef.current;
       const frameDuration = Math.max(0, now - lastTickAtRef.current);
       timelineTimeRef.current += frameDuration * speedRef.current;
       lastTickAtRef.current = now;
+
       if (frameDuration > buildModeConfig.qualityFrameBudgetMs) {
         qualityOverBudgetRef.current += 1;
         if (qualityOverBudgetRef.current >= 3) setQualityLimited(true);
       } else {
         qualityOverBudgetRef.current = Math.max(0, qualityOverBudgetRef.current - 1);
       }
+
       const timelineTime = timelineTimeRef.current;
       let completed = 0;
+
       script.forEach((item) => {
         if (item.endsAt <= timelineTime) {
           if (!revealedRef.current.has(item.layer.id)) {
             revealedRef.current.add(item.layer.id);
             completedNamesRef.current.push(item.layer.text.split("\n")[0]?.trim() || item.layer.id);
-            item.layer.element.classList.remove("agent-layer-hidden");
-            item.layer.element.classList.remove("agent-layer-hidden-image");
-            item.layer.element.classList.add("agent-layer-revealed");
-            item.layer.element.inert = false;
+            if (item.layer.element && item.layer.element.classList) {
+              item.layer.element.classList.remove("agent-layer-hidden");
+              item.layer.element.classList.remove("agent-layer-hidden-image");
+              item.layer.element.classList.add("agent-layer-revealed");
+              item.layer.element.inert = false;
+            }
             playSound();
           }
         }
         if (revealedRef.current.has(item.layer.id)) completed += 1;
       });
 
-      const currentWindow = buildWindows.reduce((current, window) =>
-        timelineTime >= window.start ? window : current, buildWindows[0]);
+      const currentWindow = buildWindows.reduce(
+        (current, window) => (timelineTime >= window.start ? window : current),
+        buildWindows[0]
+      );
       const currentWindowId = currentWindow?.id ?? 0;
+
       const activeFrames = script
-        .filter((item) => item.windowId === currentWindowId
-          && timelineTime >= item.startedAt + item.travelDuration
-          && timelineTime < item.endsAt)
+        .filter(
+          (item) =>
+            item.windowId === currentWindowId &&
+            timelineTime >= item.startedAt &&
+            timelineTime < item.endsAt
+        )
         .map((item) => {
           const activeAction = getActionAt(item, timelineTime);
           const actionProgress = getActionProgress(item, timelineTime);
           const typeIndex = Math.max(item.recipe.indexOf("TYPE"), item.recipe.indexOf("RETYPE"));
           const activeIndex = item.recipe.indexOf(activeAction);
           const isTyping = activeAction === "TYPE" || activeAction === "RETYPE";
+
           return {
             ...item,
             activeAction,
@@ -561,97 +626,12 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
             typedText: isTyping
               ? getTypedText(item.layer.text, actionProgress, item.seed)
               : activeAction === "COPY_PASTE" || (typeIndex >= 0 && activeIndex > typeIndex)
-                ? item.layer.text
-                : ""
+              ? item.layer.text
+              : ""
           };
         });
-      if (debugEnabled && now - lastRuntimeSampleAtRef.current >= 100) {
-        lastRuntimeSampleAtRef.current = now;
-        if (lastSampledWindowRef.current !== currentWindowId) {
-          runtimeLastActiveRef.current.clear();
-          lastSampledWindowRef.current = currentWindowId;
-        }
-        const windowTasks = script.filter((item) => item.windowId === currentWindowId);
-        const workerIds = Array.from(new Set(windowTasks.map((item) => item.cursorId)));
-        const activeWorkerIds = new Set(windowTasks
-          .filter((item) => item.startedAt <= timelineTime && item.endsAt > timelineTime)
-          .map((item) => item.cursorId));
-        const visibleCursorCount = createCursorPositions(script, timelineTime, window.scrollY, currentWindowId, cursorLimit)
-          .filter((position) => position.active).length;
-        if (visibleCursorCount) {
-          if (runtimeSampleRef.current.emptyGapStartedAt !== null) {
-            runtimeSampleRef.current.longestEmptyGap = Math.max(
-              runtimeSampleRef.current.longestEmptyGap,
-              now - runtimeSampleRef.current.emptyGapStartedAt
-            );
-            runtimeSampleRef.current.emptyGapStartedAt = null;
-          }
-        } else {
-          runtimeSampleRef.current.emptyGapStartedAt ??= now;
-          runtimeSampleRef.current.longestEmptyGap = Math.max(
-            runtimeSampleRef.current.longestEmptyGap,
-            now - runtimeSampleRef.current.emptyGapStartedAt
-          );
-        }
-        const workersInRange = workerIds.filter((workerId) => {
-          const workerTasks = windowTasks.filter((item) => item.cursorId === workerId);
-          const firstStart = Math.min(...workerTasks.map((item) => item.startedAt));
-          const lastEnd = Math.max(...workerTasks.map((item) => item.endsAt));
-          return timelineTime >= firstStart && timelineTime <= lastEnd;
-        });
-        runtimeSampleRef.current.samples += 1;
-        runtimeSampleRef.current.busy += workersInRange.filter((id) => activeWorkerIds.has(id)).length;
-        runtimeSampleRef.current.capacity += workersInRange.length;
-        const windowStats = runtimeWindowStatsRef.current.get(currentWindowId) ?? {
-          samples: 0,
-          minCursors: Number.POSITIVE_INFINITY,
-          maxCursors: 0,
-          middleSamples: 0,
-          middleMinCursors: Number.POSITIVE_INFINITY,
-          middleMaxCursors: 0,
-          actionCounts: {}
-        };
-        windowStats.samples += 1;
-        windowStats.minCursors = Math.min(windowStats.minCursors, visibleCursorCount);
-        windowStats.maxCursors = Math.max(windowStats.maxCursors, visibleCursorCount);
-        const sampledWindow = buildWindows.find((item) => item.id === currentWindowId);
-        const windowDuration = (sampledWindow?.end ?? 0) - (sampledWindow?.start ?? 0);
-        const isMiddleSample = sampledWindow !== undefined
-          && timelineTime >= sampledWindow.start + windowDuration * 0.15
-          && timelineTime <= sampledWindow.end - windowDuration * 0.15;
-        if (isMiddleSample) {
-          windowStats.middleSamples += 1;
-          windowStats.middleMinCursors = Math.min(windowStats.middleMinCursors, visibleCursorCount);
-          windowStats.middleMaxCursors = Math.max(windowStats.middleMaxCursors, visibleCursorCount);
-        }
-        windowTasks.forEach((item) => {
-          if (item.startedAt > timelineTime || item.endsAt <= timelineTime) return;
-          const action = getActionAt(item, timelineTime);
-          runtimeActionCountsRef.current[action] = (runtimeActionCountsRef.current[action] ?? 0) + 1;
-          windowStats.actionCounts[action] = (windowStats.actionCounts[action] ?? 0) + 1;
-        });
-        runtimeWindowStatsRef.current.set(currentWindowId, windowStats);
-        workerIds.forEach((workerId) => {
-          const workerTasks = windowTasks.filter((item) => item.cursorId === workerId);
-          const firstStart = Math.min(...workerTasks.map((item) => item.startedAt));
-          const lastEnd = Math.max(...workerTasks.map((item) => item.endsAt));
-          if (timelineTime < firstStart || timelineTime > lastEnd) return;
-          if (activeWorkerIds.has(workerId)) {
-            runtimeLastActiveRef.current.set(workerId, timelineTime);
-            return;
-          }
-          const lastActiveAt = runtimeLastActiveRef.current.get(workerId);
-          if (lastActiveAt !== undefined) {
-            const gap = Math.max(0, timelineTime - lastActiveAt);
-            runtimeSampleRef.current.longestGap = Math.max(runtimeSampleRef.current.longestGap, gap);
-            if (gap > 250) reportedIdleViolationsRef.current.add(workerId);
-          }
-        });
-      }
-      const currentFrame = activeFrames.reduce<BuildFrame | null>((latest, item) =>
-        !latest || item.startedAt > latest.startedAt ? item : latest, null);
 
-      if (now - lastUiUpdateRef.current > 80) {
+      if (now - lastUiUpdateRef.current > 60) {
         lastUiUpdateRef.current = now;
         setLayersDone(completed);
         if (completedNamesRef.current.length) {
@@ -659,95 +639,99 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         }
         setElapsedMs(realElapsed);
         setTimelineProgress(timelineTime / timelineDuration);
-        setAgentCount(cursorLimit <= buildModeConfig.mobileAgentLimit
-          ? buildModeConfig.mobileAgentLimit
-          : Math.round(buildModeConfig.agentCountRange[0]
-            + (buildModeConfig.agentCountRange[1] - buildModeConfig.agentCountRange[0])
-            * clamp(timelineTime / timelineDuration, 0, 1)));
-        setDirectorAct(currentFrame?.act ?? directorActAt(timelineTime, cursorLimit <= buildModeConfig.mobileAgentLimit));
+
+        // Update active agent count based on active cursors
+        const activeCount = positions.filter((p) => p.active && p.state !== "exit").length;
+        setAgentCount(Math.max(activeCount, 8));
+
+        setDirectorAct(directorActAt(timelineTime, cursorLimit <= buildModeConfig.mobileAgentLimit));
         setFrames(activeFrames);
+
         if (debugEnabled) {
           const scheduledMetrics = getBuildMetrics(script, timelineTime, currentWindowId);
-          const runtimeSamples = runtimeSampleRef.current;
-          const nextMetrics = {
-            ...scheduledMetrics,
-            workRatio: runtimeSamples.capacity
-              ? Math.min(100, runtimeSamples.busy / runtimeSamples.capacity * 100)
-              : scheduledMetrics.workRatio,
-            longestGap: Math.max(scheduledMetrics.longestGap, runtimeSamples.longestGap),
-            violations: Math.max(scheduledMetrics.violations, reportedIdleViolationsRef.current.size),
-            actionCounts: { ...runtimeActionCountsRef.current },
-            sampledFrames: runtimeSamples.samples
-          };
-          setDebugMetrics(nextMetrics);
-          nextMetrics.violatingAgentIds.forEach((agentId) => {
+          setDebugMetrics(scheduledMetrics);
+
+          scheduledMetrics.violatingAgentIds.forEach((agentId) => {
             if (reportedIdleViolationsRef.current.has(agentId)) return;
             reportedIdleViolationsRef.current.add(agentId);
-            console.error(`[Agent Build Mode] Agent ${agentId + 1} was idle for more than 250ms.`);
+            console.error(`[Agent Build Mode] Dev Watchdog Alert: Agent ${agentId + 1} gap > 250ms.`);
           });
         }
       }
 
-      if (touring && currentWindow && currentWindow.id !== lastTourWindowRef.current) {
-        lastTourWindowRef.current = currentWindow.id;
-        const windowLayers = script.filter((item) => item.windowId === currentWindow.id);
-        const centroid = windowLayers.reduce((sum, item) => sum + item.layer.rect.y + item.layer.rect.height / 2, 0)
-          / Math.max(1, windowLayers.length);
-        const target = Math.max(0, centroid - window.innerHeight / 2);
-        const duration = 1.4 + (hashForSection(String(currentWindow.id)) % 9) / 10;
-        scrollToRef.current(target, duration);
+      if (touring && currentWindow && !isTestScene && now - lastCameraCheckAt >= 250) {
+        lastCameraCheckAt = now;
+        const activeCameraTasks = script.filter(
+          (item) =>
+            item.windowId === currentWindow.id &&
+            item.startedAt <= timelineTime &&
+            item.endsAt > timelineTime
+        );
+        const cameraTasks = activeCameraTasks.length
+          ? activeCameraTasks
+          : script.filter(
+              (item) =>
+                item.windowId === currentWindow.id &&
+                item.startedAt <= timelineTime + buildModeConfig.cameraLookAheadMs &&
+                item.endsAt > timelineTime
+            );
+        if (cameraTasks.length) {
+          const focusY =
+            cameraTasks.reduce((sum, item) => sum + item.layer.rect.y + item.layer.rect.height / 2, 0) /
+            cameraTasks.length;
+          const navBottom = document.querySelector<HTMLElement>(".site-nav")?.getBoundingClientRect().bottom ?? 0;
+          const controlTop =
+            document.querySelector<HTMLElement>(".agent-control-bar")?.getBoundingClientRect().top ??
+            window.innerHeight - 80;
+          const safeTop = Math.max(0, navBottom) + 20;
+          const safeBottom = Math.min(window.innerHeight, controlTop) - 20;
+          const viewportFocusY = (safeTop + Math.max(safeTop, safeBottom)) / 2;
+          const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+          const target = clamp(focusY - viewportFocusY, 0, maxScroll);
+          const isNewWindow = currentWindow.id !== lastTourWindowRef.current;
+          const targetChanged =
+            lastTourScrollTargetRef.current === null ||
+            Math.abs(target - lastTourScrollTargetRef.current) >=
+              window.innerHeight * buildModeConfig.cameraRetargetThreshold;
+          const cooldownElapsed = now - lastTourScrollAtRef.current >= buildModeConfig.cameraRetargetCooldownMs;
+
+          if (isNewWindow || (targetChanged && cooldownElapsed)) {
+            lastTourWindowRef.current = currentWindow.id;
+            lastTourScrollTargetRef.current = target;
+            lastTourScrollAtRef.current = now;
+            const distanceInViewports = Math.abs(target - window.scrollY) / Math.max(1, window.innerHeight);
+            const duration = clamp(1.4 + distanceInViewports * 0.2, 1.4, 2.2);
+            scrollToRef.current(target, duration);
+          }
+        }
       }
 
       if (now - lastCursorUpdate >= 1000 / buildModeConfig.frameRateCap) {
         lastCursorUpdate = now;
-        const nextPositions = createCursorPositions(script, timelineTime, window.scrollY, currentWindowId, cursorLimit);
+        const nextPositions = createCursorPositions(
+          script,
+          timelineTime,
+          isTestScene ? 0 : window.scrollY,
+          currentWindowId,
+          cursorLimit
+        );
         cursorPositionsRef.current = nextPositions;
         setPositions(nextPositions);
       }
 
       const lastEnd = script.reduce((last, item) => Math.max(last, item.endsAt), 0);
-      if (completed === script.length && timelineTime >= lastEnd + 450 && !finishing) {
+      if (completed === script.length && timelineTime >= lastEnd + 400 && !finishing) {
         finishing = true;
         finishingAtRef.current = now;
-        if (debugEnabled) {
-          const runtimeSamples = runtimeSampleRef.current;
-          console.info("[Agent Build Mode] 10Hz runtime report", {
-            samples: runtimeSamples.samples,
-            workRatio: runtimeSamples.capacity
-              ? Number((runtimeSamples.busy / runtimeSamples.capacity * 100).toFixed(1))
-              : 100,
-            longestGapMs: Math.round(runtimeSamples.longestGap),
-            longestEmptyGapMs: Math.round(runtimeSamples.longestEmptyGap),
-            idleViolations: reportedIdleViolationsRef.current.size,
-            actions: runtimeActionCountsRef.current,
-            windows: Array.from(runtimeWindowStatsRef.current, ([windowId, stats]) => ({
-              window: windowId + 1,
-              samples: stats.samples,
-              visibleCursorRange: [
-                Number.isFinite(stats.middleMinCursors) ? stats.middleMinCursors : stats.minCursors,
-                stats.middleSamples ? stats.middleMaxCursors : stats.maxCursors
-              ],
-              middleSamples: stats.middleSamples,
-              sections: Array.from(new Set(script.filter((item) => item.windowId === windowId).map((item) => item.layer.section))),
-              layerCount: script.filter((item) => item.windowId === windowId).length,
-              plannedActions: script
-                .filter((item) => item.windowId === windowId)
-                .flatMap((item) => item.recipe)
-                .reduce<Partial<Record<BuildAction, number>>>((counts, action) => {
-                  counts[action] = (counts[action] ?? 0) + 1;
-                  return counts;
-                }, {}),
-              sampledActions: stats.actionCounts
-            }))
-          });
-        }
         setFrames([]);
         setPositions([]);
         setPhase("finishing");
         return;
       }
+
       raf = window.requestAnimationFrame(tick);
     };
+
     const handleVisibility = () => {
       if (document.hidden) {
         window.cancelAnimationFrame(raf);
@@ -758,13 +742,25 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
       lastCursorUpdate = 0;
       raf = window.requestAnimationFrame(tick);
     };
+
     document.addEventListener("visibilitychange", handleVisibility);
     raf = window.requestAnimationFrame(tick);
     return () => {
       document.removeEventListener("visibilitychange", handleVisibility);
       window.cancelAnimationFrame(raf);
     };
-  }, [buildWindows, cursorLimit, debugEnabled, phase, playSound, script, timelineDuration, touring]);
+  }, [
+    buildWindows,
+    cursorLimit,
+    debugEnabled,
+    isTestScene,
+    phase,
+    playSound,
+    positions,
+    script,
+    timelineDuration,
+    touring
+  ]);
 
   useEffect(() => {
     if (phase !== "finishing") return;
@@ -773,9 +769,6 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
       setPhase("done");
       setAnnouncement("Site built, interactive now");
       setLayersDone(layersRef.current.length);
-      setAgentCount(cursorLimit <= buildModeConfig.mobileAgentLimit
-        ? buildModeConfig.mobileAgentLimit
-        : buildModeConfig.agentCountRange[1]);
       setElapsedMs(Math.max(0, finishingAtRef.current - startedAtRef.current));
       if (buildModeConfig.runOncePerSession) {
         try {
@@ -784,17 +777,20 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
           // Session storage is optional.
         }
       }
-      if (!takeoverRef.current) scrollToRef.current(0, 1.6);
+      if (!takeoverRef.current && !isTestScene) scrollToRef.current(0, 1.6);
       finishTimerRef.current = window.setTimeout(() => setVisible(false), buildModeConfig.autoDismissMs);
     }, 850);
     return () => window.clearTimeout(timer);
-  }, [cleanup, cursorLimit, phase]);
+  }, [cleanup, isTestScene, phase]);
 
-  useEffect(() => () => {
-    if (finishTimerRef.current !== null) window.clearTimeout(finishTimerRef.current);
-    cleanup();
-    if (soundRef.current) void soundRef.current.close();
-  }, [cleanup]);
+  useEffect(
+    () => () => {
+      if (finishTimerRef.current !== null) window.clearTimeout(finishTimerRef.current);
+      cleanup();
+      if (soundRef.current) void soundRef.current.close();
+    },
+    [cleanup]
+  );
 
   useEffect(() => {
     if (phase !== "building" || muted) return;
@@ -807,9 +803,35 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     <BuildContext.Provider value={contextValue}>
       {children}
       {visible && phase === "scanning" && (
-        <div className="agent-build-curtain" aria-hidden="true">
+        <div
+          className="agent-build-curtain"
+          style={{ "--cursor-intro-duration": `${buildModeConfig.autoStartMs}ms` } as CSSProperties}
+          aria-hidden="true"
+        >
           <span className="agent-curtain-mark">K</span>
-          <span className="agent-curtain-cursors"><i /><i /><i /><i /></span>
+          <span className="agent-curtain-cursors">
+            {Array.from({ length: agentCount }, (_, index) => (
+              <span
+                key={index}
+                className="agent-curtain-cursor"
+                style={{
+                  "--cursor-color": agentColors[index % agentColors.length],
+                  "--orbit-angle": `${(360 / Math.max(1, agentCount)) * index}deg`,
+                  "--orbit-radius": `${24 + (index % 3) * 9}px`
+                } as CSSProperties}
+              >
+                <svg viewBox="0 0 20 24" fill="none">
+                  <path
+                    d="M2 1.5 18 14l-7 .7-3.8 6.1L2 1.5Z"
+                    fill="currentColor"
+                    stroke="#08080D"
+                    strokeWidth="1.25"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            ))}
+          </span>
         </div>
       )}
       <CursorLayer
@@ -818,7 +840,16 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         frames={frames}
         qualityLimited={qualityLimited}
       />
-      {debugEnabled && visible && phase === "building" && <BuildDebugPanel metrics={debugMetrics} />}
+      {debugEnabled && visible && phase === "building" && (
+        <BuildDebugPanel
+          metrics={debugMetrics}
+          isTestScene={isTestScene}
+          onToggleTestScene={() => {
+            setIsTestScene((prev) => !prev);
+            replayBuild();
+          }}
+        />
+      )}
       <LayerProgressPanel
         names={completedLayerNames}
         visible={visible && (phase === "building" || phase === "finishing")}
@@ -845,7 +876,9 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
           onToggleSound={toggleSound}
         />
       )}
-      <p className="agent-build-live" aria-live="polite" aria-atomic="true">{announcement}</p>
+      <p className="agent-build-live" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </p>
     </BuildContext.Provider>
   );
 }
@@ -858,139 +891,4 @@ function directorActAt(time: number, mobile: boolean) {
   if (time < 30_900 * scale) return "polish";
   if (time < 34_900 * scale) return "finale";
   return "handoff";
-}
-
-function hashForSection(section: string) {
-  return section.split("").reduce((value, char) => value + char.charCodeAt(0), 0);
-}
-
-function createCursorPositions(
-  frames: BuildFrame[],
-  time: number,
-  scrollY: number,
-  activeWindow: number,
-  cursorLimit: number
-): CursorPosition[] {
-  const activeFrames = frames.filter((frame) => frame.windowId === activeWindow);
-  const agentLimit = Math.min(cursorLimit, buildModeConfig.maxRenderedCursors);
-  const minimumVisible = Math.min(8, agentLimit);
-  const workerCount = Math.min(
-    agentLimit,
-    Math.max(minimumVisible, activeFrames.reduce((max, frame) => Math.max(max, frame.cursorId + 1), 0))
-  );
-  const queues = Array.from({ length: workerCount }, () => [] as BuildFrame[]);
-  activeFrames.forEach((frame) => queues[frame.cursorId].push(frame));
-
-  const positions: CursorPosition[] = queues.map((queue, cursorId): CursorPosition => {
-    if (!queue.length) return { x: 0, y: 0, active: false, phase: "exit" as const };
-    queue.sort((a, b) => a.startedAt - b.startedAt);
-    const currentIndex = queue.findIndex((task) => time < task.endsAt);
-    const frameIndex = currentIndex < 0 ? queue.length - 1 : currentIndex;
-    const current = queue[frameIndex];
-    if (!current || current.windowId !== activeWindow) {
-      return { x: 0, y: 0, active: false, phase: "exit" };
-    }
-
-    const seed = current.seed ?? cursorId;
-    const targetX = current.layer.rect.x + current.layer.rect.width / 2 + (seed % 15) - 7;
-    const targetY = current.layer.rect.y + current.layer.rect.height / 2 - scrollY + (seed % 11) - 5;
-    const previous = current.previousLayer ?? queue[frameIndex - 1]?.layer;
-    const startX = previous ? previous.rect.x + previous.rect.width / 2 : (window.innerWidth / 2) + cursorId * 8;
-    const startY = previous ? previous.rect.y + previous.rect.height / 2 - scrollY : window.innerHeight - 52;
-    const travelEnd = current.startedAt + current.travelDuration;
-
-    if (time < current.startedAt) {
-      return {
-        x: startX,
-        y: startY,
-        active: false,
-        phase: "travel",
-        section: current.layer.section,
-        action: current.recipe[0],
-        layerId: current.layer.id,
-        violation: currentIndex > 0 && current.startedAt - queue[frameIndex - 1].endsAt > 250
-      };
-    }
-
-    if (time < current.endsAt) {
-      if (time < travelEnd) {
-        const progress = easeInOut(clamp((time - current.startedAt) / current.travelDuration, 0, 1));
-        const lift = Math.min(80, Math.abs(targetX - startX) * 0.1 + 18);
-        const inverse = 1 - progress;
-        const x = inverse ** 3 * startX
-          + 3 * inverse ** 2 * progress * (startX + (targetX - startX) * 0.36)
-          + 3 * inverse * progress ** 2 * (targetX - (targetX - startX) * 0.16)
-          + progress ** 3 * targetX;
-        const y = inverse ** 3 * startY
-          + 3 * inverse ** 2 * progress * (startY - lift)
-          + 3 * inverse * progress ** 2 * (targetY - lift * 0.4)
-          + progress ** 3 * targetY;
-        return {
-          x, y, active: true, phase: "travel", section: current.layer.section,
-          action: current.recipe[0], layerId: current.layer.id,
-          violation: currentIndex > 0 && current.startedAt - queue[frameIndex - 1].endsAt > 250
-        };
-      }
-
-      const actionProgress = getActionProgress(current, time);
-      const hasNudge = seed % 100 < buildModeConfig.mistakeRate * 100;
-      const nudge = hasNudge ? seed % 2 + 1 : undefined;
-      const correction = nudge && actionProgress > 0.75 ? 0 : nudge ?? 0;
-      return {
-        x: targetX,
-        y: targetY + correction,
-        active: true,
-        phase: "act",
-        section: current.layer.section,
-        action: getActionAt(current, time),
-        layerId: current.layer.id,
-        nudge: actionProgress > 0.75 ? undefined : nudge,
-        violation: currentIndex > 0 && current.startedAt - queue[frameIndex - 1].endsAt > 250
-      };
-    }
-
-    const exitDuration = 450;
-    const progress = clamp((time - current.endsAt) / exitDuration, 0, 1);
-    const distances = [targetX, window.innerWidth - targetX, targetY, window.innerHeight - targetY];
-    const nearestEdge = distances.indexOf(Math.min(...distances));
-    const edge = [
-      { x: -24, y: targetY },
-      { x: window.innerWidth + 24, y: targetY },
-      { x: targetX, y: -28 },
-      { x: targetX, y: window.innerHeight + 28 }
-    ][nearestEdge];
-    return {
-      x: targetX + (edge.x - targetX) * easeInOut(progress),
-      y: targetY + (edge.y - targetY) * easeInOut(progress),
-      active: progress < 1,
-      phase: "exit",
-      section: current.layer.section,
-      action: current.recipe[current.recipe.length - 1],
-      layerId: current.layer.id
-    };
-  });
-
-  let visibleCount = positions.filter((position) => position.active).length;
-  const assistableLayerIds = new Set(activeFrames
-    .filter((frame) => ["text", "button", "card"].includes(frame.layer.type) && frame.recipe.includes("TYPE"))
-    .map((frame) => frame.layer.id));
-  const assistedLayers = new Set<string>();
-  positions.forEach((position) => {
-    if (visibleCount >= minimumVisible || !position.active || !position.layerId
-      || !assistableLayerIds.has(position.layerId) || assistedLayers.has(position.layerId)) return;
-    const emptyIndex = positions.findIndex((candidate) => !candidate.active);
-    if (emptyIndex < 0) return;
-    const assistAction = position.action === "STYLE" ? "TYPE" : "STYLE";
-    positions[emptyIndex] = {
-      ...position,
-      x: position.x + 19 + (emptyIndex % 3) * 5,
-      y: position.y + 13 + (emptyIndex % 2) * 5,
-      phase: "act",
-      action: assistAction,
-      nudge: undefined
-    };
-    assistedLayers.add(position.layerId);
-    visibleCount += 1;
-  });
-  return positions;
 }
