@@ -45,9 +45,14 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const personJsonLd = {
+    "@context": "https://schema.org", "@type": "Person", name: portfolioContent.identity.name,
+    jobTitle: "Frontend Developer and UI/UX Designer", url: portfolioContent.siteUrl,
+    sameAs: ["https://x.com/md_kasif_uddin", "https://instagram.com/M_Kasif_Uddin", "https://github.com/MdKasif0"]
+  };
   return (
     <html lang="en" className={`${anton.variable} ${jakarta.variable} ${caveat.variable}`}>
-      <body>{children}</body>
+      <body>{children}<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} /></body>
     </html>
   );
 }

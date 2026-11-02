@@ -91,12 +91,31 @@ export function MotionShell({ children }: { children: ReactNode }) {
     <MotionPreferenceContext.Provider value={{ motionEnabled, setMotionEnabled }}>
       <div className={motionEnabled ? "motion-enabled" : "motion-disabled"} data-motion={motionEnabled ? "on" : "off"}>
         <MotionPolish />
+        <CustomCursor />
         <BuildProvider motionEnabled={motionEnabled} scrollTo={scrollTo} cancelScroll={cancelScroll}>
           {children}
         </BuildProvider>
       </div>
     </MotionPreferenceContext.Provider>
   );
+}
+
+function CustomCursor() {
+  const { motionEnabled } = useMotionPreference();
+  const [state, setState] = useState("default");
+  useEffect(() => {
+    if (!motionEnabled || !window.matchMedia("(pointer:fine)").matches) return;
+    const cursor = document.querySelector<HTMLElement>(".site-cursor");
+    if (!cursor) return;
+    const move = (event: PointerEvent) => {
+      cursor.style.transform = `translate3d(${event.clientX}px,${event.clientY}px,0)`;
+      const target = event.target instanceof Element ? event.target.closest("a,button,[role=slider],.project-card") : null;
+      setState(target?.matches("[role=slider]") ? "drag" : target?.classList.contains("showreel-card") ? "play" : target?.classList.contains("project-card") ? "view" : target ? "link" : "default");
+    };
+    window.addEventListener("pointermove", move, { passive: true });
+    return () => window.removeEventListener("pointermove", move);
+  }, [motionEnabled]);
+  return <span className={`site-cursor is-${state}`} aria-hidden="true"><i /><b>{state === "default" ? "" : state.toUpperCase()}</b></span>;
 }
 
 function MotionPolish() {

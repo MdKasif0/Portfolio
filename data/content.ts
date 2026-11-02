@@ -181,17 +181,17 @@ export const portfolioContent = {
     eyebrow: "RECOGNITION & COLLABS",
     titleWhite: "THE WORK",
     titleRed: "THE RECOGNITION",
-    count: undefined,
+    count: 6,
     countLabel: "PROJECTS & COLLABS",
-    summary: "Selected hackathon participation and creative brand collaborations.",
+    summary: "Hackathons entered and brand collaborations, built in public.",
     proofLabel: "VIEW PROOF",
     proofHref: undefined,
     listLabel: "SELECTED RECOGNITION",
-    yearColumn: "YEAR",
+    yearColumn: "TYPE",
     entries: [
-      { title: "TrustLayer", subtitle: "Hackverse · Terrabyte Society · Chandigarh University", year: undefined },
-      { title: "ResQVision", subtitle: "D4 Community One-Day Solo Vibe Coding Hackathon", year: undefined },
-      { title: "Brand collaborations", subtitle: "6 brand collaborations", year: undefined }
+      { title: "TrustLayer", subtitle: "Hackverse · Terrabyte Society · Chandigarh University", type: "HACKATHON", year: undefined, href: undefined },
+      { title: "ResQVision", subtitle: "D4 Community One-Day Solo Vibe Coding Hackathon", type: "HACKATHON", year: undefined, href: undefined },
+      { title: "Brand collaborations", subtitle: "Six creative collaborations", type: "COLLAB", year: undefined, href: undefined }
     ]
   },
   rawToReal: {
@@ -201,11 +201,9 @@ export const portfolioContent = {
     caption: "One screen. Many layers. See how a rough layout becomes a living product.",
     beforeLabel: "WIREFRAME",
     afterLabel: "FINAL UI",
-    meta: "PROJECT NAME / YEAR · UI/UX · FRONTEND · SHIPPED",
-    project: undefined,
+    meta: "GitRoasted / UI/UX · FRONTEND · SHIPPED",
+    project: "GitRoasted",
     year: undefined,
-    beforePlaceholder: "WIREFRAME PREVIEW",
-    afterPlaceholder: "FINAL UI PREVIEW",
     sliderLabel: "Reveal final interface"
   },
   about: {
@@ -217,24 +215,15 @@ export const portfolioContent = {
       "Building client work, brand collaborations and independent AI products.",
       "Bringing ideas to life through thoughtful interfaces and code."
     ],
-    educationLabel: "EDUCATION & SKILLS",
+    educationLabel: "EDUCATION",
     education: "B.Tech CSE — Chandigarh University, Mohali",
     educationYear: undefined,
     toolkitLabel: "CREATIVE TOOLKIT",
-    skills: [
-      "JavaScript", "TypeScript", "Python", "React", "Next.js", "Node.js", "OpenAI",
-      "TensorFlow", "Hugging Face", "Firebase", "MongoDB", "PostgreSQL", "Cursor", "n8n",
-      "Git", "Docker", "Netlify"
-    ],
-    toolIcons: [
-      { short: "JS", name: "JavaScript" },
-      { short: "TS", name: "TypeScript" },
-      { short: "RE", name: "React" },
-      { short: "NX", name: "Next.js" },
-      { short: "PY", name: "Python" },
-      { short: "AI", name: "OpenAI" },
-      { short: "FG", name: "Figma" },
-      { short: "GT", name: "Git" }
+    toolkitGroups: [
+      { label: "Frontend", skills: ["JavaScript", "TypeScript", "React", "Next.js"] },
+      { label: "Backend & Data", skills: ["Node.js", "Python", "Firebase", "MongoDB", "PostgreSQL"] },
+      { label: "AI", skills: ["OpenAI", "TensorFlow", "Hugging Face"] },
+      { label: "Tools", skills: ["Cursor", "n8n", "Git", "Docker", "Netlify"] }
     ],
     processLabel: "FROM IDEA TO FINAL SHIP",
     process: [

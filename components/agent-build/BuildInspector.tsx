@@ -59,6 +59,33 @@ function recipeFor(frame: BuildFrame) {
   if (kind === "carousel-progress" || kind === "carousel-progress-value") return "DRAW_LINE · SCROLL PROGRESS";
   if (kind === "logo-plate") return `DROP_WORDMARK · COPY / PASTE ×6 · ${frame.layer.text.slice(0, 16)}`;
   if (kind === "collaboration-logo") return "TYPE WORDMARK · JAKARTA BOLD";
+  if (kind === "recognition-count") return "OPEN_PICKER → PICK_SYMBOL → SCALE → RECOLOR LAUREL";
+  if (kind === "recognition-number") return "TYPE + RESIZE · CENTER COUNT IN LAUREL";
+  if (kind === "recognition-row") return index % 3 === 0
+    ? "BUILD LEDGER ROW · TYPE + BADGE SYMBOL INSERT"
+    : "COPY_PASTE ×2 · RETYPE · INSERT TYPE BADGE";
+  if (kind === "recognition-type") return "PICK_SYMBOL · INSERT TYPE BADGE";
+  if (kind === "recognition-avatar") return "DROP LOGO · COPY / PASTE · OFFSET";
+  if (kind === "wire-to-real-comparison" || kind === "wireframe-panel") return "DRAW_BOX · DASH OUTLINES · DRAW_LINE RULERS + 24PX";
+  if (kind === "wire-project-mock") return "DRAW_BOX · GRID · DASHED FRAMES · SPACING BARS";
+  if (kind === "final-panel" || kind === "project-mock") return "SECOND AGENT · FILL / STYLE SAME BOXES INTO FINAL UI";
+  if (kind === "comparison-handle" || kind === "comparison-slider") return "AGENT DRAGS HANDLE · DEMONSTRATE REVEAL";
+  if (kind === "drag-hint") return "TYPE DRAG HINT · PREVIEW SLIDER";
+  if (kind === "toolkit-chip") return "BUILD ONE CHIP · COPY_PASTE · RETYPE · OPEN_PICKER GLYPH";
+  if (kind === "process-card" || kind === "process-step") return "DRAW_LINE · INSERT NODE SYMBOL · PULSE";
+  if (kind === "process-node") return "PICK PROCESS GLYPH · PULSE NODE";
+  if (kind === "about-quote") return "DRAW BOX · FILL · QUOTE MARK · TYPE";
+  if (kind === "quote-mark") return "INSERT QUOTE SYMBOL";
+  if (kind === "quote-signature") return "PEN TOOL · DRAW SIGNATURE STROKE";
+  if (kind === "journey-timeline") return "DRAW_LINE · PICK NODE SYMBOL · SCROLL DRAW";
+  if (kind === "journey-role") return index % 4 === 0 ? "BUILD TIMELINE ROW · TYPE + NOW NODE" : "COPY_PASTE · RETYPE ROLE ROW";
+  if (kind === "milestone-row") return "COPY_PASTE MILESTONE · RETYPE · ADD HOVER PREVIEW";
+  if (kind === "contact-row") return "OPEN_PICKER → PICK_SYMBOL + TYPE CONTACT ROW";
+  if (kind === "project-form") return "DRAW_BOX · AUTO_LAYOUT GAP 24 · FORM COMPONENT";
+  if (kind === "form-field") return "DRAW_BOX + TYPE PLACEHOLDER";
+  if (kind === "form-select") return "DRAW_BOX + TYPE · INSERT CARET SYMBOL";
+  if (kind === "form-submit") return "STYLE BUTTON · TYPE SEND PROJECT";
+  if (kind === "footer-wordmark") return "TYPE + RESIZE FULL WIDTH · STYLE STROKE TO FILL";
   if (section === "nav") return "STYLE NAV DETAIL";
   return `${frame.cue?.toUpperCase() ?? "BUILD"} / ${frame.layer.type.toUpperCase()}`;
 }
@@ -85,6 +112,7 @@ export function BuildInspector({ frame }: { frame: BuildFrame }) {
         <span>{frame.layer.id.slice(0, 24)}</span>
         <span>●</span>
       </div>
+      <div className="agent-inspector-chips"><span>◆ Component</span><span>--red-500</span><span>gap 24 · hug</span><span>contrast 7.2:1 ✓</span></div>
     </aside>
   );
 }

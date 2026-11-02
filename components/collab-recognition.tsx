@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type CSSProperties } from "react";
-import { useInView } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { portfolioContent } from "@/data/content";
 import { SectionHeader } from "@/components/section-header";
 import { CountUp } from "@/components/design-primitives";
@@ -64,8 +64,13 @@ export function CollaboratorStrip() {
 }
 
 export function RecognitionSection() {
+  const countRef = useRef<HTMLDivElement>(null);
+  const countInView = useInView(countRef, { once: true, amount: 0.4 });
+
   return (
     <section className="recognition-section section-shell container-x" id="recognition" data-scene="recognition" aria-labelledby="recognition-heading">
+      <span className="recognition-aurora recognition-aurora-one" aria-hidden="true" />
+      <span className="recognition-aurora recognition-aurora-two" aria-hidden="true" />
       <div className="recognition-intro">
         <SectionHeader
           label={recognition.eyebrow}
@@ -74,13 +79,13 @@ export function RecognitionSection() {
           id="recognition-heading"
           titleClassName="recognition-heading"
         />
-        {recognition.count && (
-          <div className="recognition-count">
+        <div className="recognition-count-wrap">
+          <div className="recognition-count" ref={countRef} data-layer="card" data-kind="recognition-count">
             <LaurelWreath />
-            <span className="recognition-number" data-layer="text">{recognition.count}</span>
-            <span className="recognition-count-label" data-layer="text">{recognition.countLabel}</span>
+            <span className="recognition-number" data-layer="text" data-kind="recognition-number"><CountUp value={recognition.count} active={countInView} /></span>
           </div>
-        )}
+          <span className="recognition-count-label" data-layer="text">{recognition.countLabel}</span>
+        </div>
         <p className="recognition-summary" data-layer="text">{recognition.summary}</p>
         {recognition.proofHref && <a className="recognition-proof" data-layer="button" href={recognition.proofHref}>{recognition.proofLabel} <span aria-hidden="true">↗</span></a>}
       </div>
@@ -88,17 +93,29 @@ export function RecognitionSection() {
       <div className="recognition-list">
         <div className="recognition-list-heading">
           <span data-layer="text">{recognition.listLabel}</span>
-          {recognition.entries.some((entry) => entry.year) && <span data-layer="text">{recognition.yearColumn}</span>}
+          <span data-layer="text">{recognition.yearColumn}</span>
         </div>
         <ol>
           {recognition.entries.map((entry, index) => (
-            <li className="recognition-row" data-layer="line" key={entry.title}>
-              <span className="recognition-row-index" data-layer="text">{String(index + 1).padStart(2, "0")}</span>
-              <div className="recognition-row-copy">
+            <li className="recognition-row" data-layer="card" data-kind="recognition-row" key={entry.title}>
+              <motion.div className="recognition-row-sweep" aria-hidden="true" />
+              <div className="recognition-row-main">
+                <span className="recognition-row-index" data-layer="text">{String(index + 1).padStart(2, "0")}</span>
                 <h3 data-layer="text">{entry.title}</h3>
-                <p data-layer="text">{entry.subtitle}</p>
+                <span className="recognition-type" data-layer="text" data-kind="recognition-type">{entry.type}</span>
+                {entry.year && <span className="recognition-year" data-layer="text">{entry.year}</span>}
+                <span className="recognition-row-arrow" aria-hidden="true">↗</span>
               </div>
-              {entry.year && <span className="recognition-year" data-layer="text">{entry.year}</span>}
+              <p className="recognition-row-subtitle" data-layer="text">{entry.subtitle}</p>
+              {entry.type === "COLLAB" && (
+                <div className="recognition-avatar-stack" aria-label="Six brand collaborators">
+                  {collaborators.names.map((name, collaboratorIndex) => (
+                    <span data-layer="icon" data-kind="recognition-avatar" title={name} key={name} style={{ "--avatar-index": collaboratorIndex } as CSSProperties}>{name.slice(0, 1)}</span>
+                  ))}
+                </div>
+              )}
+              {entry.href && <a className="recognition-row-link" href={entry.href} target="_blank" rel="noreferrer">VIEW PROOF <span aria-hidden="true">↗</span></a>}
+              {!entry.href && <span className="recognition-row-note">PARTICIPATION & COLLABORATION</span>}
             </li>
           ))}
         </ol>

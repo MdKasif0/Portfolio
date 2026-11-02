@@ -5,7 +5,7 @@ export type LayerType = "text" | "image" | "button" | "card" | "line" | "icon";
 
 declare global {
   interface Window {
-    __buildModeAudit?: () => true;
+    __buildModeAudit?: () => { totalLayers: number; hiddenLayers: number; hiddenHeadings: number; pass: boolean };
   }
 }
 

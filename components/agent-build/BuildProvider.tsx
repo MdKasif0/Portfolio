@@ -555,9 +555,18 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
 
   useEffect(() => {
     window.__buildModeAudit = () => {
-      const hidden = document.querySelectorAll(".bm-hidden").length;
-      if (hidden) throw new Error(`Build Mode audit failed: ${hidden} hidden layer(s) remain.`);
-      return true;
+      const layers = Array.from(document.querySelectorAll<HTMLElement>("[data-layer]"));
+      const hiddenLayers = layers.filter((element) => {
+        const style = window.getComputedStyle(element);
+        const rect = element.getBoundingClientRect();
+        return style.opacity !== "1" || style.visibility !== "visible" || rect.width === 0 || rect.height === 0;
+      }).length;
+      const hiddenHeadings = Array.from(document.querySelectorAll<HTMLElement>("h1,h2")).filter((element) => {
+        const style = window.getComputedStyle(element);
+        const rect = element.getBoundingClientRect();
+        return style.visibility !== "visible" || rect.width === 0 || rect.height === 0;
+      }).length;
+      return { totalLayers: layers.length, hiddenLayers, hiddenHeadings, pass: hiddenLayers === 0 && hiddenHeadings === 0 };
     };
     return () => { delete window.__buildModeAudit; };
   }, []);

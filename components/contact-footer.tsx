@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { portfolioContent } from "@/data/content";
 import { ShowreelModal } from "@/components/showreel-modal";
 import { useAgentBuild } from "@/components/agent-build/BuildProvider";
@@ -22,7 +22,23 @@ function ContactIcon({ name }: { name: IconName }) {
 
 export function ContactSection() {
   const [reelOpen, setReelOpen] = useState(false);
+  const [copied, setCopied] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [indiaTime, setIndiaTime] = useState("");
   const contact = portfolioContent.contact;
+
+  useEffect(() => {
+    const update = () => setIndiaTime(new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date()));
+    update(); const timer = window.setInterval(update, 30_000); return () => window.clearInterval(timer);
+  }, []);
+  const copyHandle = async (value: string) => {
+    try { await navigator.clipboard.writeText(value); setCopied(value); window.setTimeout(() => setCopied(""), 1800); } catch { /* clipboard can be unavailable in embedded previews */ }
+  };
+  const submitProject = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!event.currentTarget.reportValidity()) return;
+    setSubmitted(true);
+  };
 
   return (
     <>
@@ -50,12 +66,12 @@ export function ContactSection() {
               <span className="contact-value" data-layer="text">{contact.email}</span>
             </div>}
             {contact.socials.map((item) => (
-              <a className="contact-row" data-layer="line" href={item.href} target="_blank" rel="noreferrer" key={item.label}>
+              <button className={`contact-row${copied === item.value ? " is-copied" : ""}`} data-layer="line" data-kind="contact-row" type="button" onClick={() => copyHandle(item.value)} key={item.label} aria-label={`Copy ${item.label} handle`}>
                 <span className="contact-icon" data-layer="icon"><ContactIcon name={item.icon} /></span>
                 <span className="contact-label" data-layer="text">{item.label}</span>
                 <span className="contact-value" data-layer="text">{item.value}</span>
-                <span className="contact-arrow" data-layer="icon" aria-hidden="true">↗</span>
-              </a>
+                <span className="contact-arrow" data-layer="icon" aria-hidden="true">{copied === item.value ? "✓" : "↗"}</span>
+              </button>
             ))}
             <div className="contact-row">
               <span className="contact-icon contact-pin" data-layer="icon" aria-hidden="true">⌖</span>
@@ -63,6 +79,19 @@ export function ContactSection() {
               <span className="contact-value" data-layer="text">{contact.location}</span>
             </div>
           </div>
+
+          <form className={`project-form${submitted ? " is-submitted" : ""}`} name="project-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" onSubmit={submitProject} data-layer="card" data-kind="project-form">
+            <input type="hidden" name="form-name" value="project-inquiry" />
+            <p className="form-honeypot"><label>Don&apos;t fill this out <input name="bot-field" /></label></p>
+            {submitted ? <div className="form-success" role="status"><b>✓</b><span>MESSAGE READY TO SHIP</span><button type="button" onClick={() => setSubmitted(false)}>SEND ANOTHER</button></div> : <>
+              <div className="form-heading"><span>START A PROJECT</span><span className="india-time">IST · {indiaTime || "--:--"}</span></div>
+              <label>Name<input required name="name" placeholder="Your name" data-layer="button" data-kind="form-field" /></label>
+              <label>Email<input required name="email" type="email" placeholder="you@company.com" data-layer="button" data-kind="form-field" /></label>
+              <label>Budget<select required name="budget" defaultValue="" data-layer="button" data-kind="form-select"><option value="" disabled>Select a range</option><option>Under $1k</option><option>$1k — $3k</option><option>$3k+</option></select></label>
+              <label>Message<textarea required name="message" rows={3} placeholder="What are we building?" data-layer="button" data-kind="form-field" /></label>
+              <button className="form-submit" type="submit" data-layer="button" data-kind="form-submit">SEND PROJECT <span>↗</span></button>
+            </>}
+          </form>
 
           <button className="showreel-card" data-layer="card" type="button" onClick={() => setReelOpen(true)} aria-label={contact.modalLabel}>
             <span className="showreel-kicker" data-layer="text">{contact.cardKicker}</span>
@@ -83,15 +112,15 @@ export function SiteFooter() {
 
   return (
     <footer className="site-footer section-shell container-x" data-scene="footer">
-      <a className="footer-wordmark" data-layer="text" href="#top" aria-label="Kasif, back to top">
+      <a className="footer-wordmark" data-layer="text" data-kind="footer-wordmark" href="#top" aria-label="Kasif, back to top">
         KASIF<span className="title-period">.</span>
       </a>
       <p className="footer-project-prompt" data-layer="text">{footer.projectPrompt}<span aria-hidden="true"> ↗</span></p>
-      <button className="footer-replay-build" data-layer="button" type="button" onClick={replayBuild}>Replay build <span aria-hidden="true">↗</span></button>
+      <button className="footer-replay-build" data-layer="button" type="button" onClick={replayBuild}>Replay build <span aria-hidden="true">▶</span></button>
       <nav className="footer-socials" aria-label="Social links">
-        {footer.socialLinks.filter((item) => item.href || item.icon !== "email").map((item) => (
+        {footer.socialLinks.map((item) => (
           <a
-            href={item.href || "#contact-email"}
+            href={item.href || "#contact"}
             data-layer="button"
             target={item.href ? "_blank" : undefined}
             rel={item.href ? "noreferrer" : undefined}
@@ -102,7 +131,7 @@ export function SiteFooter() {
           </a>
         ))}
       </nav>
-      <p className="footer-copyright" data-layer="text">© {portfolioContent.identity.name}{footer.note ? ` · ${footer.note}` : ""}</p>
+      <p className="footer-copyright" data-layer="text">© {new Date().getFullYear()} {portfolioContent.identity.name}{footer.note ? ` · ${footer.note}` : ""}</p>
     </footer>
   );
 }

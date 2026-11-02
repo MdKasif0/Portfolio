@@ -22,9 +22,9 @@ const work = portfolioContent.work;
 type Project = (typeof work.projects)[number];
 const allFilter = work.filters[0];
 
-function ProductMock({ project }: { project: Project }) {
+export function ProductMock({ project, mode = "final" }: { project: Project; mode?: "wire" | "final" }) {
   return (
-    <div className={`mock-product mock-${project.art}`} data-layer="card" data-kind="project-mock">
+    <div className={`mock-product mock-${project.art}${mode === "wire" ? " is-wireframe" : ""}`} data-layer="card" data-kind={mode === "wire" ? "wire-project-mock" : "project-mock"}>
       <div className="mock-browser" data-layer="line" data-kind="browser-frame">
         <div className="mock-browser-bar">
           <span className="mock-browser-dots" aria-hidden="true">
@@ -125,6 +125,14 @@ function ProductMock({ project }: { project: Project }) {
           )}
         </div>
       </div>
+      {mode === "wire" && (
+        <div className="mock-ruler-overlay" aria-hidden="true">
+          <span className="mock-ruler-top" data-layer="line">0　64　128　192　256</span>
+          <span className="mock-ruler-side" data-layer="line">0<br />48<br />96<br />144</span>
+          <i className="mock-spacing-mark mock-spacing-top" data-layer="line">24</i>
+          <i className="mock-spacing-mark mock-spacing-side" data-layer="line">24</i>
+        </div>
+      )}
     </div>
   );
 }

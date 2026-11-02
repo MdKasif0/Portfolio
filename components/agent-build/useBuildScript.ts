@@ -66,10 +66,13 @@ export function useBuildScript(layers: BuildLayer[], cursorLimit: number, mobile
       const seed = hash(`${layer.section}:${layer.id}`);
       const jitter = (seed % 181) - 90;
       const heroLayer = layer.section === "top";
+      const focusedSection = ["recognition", "raw-real", "about"].includes(layer.section);
       const startedAt = heroLayer
         ? (120 + Math.floor(position / 10) * 400) * timeScale
         : layer.section === "work"
           ? (windowStart + position * 48) * timeScale
+          : focusedSection
+            ? (windowStart + position * 42) * timeScale
         : Math.max(0, (windowStart + (sectionLayers.length > 1
           ? (position / (sectionLayers.length - 1)) * spread
           : spread / 2) + jitter) * timeScale);
