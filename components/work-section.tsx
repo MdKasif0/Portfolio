@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { portfolioContent } from "@/data/content";
 import { useMotionPreference } from "@/components/motion-shell";
-import { SectionHeader } from "@/components/design-system";
 
 const work = portfolioContent.work;
 
@@ -16,7 +15,7 @@ export function WorkSection() {
 
   const filteredProjects = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return work.projects.filter((project) => project.tag && project.subtitle && project.categories.length > 0).filter((project) => {
+    return work.projects.filter((project) => {
       const matchesFilter = activeFilter === work.filters[0] || project.categories.some((category) => category === activeFilter);
       const matchesSearch = !query || `${project.title} ${project.tag} ${project.subtitle} ${project.categories.join(" ")}`.toLowerCase().includes(query);
       return matchesFilter && matchesSearch;
@@ -38,20 +37,15 @@ export function WorkSection() {
   }
 
   return (
-    <section className="work-section section-shell container-x" id="work" data-scene="work" aria-labelledby="work-heading">
+    <section className="work-section section-shell" id="work" data-scene="work" aria-labelledby="work-heading">
       <div className="work-heading-row" data-layer="line">
-        <SectionHeader
-          index={work.eyebrowNumber}
-          label={work.eyebrowLabel}
-          titleLines={[work.title]}
-          titleClassName="work-heading"
-          id="work-heading"
-          action={
-            <a className="work-all-link" data-layer="button" data-kind="cta" href={portfolioContent.work.githubProfile} target="_blank" rel="noreferrer">
-              {work.allWork} <span aria-hidden="true">↗</span>
-            </a>
-          }
-        />
+        <div>
+          <p className="eyebrow" data-layer="text"><span>{work.eyebrowNumber}</span> / {work.eyebrowLabel}</p>
+          <h2 className="display-title work-heading" data-layer="text" id="work-heading">{work.title}<span className="title-period">.</span></h2>
+        </div>
+        <a className="work-all-link" data-layer="button" href={portfolioContent.work.githubProfile} target="_blank" rel="noreferrer">
+          {work.allWork} <span aria-hidden="true">↗</span>
+        </a>
       </div>
 
       <div className="work-toolbar" data-layer="line">
@@ -112,18 +106,18 @@ export function WorkSection() {
               data-layer="card"
               key={project.title}
               layout={motionEnabled}
-              initial={false}
+              initial={motionEnabled ? { opacity: 0, y: 18 } : false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: motionEnabled ? 0.32 : 0, delay: motionEnabled ? index * 0.045 : 0 }}
             >
               <a
                 className="project-link"
                 data-layer="button"
-                data-kind="card-link"
-                href={project.href ?? portfolioContent.work.githubProfile}
+                href={project.href === "[PLACEHOLDER]" ? portfolioContent.work.githubProfile : project.href}
                 target="_blank"
                 rel="noreferrer"
-                title={work.openProject}
+                aria-label={`${work.openProject}: ${project.title}${project.href === "[PLACEHOLDER]" ? " — GitHub profile; project URL placeholder" : ""}`}
+                title={project.href === "[PLACEHOLDER]" ? "Project URL [PLACEHOLDER] — open GitHub profile" : work.openProject}
               >
                 <div className={`project-thumbnail art-${project.art}`} data-layer="image">
                   <div className="thumbnail-window" data-layer="image" aria-hidden="true">
@@ -134,7 +128,7 @@ export function WorkSection() {
                   </div>
                   <span className="project-tag" data-layer="text">{project.tag}</span>
                   <span className="project-index" data-layer="text">{String(work.projects.indexOf(project) + 1).padStart(2, "0")}</span>
-                  <span className="thumbnail-placeholder" data-layer="text">{work.placeholderThumbnail}</span>
+                  <span className="thumbnail-placeholder" data-layer="text">{work.placeholderThumbnail} · [PLACEHOLDER]</span>
                 </div>
                 <div className="project-card-copy" data-layer="card">
                   <div className="project-card-title">
@@ -144,10 +138,7 @@ export function WorkSection() {
                     </div>
                     <span className="project-arrow" data-layer="icon" aria-hidden="true">↗</span>
                   </div>
-                  <p className="project-meta" data-layer="text">
-                    {project.categories[0]?.toUpperCase()}
-                    {project.year && <> / {project.year}</>}
-                  </p>
+                  <p className="project-meta" data-layer="text">{project.categories[0].toUpperCase()} / {project.year}</p>
                 </div>
               </a>
             </motion.article>

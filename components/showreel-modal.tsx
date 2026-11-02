@@ -3,8 +3,7 @@
 import { useEffect, useRef } from "react";
 import { portfolioContent } from "@/data/content";
 
-function getEmbedUrl(source: string | undefined) {
-  if (!source) return null;
+function getEmbedUrl(source: string) {
   try {
     const url = new URL(source);
     const host = url.hostname.replace(/^www\./, "");

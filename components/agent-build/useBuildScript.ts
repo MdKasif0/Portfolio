@@ -1,20 +1,83 @@
 "use client";
 
 import { useMemo } from "react";
-import { compileBuildTasks } from "@/components/agent-build/taskCompiler";
-import { buildModeConfig } from "@/components/agent-build/buildMode.config";
 import type { BuildFrame, BuildLayer } from "@/components/agent-build/types";
 
+type Act = "scan" | "blueprint" | "build" | "polish" | "finale" | "handoff";
+
+export type DirectorCue = BuildFrame & {
+  act: Act;
+  cue: "inspect" | "place" | "type" | "polish";
+  seed: number;
+};
+
+const sectionWindows: Record<string, [number, number]> = {
+  nav: [350, 1150],
+  top: [1050, 6650],
+  work: [6400, 15100],
+  collaborators: [14500, 17500],
+  recognition: [17000, 21100],
+  "raw-real": [20700, 23400],
+  about: [23000, 27200],
+  journey: [26700, 30900],
+  contact: [30400, 33400],
+  footer: [32900, 34800]
+};
+
+const hash = (value: string) => value.split("").reduce((result, character) =>
+  (result * 31 + character.charCodeAt(0)) >>> 0, 2166136261);
+
+function actFor(section: string, start: number, mobile: boolean): Act {
+  const scale = mobile ? 0.53 : 1;
+  if (start < 1_500 * scale) return "scan";
+  if (section === "top" || section === "nav") return "blueprint";
+  if (start < 23_000 * scale) return "build";
+  if (start < 31_000 * scale) return "polish";
+  if (start < 34_900 * scale) return "finale";
+  return "handoff";
+}
+
+function cueFor(layer: BuildLayer, seed: number): DirectorCue["cue"] {
+  if (layer.type === "image" || layer.type === "card") return "place";
+  if (layer.type === "line" || layer.type === "icon") return "polish";
+  return seed % 5 === 0 ? "inspect" : "type";
+}
+
 /**
- * Compile marked DOM layers into deterministic camera-window task queues.
+ * A deterministic six-act director. Each section owns a fixed time window, while
+ * layer and agent assignment are seeded so Replay produces the same choreography.
  */
-export function useBuildScript(layers: BuildLayer[], cursorLimit: number, mobile = false): BuildFrame[] {
+export function useBuildScript(layers: BuildLayer[], cursorLimit: number, mobile = false) {
   return useMemo(() => {
-    if (!layers.length) return [];
-    const workerLimit = mobile
-      ? Math.min(buildModeConfig.mobileRenderedCursors, cursorLimit)
-      : Math.min(buildModeConfig.activeWorkerLimit, buildModeConfig.maxRenderedCursors, cursorLimit);
-    const viewportHeight = typeof window === "undefined" ? 900 : window.innerHeight;
-    return compileBuildTasks(layers, workerLimit, viewportHeight, mobile);
+    if (!layers.length || !cursorLimit) return [];
+    const timeScale = mobile ? 0.53 : 1;
+    const bySection = new Map<string, BuildLayer[]>();
+    for (const layer of layers) {
+      const sectionLayers = bySection.get(layer.section) ?? [];
+      sectionLayers.push(layer);
+      bySection.set(layer.section, sectionLayers);
+    }
+
+    return layers.map((layer, index) => {
+      const [windowStart, windowEnd] = sectionWindows[layer.section] ?? [0, 34_800];
+      const sectionLayers = bySection.get(layer.section) ?? [layer];
+      const position = sectionLayers.indexOf(layer);
+      const spread = Math.max(0, windowEnd - windowStart - 620);
+      const seed = hash(`${layer.section}:${layer.id}`);
+      const jitter = (seed % 181) - 90;
+      const startedAt = Math.max(0, (windowStart + (sectionLayers.length > 1
+        ? (position / (sectionLayers.length - 1)) * spread
+        : spread / 2) + jitter) * timeScale);
+      const duration = (layer.type === "text" ? 640 : 510) * timeScale;
+      return {
+        layer,
+        cursorId: seed % cursorLimit,
+        startedAt,
+        endsAt: startedAt + duration,
+        act: actFor(layer.section, startedAt, mobile),
+        cue: cueFor(layer, seed),
+        seed
+      };
+    }).sort((a, b) => a.startedAt - b.startedAt || a.seed - b.seed);
   }, [cursorLimit, layers, mobile]);
 }

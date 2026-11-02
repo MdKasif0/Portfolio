@@ -1,34 +1,29 @@
 import { agentColors, agentNames } from "@/components/agent-build/buildMode.config";
-import type { BuildAction } from "@/components/agent-build/types";
 
 export function AgentCursor({
   id,
   x,
   y,
   active,
+  finishing,
   section,
-  phase,
-  action,
-  violation,
-  nudge
+  cue
 }: {
   id: number;
   x: number;
   y: number;
   active: boolean;
+  finishing?: boolean;
   section?: string;
-  phase: "travel" | "act" | "exit";
-  action?: BuildAction;
-  violation?: boolean;
-  nudge?: number;
+  cue?: "inspect" | "place" | "type" | "polish";
 }) {
   const color = agentColors[id % agentColors.length];
   const name = id < agentNames.length ? agentNames[id] : undefined;
 
   return (
     <span
-      className={`agent-cursor${active ? " is-active" : ""}${violation ? " has-idle-violation" : ""}`}
-      style={{ transform: `translate3d(${x}px, ${y}px, 0)`, color: violation ? "#F87171" : color }}
+      className={`agent-cursor${active ? " is-active" : ""}${finishing ? " is-finishing" : ""}`}
+      style={{ transform: `translate3d(${x}px, ${y}px, 0)`, color }}
       aria-hidden="true"
     >
       <svg viewBox="0 0 20 24" fill="none">
@@ -37,10 +32,7 @@ export function AgentCursor({
       {name && (
         <span className="agent-cursor-tag" style={{ borderColor: color }}>
           <span className="agent-cursor-name" style={{ backgroundColor: color }}>{name}</span>
-          {nudge && <span className="agent-cursor-nudge">→ {nudge}px</span>}
-          {active && <span className="agent-cursor-status">
-            {action?.replaceAll("_", " ").toLowerCase() ?? "working"} · {phase} · {section}
-          </span>}
+          {active && <span className="agent-cursor-status">{cue ?? "building"} · {section}</span>}
         </span>
       )}
     </span>

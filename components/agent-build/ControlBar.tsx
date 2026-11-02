@@ -48,9 +48,7 @@ export function ControlBar({
   return (
     <div className="agent-control-bar" role="group" aria-label="Agent Build Mode controls">
       {isFinished ? (
-        <span className="agent-finished-copy">
-          Rebuilt by {agentCount} agents in {elapsedSeconds}s · {layersTotal} layers · 0 bugs
-        </span>
+        <span className="agent-finished-copy">Rebuilt by {agentCount} agents in {elapsedSeconds}s</span>
       ) : (
         <div className="agent-count">
           <span className="agent-dot-cluster" aria-hidden="true">
@@ -62,7 +60,7 @@ export function ControlBar({
 
       {!isFinished && (
         <div className="agent-progress" aria-label={`${layersDone} of ${layersTotal} layers`}>
-          <span className="agent-progress-label">{layersDone} / {layersTotal} layers</span>
+          <span className="agent-progress-label">{layersDone} / {layersTotal || 364} layers</span>
           <span className="agent-progress-track"><i style={{ transform: `scaleX(${progress / 100})` }} /></span>
         </div>
       )}

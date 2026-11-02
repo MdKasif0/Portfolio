@@ -28,17 +28,15 @@ export const metadata: Metadata = {
     title: "KASIF — Frontend Developer, UI/UX Designer & Tech Creator",
     description: "Ideas into interfaces people feel. Explore the work of Md Kasif Uddin.",
     siteName: "KASIF",
-    ...(portfolioContent.siteUrl ? {
-      images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "KASIF — Frontend Developer and UI/UX Designer" }]
-    } : {})
+    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "KASIF — Frontend Developer and UI/UX Designer" }]
   },
   twitter: {
     card: "summary_large_image",
     title: "KASIF — Frontend Developer, UI/UX Designer & Tech Creator",
     description: "Ideas into interfaces people feel. Explore the work of Md Kasif Uddin.",
-    ...(portfolioContent.siteUrl ? { images: ["/og-image.svg"] } : {})
+    images: ["/og-image.svg"]
   },
-  ...(portfolioContent.siteUrl ? { metadataBase: new URL(portfolioContent.siteUrl) } : {})
+  metadataBase: new URL(portfolioContent.siteUrl.replace("[PLACEHOLDER]", "portfolio.invalid"))
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
