@@ -65,16 +65,16 @@ export function useBuildScript(layers: BuildLayer[], cursorLimit: number, mobile
       const spread = Math.max(0, windowEnd - windowStart - 620);
       const seed = hash(`${layer.section}:${layer.id}`);
       const jitter = (seed % 181) - 90;
-      const heroPortrait = layer.section === "top" && layer.type === "image";
-      const startedAt = heroPortrait
-        ? 300 * timeScale
+      const heroLayer = layer.section === "top";
+      const startedAt = heroLayer
+        ? (120 + Math.floor(position / 10) * 400) * timeScale
         : Math.max(0, (windowStart + (sectionLayers.length > 1
           ? (position / (sectionLayers.length - 1)) * spread
           : spread / 2) + jitter) * timeScale);
       const duration = (layer.type === "text" ? 640 : 510) * timeScale;
       return {
         layer,
-        cursorId: seed % cursorLimit,
+        cursorId: heroLayer ? position % Math.min(cursorLimit, 10) : seed % cursorLimit,
         startedAt,
         endsAt: startedAt + duration,
         act: actFor(layer.section, startedAt, mobile),

@@ -24,6 +24,17 @@ function recipeFor(frame: BuildFrame) {
   if (kind === "section-rule") return "DRAW_LINE · 48PX";
   if (kind === "section-headline-accent") return "TYPE · RESIZE TO FINAL · STYLE RED";
   if (kind === "section-headline-line") return "TYPE HEADLINE · RESIZE TO FINAL";
+  if (kind === "portfolio-word-fill") return "DRAW_TEXTBOX · TYPE PORTFOLIO · RESIZE ANTON";
+  if (kind === "portfolio-word-outline") return "COPY / PASTE WORD · FILL NONE · STROKE 1.5";
+  if (kind === "avatar") return "DROP IMAGE · CROP · REMOVE BACKGROUND";
+  if (kind === "hud-ring") return "DRAW CIRCLE · COPY / PASTE · ROTATE";
+  if (kind === "crop-mark") return "DRAW_LINE · CROP MARK";
+  if (kind === "stat-card") return "BUILD CARD · COPY / PASTE · RETYPE";
+  if (kind === "marquee-row") return "TYPE PHRASE · COPY / PASTE · SET SPEED";
+  if (kind === "glass-chip") return "DRAW BOX · BLUR 12 · TYPE LABEL";
+  if (kind === "handwritten") return "PEN TOOL · DRAW STROKE";
+  if (kind === "availability") return "DRAW PILL · STYLE STATUS DOT";
+  if (kind === "scroll-cue") return "DRAW_LINE · ANIMATE SCROLL CUE";
   if (section === "nav") return "STYLE NAV DETAIL";
   return `${frame.cue?.toUpperCase() ?? "BUILD"} / ${frame.layer.type.toUpperCase()}`;
 }

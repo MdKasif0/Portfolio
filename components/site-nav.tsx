@@ -32,7 +32,13 @@ export function SiteNav() {
       const current = entries
         .filter((entry) => entry.isIntersecting)
         .sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top))[0];
-      if (!current) return;
+      if (!current) {
+        if (window.scrollY <= window.innerHeight * 0.55) {
+          setActiveSection("work");
+          if (window.location.hash !== "#work") window.history.replaceState(window.history.state, "", "#work");
+        }
+        return;
+      }
       const id = (current.target as HTMLElement).id;
       setActiveSection(id);
       const hash = `#${id}`;

@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { MotionShell } from "@/components/motion-shell";
 import { SiteNav } from "@/components/site-nav";
 import { HeroSection } from "@/components/hero-section";
@@ -8,13 +10,14 @@ import { ContactSection, SiteFooter } from "@/components/contact-footer";
 import { Atmosphere, RulerDivider } from "@/components/design-primitives";
 
 export default function Home() {
+  const cvAvailable = existsSync(join(process.cwd(), "public", "cv.pdf"));
   return (
     <MotionShell>
       <Atmosphere />
       <a className="skip-link" href="#main-content">Skip to content</a>
       <SiteNav />
       <main id="main-content">
-        <HeroSection />
+        <HeroSection cvAvailable={cvAvailable} />
         <RulerDivider label="001 / 064" />
         <WorkSection />
         <RulerDivider label="002 / 128" />

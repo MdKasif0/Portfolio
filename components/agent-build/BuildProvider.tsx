@@ -16,7 +16,7 @@ import { CursorLayer } from "@/components/agent-build/CursorLayer";
 import { useBuildScript } from "@/components/agent-build/useBuildScript";
 import type { BuildFrame, BuildLayer, BuildPhase, CursorPosition, LayerType } from "@/components/agent-build/types";
 
-type BuildContextValue = { replayBuild: () => void };
+type BuildContextValue = { replayBuild: () => void; phase: BuildPhase };
 const BuildContext = createContext<BuildContextValue | null>(null);
 
 export function useAgentBuild() {
@@ -567,7 +567,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     playSound();
   }, [phase, muted, playSound]);
 
-  const contextValue = useMemo(() => ({ replayBuild }), [replayBuild]);
+  const contextValue = useMemo(() => ({ replayBuild, phase }), [phase, replayBuild]);
 
   return (
     <BuildContext.Provider value={contextValue}>
