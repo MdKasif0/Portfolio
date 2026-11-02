@@ -19,24 +19,29 @@ const caveat = Caveat({
   variable: "--font-script"
 });
 
+const socialImage = portfolioContent.siteUrl
+  ? new URL("/og-image.svg", portfolioContent.siteUrl).toString()
+  : undefined;
+
 export const metadata: Metadata = {
   title: "KASIF — Frontend Developer, UI/UX Designer & Tech Creator",
   description: "The portfolio of Md Kasif Uddin: freelance frontend developer, UI/UX designer and tech content creator.",
   applicationName: "KASIF Portfolio",
+  icons: { icon: [{ url: "/favicon.svg", type: "image/svg+xml" }] },
   openGraph: {
     type: "website",
     title: "KASIF — Frontend Developer, UI/UX Designer & Tech Creator",
     description: "Ideas into interfaces people feel. Explore the work of Md Kasif Uddin.",
     siteName: "KASIF",
-    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "KASIF — Frontend Developer and UI/UX Designer" }]
+    ...(socialImage ? { images: [{ url: socialImage, width: 1200, height: 630, alt: "KASIF — Frontend Developer and UI/UX Designer" }] } : {})
   },
   twitter: {
     card: "summary_large_image",
     title: "KASIF — Frontend Developer, UI/UX Designer & Tech Creator",
     description: "Ideas into interfaces people feel. Explore the work of Md Kasif Uddin.",
-    images: ["/og-image.svg"]
+    ...(socialImage ? { images: [socialImage] } : {})
   },
-  metadataBase: new URL(portfolioContent.siteUrl.replace("[PLACEHOLDER]", "portfolio.invalid"))
+  ...(portfolioContent.siteUrl ? { metadataBase: new URL(portfolioContent.siteUrl) } : {})
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

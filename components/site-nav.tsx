@@ -1,21 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { portfolioContent } from "@/data/content";
 import { useMotionPreference } from "@/components/motion-shell";
-
-function MotionIcon({ enabled }: { enabled: boolean }) {
-  return enabled ? (
-    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9l7-4.5-7-4.5Z" /></svg>
-  ) : (
-    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5 11.5 11.5M11.5 4.5l-7 7" /></svg>
-  );
-}
 
 export function SiteNav() {
   const { motionEnabled, setMotionEnabled } = useMotionPreference();
   const [progress, setProgress] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
+  const [compressed, setCompressed] = useState(false);
 
   useEffect(() => {
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -25,14 +20,30 @@ export function SiteNav() {
     const updateProgress = () => {
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       setProgress(maxScroll > 0 ? window.scrollY / maxScroll : 0);
+      setCompressed(window.scrollY > 80);
     };
     updateProgress();
     window.addEventListener("scroll", updateProgress, { passive: true });
     window.addEventListener("resize", updateProgress);
+    const sections = portfolioContent.navigation
+      .map((item) => document.querySelector<HTMLElement>(item.href))
+      .filter((section): section is HTMLElement => section !== null);
+    const observer = new IntersectionObserver((entries) => {
+      const current = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top))[0];
+      if (!current) return;
+      const id = (current.target as HTMLElement).id;
+      setActiveSection(id);
+      const hash = `#${id}`;
+      if (window.location.hash !== hash) window.history.replaceState(window.history.state, "", hash);
+    }, { threshold: 0, rootMargin: "-42% 0px -48% 0px" });
+    sections.forEach((section) => observer.observe(section));
     return () => {
       preference.removeEventListener("change", updatePreference);
       window.removeEventListener("scroll", updateProgress);
       window.removeEventListener("resize", updateProgress);
+      observer.disconnect();
     };
   }, [setMotionEnabled]);
 
@@ -51,17 +62,19 @@ export function SiteNav() {
 
   return (
     <>
-      <div className="scroll-progress" data-build-section="nav" aria-hidden="true">
-        <span data-layer="line" style={{ transform: `scaleY(${progress})` }} />
+      <div className="scroll-progress" data-build-section="nav" data-layer="line" data-kind="progress" aria-hidden="true">
+        <span data-layer="line" data-kind="progress-value" style={{ transform: `scaleY(${progress})` }} />
       </div>
-      <header className="site-nav" data-scene="nav">
-        <div className="nav-inner">
-          <a className="nav-logo" data-layer="text" href="#top" aria-label="Kasif, home">
+      <header className={`site-nav${compressed ? " is-compressed" : ""}`} data-scene="nav" data-layer="card" data-kind="nav-frame">
+        <div className="nav-inner container-x">
+          <a className="nav-logo" data-layer="text" data-kind="logo" href="#top" aria-label="Kasif, home">
             KASIF<span className="logo-dot">.</span>
           </a>
           <nav id="primary-navigation" className={`nav-links${menuOpen ? " is-open" : ""}`} aria-label="Main navigation">
             {portfolioContent.navigation.map((item) => (
-              <a data-layer="text" href={item.href} key={item.href} onClick={() => setMenuOpen(false)}>{item.label}</a>
+              <a className={activeSection === item.href.slice(1) ? "is-active" : ""} data-layer="text" data-kind="nav-link" href={item.href} key={item.href} onClick={() => setMenuOpen(false)}>
+                {item.label}{activeSection === item.href.slice(1) && <motion.i className="nav-active-underline" layoutId="nav-active-underline" />}
+              </a>
             ))}
           </nav>
           <div className="nav-actions">
@@ -79,16 +92,19 @@ export function SiteNav() {
             <button
               className="motion-toggle"
               data-layer="button"
+              data-kind="motion-switch"
               type="button"
+              aria-label={motionEnabled ? "Turn motion off" : "Turn motion on"}
               aria-pressed={motionEnabled}
               onClick={() => setMotionEnabled(!motionEnabled)}
             >
-              <MotionIcon enabled={motionEnabled} />
-              <span>Motion {motionEnabled ? "on" : "off"}</span>
+              <span className={`motion-switch-track${motionEnabled ? " is-on" : ""}`} aria-hidden="true"><i /></span>
+              <span className="motion-toggle-label">Motion {motionEnabled ? "on" : "off"}</span>
             </button>
-            <a className="talk-link" data-layer="button" href={portfolioContent.navigationCta.href}>{portfolioContent.navigationCta.label} <span aria-hidden="true">↗</span></a>
+            <a className="talk-link" data-layer="button" data-kind="nav-cta" href={portfolioContent.navigationCta.href}>{portfolioContent.navigationCta.label} <span aria-hidden="true">↗</span></a>
           </div>
         </div>
+        <div className="nav-scroll-progress" aria-hidden="true"><i style={{ transform: `scaleX(${progress})` }} /></div>
       </header>
     </>
   );

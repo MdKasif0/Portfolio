@@ -9,8 +9,8 @@ import { ShowreelModal } from "@/components/showreel-modal";
 
 const hero = portfolioContent.hero;
 
-function AnimatedStat({ value, label, active, motionEnabled }: { value: string; label: string; active: boolean; motionEnabled: boolean }) {
-  const numericValue = Number(value);
+function AnimatedStat({ value, label, active, motionEnabled }: { value?: string; label: string; active: boolean; motionEnabled: boolean }) {
+  const numericValue = value === undefined ? Number.NaN : Number(value);
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -30,10 +30,11 @@ function AnimatedStat({ value, label, active, motionEnabled }: { value: string; 
     return () => window.cancelAnimationFrame(frame);
   }, [active, numericValue]);
 
+  if (!value) return null;
   return (
     <div className="hero-stat" data-layer="text">
       <span className="hero-stat-value" data-layer="text">
-        {Number.isFinite(numericValue) && motionEnabled ? count : value}
+        {Number.isFinite(numericValue) && motionEnabled && active ? count : value}
         <span className="stat-period">.</span>
       </span>
       <span className="hero-stat-label" data-layer="text">{label}</span>
@@ -74,7 +75,7 @@ export function HeroSection() {
           </motion.div>
         </div>
 
-        <div className="hero-topline section-shell">
+        <div className="hero-topline section-shell container-x">
           <div className="hero-eyebrow">
             {hero.eyebrow.map((line) => <span data-layer="text" key={line}>{line}</span>)}
           </div>
@@ -88,22 +89,25 @@ export function HeroSection() {
           style={{ y: motionEnabled ? imageY : 0 }}
         >
           <div className="portrait-rim" aria-hidden="true" />
-          <Image
-            src={hero.cutoutPath}
-            alt={hero.cutoutAlt}
-            width={1254}
-            height={1254}
-            priority
-            onLoad={() => setCutoutLoaded(true)}
-            onError={(event) => {
-              setCutoutLoaded(false);
-              event.currentTarget.classList.add("portrait-missing");
-            }}
-          />
+          <picture>
+            <source media="(max-width: 700px)" srcSet={hero.cutoutMobilePath} type="image/webp" />
+            <Image
+              src={hero.cutoutPath}
+              alt={hero.cutoutAlt}
+              width={1254}
+              height={1254}
+              priority
+              onLoad={() => setCutoutLoaded(true)}
+              onError={(event) => {
+                setCutoutLoaded(false);
+                event.currentTarget.classList.add("portrait-missing");
+              }}
+            />
+          </picture>
           {!cutoutLoaded && <span className="portrait-placeholder">{hero.cutoutPlaceholder}</span>}
         </motion.div>
 
-        <div className="hero-copy section-shell">
+        <div className="hero-copy section-shell container-x">
           <div className="hero-copy-inner">
             <p className="hero-script hero-reveal-line" data-layer="text">{hero.greeting}</p>
             <h1 id="hero-title" className="display-title hero-name hero-reveal-line" data-layer="text">
@@ -123,7 +127,7 @@ export function HeroSection() {
           </div>
         </div>
 
-        <div className="hero-reel section-shell">
+        <div className="hero-reel section-shell container-x">
           <button className="reel-trigger" data-layer="button" type="button" onClick={() => setReelOpen(true)}>
             <span className="reel-play" data-layer="icon" aria-hidden="true"><span /></span>
             <span className="reel-label" data-layer="text">{hero.reelLabel}</span>
@@ -135,13 +139,11 @@ export function HeroSection() {
           <div className="hero-aside-note" data-layer="text"><span aria-hidden="true">✳</span><em>{hero.asideNote}</em></div>
           <div className="hero-stats" ref={statsRef}>
             {hero.stats.map((stat) => <AnimatedStat key={stat.label} {...stat} active={statsActive} motionEnabled={motionEnabled} />)}
-            <a className={`cv-link${hero.cvHref === "[PLACEHOLDER]" ? " cv-link-placeholder" : ""}`} data-layer="button" href={hero.cvHref === "[PLACEHOLDER]" ? undefined : hero.cvHref} aria-disabled={hero.cvHref === "[PLACEHOLDER]"}>
-              <span aria-hidden="true">↓</span> {hero.cvLabel}
-            </a>
+            {hero.cvHref && <a className="cv-link" data-layer="button" href={hero.cvHref}><span aria-hidden="true">↓</span> {hero.cvLabel}</a>}
           </div>
         </aside>
 
-        <div className="hero-bottomline section-shell">
+        <div className="hero-bottomline section-shell container-x">
           <a data-layer="text" href="#work">{hero.scrollLabel}</a>
           <span data-layer="text">{hero.footerLabel}</span>
         </div>

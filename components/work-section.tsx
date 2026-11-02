@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { portfolioContent } from "@/data/content";
 import { useMotionPreference } from "@/components/motion-shell";
+import { SectionHeader } from "@/components/section-header";
 
 const work = portfolioContent.work;
 
@@ -17,7 +18,7 @@ export function WorkSection() {
     const query = search.trim().toLowerCase();
     return work.projects.filter((project) => {
       const matchesFilter = activeFilter === work.filters[0] || project.categories.some((category) => category === activeFilter);
-      const matchesSearch = !query || `${project.title} ${project.tag} ${project.subtitle} ${project.categories.join(" ")}`.toLowerCase().includes(query);
+      const matchesSearch = !query || `${project.title} ${project.tag ?? ""} ${project.subtitle ?? ""} ${project.categories.join(" ")}`.toLowerCase().includes(query);
       return matchesFilter && matchesSearch;
     });
   }, [activeFilter, search]);
@@ -37,16 +38,16 @@ export function WorkSection() {
   }
 
   return (
-    <section className="work-section section-shell" id="work" data-scene="work" aria-labelledby="work-heading">
-      <div className="work-heading-row" data-layer="line">
-        <div>
-          <p className="eyebrow" data-layer="text"><span>{work.eyebrowNumber}</span> / {work.eyebrowLabel}</p>
-          <h2 className="display-title work-heading" data-layer="text" id="work-heading">{work.title}<span className="title-period">.</span></h2>
-        </div>
-        <a className="work-all-link" data-layer="button" href={portfolioContent.work.githubProfile} target="_blank" rel="noreferrer">
-          {work.allWork} <span aria-hidden="true">↗</span>
-        </a>
-      </div>
+    <section className="work-section section-shell container-x" id="work" data-scene="work" aria-labelledby="work-heading">
+      <SectionHeader
+        className="work-heading-row"
+        index={work.eyebrowNumber}
+        label={work.eyebrowLabel}
+        titleLines={[`${work.title}.`]}
+        id="work-heading"
+        titleClassName="work-heading"
+        action={<a className="work-all-link" href={portfolioContent.work.githubProfile} target="_blank" rel="noreferrer">{work.allWork} <span aria-hidden="true">↗</span></a>}
+      />
 
       <div className="work-toolbar" data-layer="line">
         <div className="work-filters" data-layer="line" role="tablist" aria-label="Filter projects by category">
@@ -113,32 +114,34 @@ export function WorkSection() {
               <a
                 className="project-link"
                 data-layer="button"
-                href={project.href === "[PLACEHOLDER]" ? portfolioContent.work.githubProfile : project.href}
+                href={project.href ?? portfolioContent.work.githubProfile}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={`${work.openProject}: ${project.title}${project.href === "[PLACEHOLDER]" ? " — GitHub profile; project URL placeholder" : ""}`}
-                title={project.href === "[PLACEHOLDER]" ? "Project URL [PLACEHOLDER] — open GitHub profile" : work.openProject}
+                aria-label={`${work.openProject}: ${project.title}`}
+                title={work.openProject}
               >
                 <div className={`project-thumbnail art-${project.art}`} data-layer="image">
                   <div className="thumbnail-window" data-layer="image" aria-hidden="true">
-                    <span /><span /><span />
-                    <i />
-                    <b />
-                    <em />
+                    <span data-layer="icon" /><span data-layer="icon" /><span data-layer="icon" />
+                    <i data-layer="line" />
+                    <b data-layer="line" />
+                    <em data-layer="line" />
                   </div>
-                  <span className="project-tag" data-layer="text">{project.tag}</span>
+                  {project.tag && <span className="project-tag" data-layer="text">{project.tag}</span>}
                   <span className="project-index" data-layer="text">{String(work.projects.indexOf(project) + 1).padStart(2, "0")}</span>
-                  <span className="thumbnail-placeholder" data-layer="text">{work.placeholderThumbnail} · [PLACEHOLDER]</span>
+                  <span className="thumbnail-placeholder" data-layer="text">{work.placeholderThumbnail}</span>
                 </div>
                 <div className="project-card-copy" data-layer="card">
                   <div className="project-card-title">
                     <div>
                       <h3 data-layer="text">{project.title}</h3>
-                      <p className="project-subtitle" data-layer="text">{project.subtitle}</p>
+                      {project.subtitle && <p className="project-subtitle" data-layer="text">{project.subtitle}</p>}
                     </div>
                     <span className="project-arrow" data-layer="icon" aria-hidden="true">↗</span>
                   </div>
-                  <p className="project-meta" data-layer="text">{project.categories[0].toUpperCase()} / {project.year}</p>
+                  {(project.categories[0] || project.year) && (
+                    <p className="project-meta" data-layer="text">{[project.categories[0]?.toUpperCase(), project.year].filter(Boolean).join(" / ")}</p>
+                  )}
                 </div>
               </a>
             </motion.article>

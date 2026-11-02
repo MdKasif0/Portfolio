@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import Lenis from "lenis";
 import { BuildProvider } from "@/components/agent-build/BuildProvider";
+import { portfolioContent } from "@/data/content";
 
 const MotionPreferenceContext = createContext<{
   motionEnabled: boolean;
@@ -22,8 +23,28 @@ export function MotionShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
     setMotionEnabled(!preference.matches);
+    document.documentElement.dataset.motion = preference.matches ? "off" : "ready";
+    if (process.env.NODE_ENV === "development") {
+      const missing: string[] = [];
+      const visit = (value: unknown, path: string) => {
+        if (value === undefined || value === null || value === "") {
+          missing.push(path);
+          return;
+        }
+        if (Array.isArray(value)) {
+          value.forEach((item, index) => visit(item, `${path}[${index}]`));
+        } else if (typeof value === "object") {
+          Object.entries(value).forEach(([key, item]) => visit(item, `${path}.${key}`));
+        }
+      };
+      visit(portfolioContent, "portfolioContent");
+      if (missing.length) console.table(missing.map((field) => ({ missingField: field })));
+    }
 
-    const updatePreference = (event: MediaQueryListEvent) => setMotionEnabled(!event.matches);
+    const updatePreference = (event: MediaQueryListEvent) => {
+      document.documentElement.dataset.motion = event.matches ? "off" : "ready";
+      setMotionEnabled(!event.matches);
+    };
     preference.addEventListener("change", updatePreference);
     return () => preference.removeEventListener("change", updatePreference);
   }, []);
@@ -82,9 +103,11 @@ function MotionPolish() {
   const { motionEnabled } = useMotionPreference();
 
   useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.motion = motionEnabled && !window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "ready" : "off";
     const targets = Array.from(document.querySelectorAll<HTMLElement>(".display-title:not(.hero-name)"));
-    if (!motionEnabled || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      targets.forEach((target) => target.classList.remove("motion-reveal-pending", "motion-reveal-visible"));
+    if (root.dataset.motion !== "ready") {
+      targets.forEach((target) => target.classList.add("motion-reveal-visible"));
       return;
     }
 
@@ -95,12 +118,13 @@ function MotionPolish() {
           observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.18 });
+    }, { threshold: 0, rootMargin: "0px 0px -2.5% 0px" });
 
-    targets.forEach((target) => {
-      target.classList.add("motion-reveal-pending");
-      observer.observe(target);
-    });
+    targets.forEach((target) => observer.observe(target));
+    const safety = window.setTimeout(() => {
+      targets.forEach((target) => target.classList.add("motion-reveal-visible"));
+      observer.disconnect();
+    }, 2500);
 
     const moveMagnetically = (event: PointerEvent) => {
       if (!(event.currentTarget instanceof HTMLElement)) return;
@@ -120,13 +144,13 @@ function MotionPolish() {
     });
 
     return () => {
+      window.clearTimeout(safety);
       observer.disconnect();
       magnets.forEach((element) => {
         element.removeEventListener("pointermove", moveMagnetically);
         element.removeEventListener("pointerleave", resetMagnet);
         element.style.transform = "";
       });
-      targets.forEach((target) => target.classList.remove("motion-reveal-pending", "motion-reveal-visible"));
     };
   }, [motionEnabled]);
 

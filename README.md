@@ -60,37 +60,40 @@ components/
 data/
   content.ts              Typed, editable portfolio copy and links
 public/
+  favicon.svg             Compact KASIF browser icon
   og-image.svg            Social-sharing preview artwork
-  hero-cutout.png         Supplied transparent avatar used in the hero
+  hero-cutout.png         Original supplied transparent avatar
+  hero-cutout.webp        Optimized desktop hero portrait
+  hero-cutout-mobile.webp Optimized mobile hero portrait
 ```
 
 ## Content and assets to replace
 
-Update the typed source in `data/content.ts` and add files under `public/`. Replace every bracketed placeholder before launch:
+Update the typed source in `data/content.ts` and add files under `public/`. Missing optional values are omitted from the page rather than shown as placeholder tokens:
 
-- **Portrait:** the supplied transparent avatar is installed at `public/hero-cutout.png`; replace it only if you want to use another portrait.
+- **Portrait:** the supplied transparent avatar is installed as `public/hero-cutout.webp` and `public/hero-cutout-mobile.webp`; `public/hero-cutout.png` is the original source.
 - **Showreel:** replace `hero.reelEmbedUrl` with the YouTube or X video URL.
-- **CV:** replace `hero.cvHref` with the real downloadable CV path or URL.
-- **Project URLs and details:** replace each project `[PLACEHOLDER]` URL and `[YEAR]`. Cookie and ShiftKit also need a real category and description.
+- **CV:** set `hero.cvHref` to the real downloadable CV path or URL.
+- **Project URLs and details:** add each project's confirmed `href`, `year`, category and description. Cookie and ShiftKit need a real category and description before they can be fully presented.
 - **Project thumbnails:** add real images for GitRoasted, ReviewPilot, GreenBoard, Gravites Network, AI Checkers Arena, Cookie, and ShiftKit; replace the CSS thumbnail previews in `components/work-section.tsx`.
 - **Collaborator logos:** add supplied logo assets for Blackbox AI, Kimi, SuperApp, yapper.so, Glass Editor, and startblock.shop; the current strip uses text wordmarks.
-- **Contact email:** replace `contact.email` with the real address. The email row intentionally remains plain text until this is supplied.
-- **Stats and aggregate count:** replace the `[N]` hero stats and recognition `count` with confirmed figures; preserve the supplied six brand collaborations.
-- **Years and dates:** replace `[YEAR]` in project years, education, recognition rows, timeline periods, and milestones with confirmed dates.
+- **Contact email:** set `contact.email` to the real address. The email row is omitted until this is supplied.
+- **Stats and aggregate count:** set hero stats and the recognition `count` only to confirmed figures; the six brand collaborations are already supplied.
+- **Years and dates:** add confirmed project, education, recognition, timeline, and milestone dates. Unknown years are omitted.
 - **Recognition proof:** replace `recognition.proofHref` with a real proof or portfolio URL.
 - **Raw-to-Real assets:** supply the project name and year plus its Figma wireframe and final UI screenshots.
-- **Footer note:** replace `footer.note` with the desired copyright/year line.
-- **Site domain:** replace `siteUrl` in `data/content.ts` with the production origin. It currently resolves to the reserved `portfolio.invalid` placeholder for metadata, robots, and sitemap output.
+- **Footer note:** set `footer.note` to the desired copyright/year line.
+- **Site domain:** set `NEXT_PUBLIC_SITE_URL` to the production origin; Netlify's `URL` environment variable is used as a fallback for metadata, robots, and sitemap output.
 - **Social preview artwork:** replace `public/og-image.svg` if you want a custom brand image.
 
-No unprovided email address, award, year, or project statistic is fabricated. Keep placeholder values until you can confirm them.
+No unprovided email address, award, year, or project statistic is fabricated. Leave unknown optional fields unset until they can be confirmed.
 
 ## Netlify deploy checklist
 
 1. Connect the repository to Netlify and use the repository root as the base directory.
 2. Set the build command to `npm run build`; set the publish directory to `out` (also configured in `netlify.toml`).
 3. Confirm the deploy succeeds and that `/`, `/robots.txt`, and `/sitemap.xml` are served from the published output.
-4. Replace `siteUrl` with the production HTTPS origin, add the portrait and project assets, and replace the content placeholders.
+4. Set `NEXT_PUBLIC_SITE_URL` to the production HTTPS origin, add any remaining portrait/project assets, and fill in confirmed optional content.
 5. Add the custom domain in Netlify, enable HTTPS, and redeploy after updating the site origin.
 6. Run Lighthouse on the deployed production URL for mobile and desktop. Confirm the performance, accessibility, and SEO targets (90+) with real assets and content; score results depend on the final media, hosting, and browser environment.
 

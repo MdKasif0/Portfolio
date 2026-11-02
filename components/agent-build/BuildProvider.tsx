@@ -27,9 +27,6 @@ export function useAgentBuild() {
 
 type ElementSnapshot = {
   element: HTMLElement;
-  hadHiddenClass: boolean;
-  hadHiddenImageClass: boolean;
-  hadReadyClass: boolean;
   inert: boolean;
 };
 type BuildProviderProps = {
@@ -64,6 +61,7 @@ function collectLayers(): BuildLayer[] {
         id: element.dataset.buildId || `${section}-${index}`,
         element,
         type: layerType(element.dataset.layer),
+        kind: element.dataset.kind || element.dataset.layer || "text",
         section,
         index,
         text: (element.innerText || element.getAttribute("aria-label") || "").trim(),
@@ -93,31 +91,29 @@ function collectLayers(): BuildLayer[] {
 
 function setHidden(elements: BuildLayer[], snapshots: ElementSnapshot[]) {
   elements.forEach(({ element }) => {
-    snapshots.push({
-      element,
-      hadHiddenClass: element.classList.contains("agent-layer-hidden"),
-      hadHiddenImageClass: element.classList.contains("agent-layer-hidden-image"),
-      hadReadyClass: element.classList.contains("agent-build-ready"),
-      inert: element.inert
-    });
-    element.classList.add("agent-layer-hidden");
-    element.classList.add("agent-build-ready");
-    if (element.dataset.layer === "image" || element.dataset.layer === "card") {
-      element.classList.add("agent-layer-hidden-image");
-    }
+    snapshots.push({ element, inert: element.inert });
+    element.classList.add("bm-hidden");
     element.inert = true;
   });
 }
 
 function restoreLayers(snapshots: ElementSnapshot[]) {
-  snapshots.forEach(({ element, hadHiddenClass, hadHiddenImageClass, hadReadyClass, inert }) => {
-    if (!hadHiddenClass) element.classList.remove("agent-layer-hidden");
-    if (!hadHiddenImageClass) element.classList.remove("agent-layer-hidden-image");
-    if (!hadReadyClass) element.classList.remove("agent-build-ready");
-    element.classList.remove("agent-layer-revealed");
-    element.inert = inert;
-  });
-  snapshots.length = 0;
+  let failed = false;
+  try {
+    for (const { element, inert } of snapshots) {
+      try {
+        element.classList.remove("bm-hidden", "agent-layer-revealed");
+        element.inert = inert;
+      } catch (error) {
+        failed = true;
+        console.error("Could not restore a Build Mode layer.", error);
+      }
+    }
+  } finally {
+    document.querySelectorAll<HTMLElement>(".bm-hidden").forEach((element) => element.classList.remove("bm-hidden"));
+    snapshots.length = 0;
+  }
+  if (failed) console.error("Build Mode restored the remaining layers after a layer restoration error.");
 }
 
 function cursorCount() {
@@ -134,7 +130,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   const [cursorLimit, setCursorLimit] = useState<number>(buildModeConfig.agentCountRange[1]);
   const [layersDone, setLayersDone] = useState(0);
   const [speed, setSpeed] = useState<number>(buildModeConfig.speedDefault);
-  const [muted, setMuted] = useState<boolean>(buildModeConfig.soundDefault);
+  const [muted, setMuted] = useState<boolean>(!buildModeConfig.soundDefault);
   const [elapsedMs, setElapsedMs] = useState(0);
   const [timelineProgress, setTimelineProgress] = useState(0);
   const [directorAct, setDirectorAct] = useState("scan");
@@ -161,6 +157,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   const speedRef = useRef(speed);
   const soundRef = useRef<AudioContext | null>(null);
   const finishTimerRef = useRef<number | null>(null);
+  const hardCapRef = useRef<number | null>(null);
 
   phaseRef.current = phase;
   scrollToRef.current = scrollTo;
@@ -173,25 +170,35 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   );
 
   const cleanup = useCallback(() => {
-    restoreLayers(snapshotsRef.current);
-    revealedRef.current.clear();
-    setFrame(null);
-    setTypedText("");
-    setPositions([]);
-    cursorPositionsRef.current = [];
+    try {
+      restoreLayers(snapshotsRef.current);
+    } finally {
+      revealedRef.current.clear();
+      setFrame(null);
+      setTypedText("");
+      setPositions([]);
+      cursorPositionsRef.current = [];
+    }
   }, []);
 
   const skipBuild = useCallback(() => {
-    if (phaseRef.current === "idle" || phaseRef.current === "done" || phaseRef.current === "skipped") {
+    if (
+      snapshotsRef.current.length === 0
+      && (phaseRef.current === "idle" || phaseRef.current === "done" || phaseRef.current === "skipped")
+    ) {
       setVisible(false);
       return;
     }
-    cleanup();
-    cancelScrollRef.current();
-    setPhase("skipped");
-    setVisible(false);
-    setAnnouncement("Site built, interactive now");
-    if (finishTimerRef.current !== null) window.clearTimeout(finishTimerRef.current);
+    try {
+      cancelScrollRef.current();
+    } finally {
+      cleanup();
+      setPhase("skipped");
+      setVisible(false);
+      setAnnouncement("Site built, interactive now");
+      if (finishTimerRef.current !== null) window.clearTimeout(finishTimerRef.current);
+      if (hardCapRef.current !== null) window.clearTimeout(hardCapRef.current);
+    }
   }, [cleanup]);
 
   const startBuild = useCallback(() => {
@@ -201,18 +208,26 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
       setAnnouncement("Site built, interactive now");
       return;
     }
-    const found = collectLayers();
-    const activeLayers = found.length ? found : [];
-    layersRef.current = activeLayers;
-    setLayers(activeLayers);
-    setAgentCount(buildModeConfig.agentCountRange[0]);
-    setCursorLimit(cursorCount());
-    setLayersDone(0);
-    setTouring(true);
-    takeoverRef.current = false;
-    lastTourSectionRef.current = "";
-    revealedRef.current.clear();
-    setHidden(activeLayers, snapshotsRef.current);
+    try {
+      const found = collectLayers();
+      const activeLayers = found.length ? found : [];
+      layersRef.current = activeLayers;
+      setLayers(activeLayers);
+      setAgentCount(buildModeConfig.agentCountRange[0]);
+      setCursorLimit(cursorCount());
+      setLayersDone(0);
+      setTouring(true);
+      takeoverRef.current = false;
+      lastTourSectionRef.current = "";
+      revealedRef.current.clear();
+      setHidden(activeLayers, snapshotsRef.current);
+    } catch (error) {
+      console.error("Agent Build Mode could not scan the page; restoring the live page.", error);
+      skipBuild();
+      return;
+    }
+    if (hardCapRef.current !== null) window.clearTimeout(hardCapRef.current);
+    hardCapRef.current = window.setTimeout(() => skipBuild(), 90_000);
     startedAtRef.current = performance.now();
     timelineTimeRef.current = 0;
     lastTickAtRef.current = startedAtRef.current;
@@ -233,14 +248,14 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         // Session storage is optional; the current run remains functional.
       }
     }
-  }, [motionEnabled]);
+  }, [motionEnabled, skipBuild]);
 
   const replayBuild = useCallback(() => {
     if (!buildModeConfig.enabled || !motionEnabled || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     cleanup();
     if (finishTimerRef.current !== null) window.clearTimeout(finishTimerRef.current);
     setSpeed(window.matchMedia("(max-width: 700px)").matches ? buildModeConfig.mobileSpeedDefault : buildModeConfig.speedDefault);
-    setMuted(buildModeConfig.soundDefault);
+    setMuted(!buildModeConfig.soundDefault);
     setPhase("scanning");
     setVisible(true);
     setAgentCount(buildModeConfig.agentCountRange[0]);
@@ -289,11 +304,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
       script.forEach((item) => {
         if (item.endsAt <= targetTime) return;
         if (revealedRef.current.delete(item.layer.id)) {
-          item.layer.element.classList.add("agent-layer-hidden");
-          if (item.layer.type === "image" || item.layer.type === "card") {
-            item.layer.element.classList.add("agent-layer-hidden-image");
-          }
-          item.layer.element.classList.remove("agent-layer-revealed");
+          item.layer.element.classList.add("bm-hidden");
           item.layer.element.inert = true;
         }
       });
@@ -389,6 +400,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     let lastCursorUpdate = 0;
     let finishing = false;
     const tick = (now: number) => {
+      try {
       if (document.hidden) return;
       const realElapsed = now - startedAtRef.current;
       timelineTimeRef.current += Math.max(0, now - lastTickAtRef.current) * speedRef.current;
@@ -400,9 +412,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         if (item.endsAt <= timelineTime) {
           if (!revealedRef.current.has(item.layer.id)) {
             revealedRef.current.add(item.layer.id);
-            item.layer.element.classList.remove("agent-layer-hidden");
-            item.layer.element.classList.remove("agent-layer-hidden-image");
-            item.layer.element.classList.add("agent-layer-revealed");
+            item.layer.element.classList.remove("bm-hidden");
             item.layer.element.inert = false;
             playSound();
           }
@@ -477,6 +487,15 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         return;
       }
       raf = window.requestAnimationFrame(tick);
+      } catch (error) {
+        console.error("Agent Build Mode failed; restoring the live page.", error);
+        skipBuild();
+      } finally {
+        if (document.hidden && raf) {
+          window.cancelAnimationFrame(raf);
+          raf = 0;
+        }
+      }
     };
     const handleVisibility = () => {
       if (document.hidden) {
@@ -494,35 +513,54 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
       document.removeEventListener("visibilitychange", handleVisibility);
       window.cancelAnimationFrame(raf);
     };
-  }, [cursorLimit, phase, playSound, script, touring]);
+  }, [cursorLimit, phase, playSound, script, touring, skipBuild]);
 
   useEffect(() => {
     if (phase !== "finishing") return;
     const timer = window.setTimeout(() => {
-      cleanup();
-      setPhase("done");
-      setAnnouncement("Site built, interactive now");
-      setLayersDone(layersRef.current.length);
-      setAgentCount(buildModeConfig.agentCountRange[1]);
-      setElapsedMs(Math.max(0, finishingAtRef.current - startedAtRef.current));
-      if (buildModeConfig.runOncePerSession) {
-        try {
+      try {
+        if (buildModeConfig.runOncePerSession) {
           window.sessionStorage.setItem(buildModeConfig.completionStorageKey, "complete");
-        } catch {
-          // Session storage is optional.
         }
+        if (!takeoverRef.current) scrollToRef.current(0, 1.6);
+      } catch (error) {
+        console.error("Agent Build Mode could not complete its handoff.", error);
+      } finally {
+        cleanup();
+        if (hardCapRef.current !== null) window.clearTimeout(hardCapRef.current);
+        setPhase("done");
+        setAnnouncement("Site built, interactive now");
+        setLayersDone(layersRef.current.length);
+        setAgentCount(buildModeConfig.agentCountRange[1]);
+        setElapsedMs(Math.max(0, finishingAtRef.current - startedAtRef.current));
+        finishTimerRef.current = window.setTimeout(() => setVisible(false), buildModeConfig.autoDismissMs);
       }
-      if (!takeoverRef.current) scrollToRef.current(0, 1.6);
-      finishTimerRef.current = window.setTimeout(() => setVisible(false), buildModeConfig.autoDismissMs);
     }, 850);
     return () => window.clearTimeout(timer);
   }, [cleanup, phase]);
 
   useEffect(() => () => {
     if (finishTimerRef.current !== null) window.clearTimeout(finishTimerRef.current);
-    cleanup();
+    if (hardCapRef.current !== null) window.clearTimeout(hardCapRef.current);
+    try {
+      cleanup();
+    } finally {
+      document.querySelectorAll<HTMLElement>(".bm-hidden").forEach((element) => {
+        element.classList.remove("bm-hidden");
+        element.inert = false;
+      });
+    }
     if (soundRef.current) void soundRef.current.close();
   }, [cleanup]);
+
+  useEffect(() => {
+    window.__buildModeAudit = () => {
+      const hidden = document.querySelectorAll(".bm-hidden").length;
+      if (hidden) throw new Error(`Build Mode audit failed: ${hidden} hidden layer(s) remain.`);
+      return true;
+    };
+    return () => { delete window.__buildModeAudit; };
+  }, []);
 
   useEffect(() => {
     if (phase !== "building" || muted) return;

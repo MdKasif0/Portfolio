@@ -3,10 +3,17 @@ import type { CSSProperties } from "react";
 export type BuildPhase = "idle" | "scanning" | "building" | "finishing" | "done" | "skipped";
 export type LayerType = "text" | "image" | "button" | "card" | "line" | "icon";
 
+declare global {
+  interface Window {
+    __buildModeAudit?: () => true;
+  }
+}
+
 export type BuildLayer = {
   id: string;
   element: HTMLElement;
   type: LayerType;
+  kind: string;
   section: string;
   index: number;
   text: string;

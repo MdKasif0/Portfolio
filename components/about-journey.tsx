@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { portfolioContent } from "@/data/content";
 import { useMotionPreference } from "@/components/motion-shell";
+import { SectionHeader } from "@/components/section-header";
 
 const about = portfolioContent.about;
 const journey = portfolioContent.journey;
@@ -11,14 +12,15 @@ export function RawToRealSection() {
   const [split, setSplit] = useState(50);
 
   return (
-    <section className="raw-real-section section-shell" id="raw-real" data-scene="raw-real" aria-labelledby="raw-real-heading">
-      <div className="raw-real-heading">
-        <p className="eyebrow" data-layer="text">{portfolioContent.rawToReal.eyebrow}</p>
-        <h2 className="display-title raw-real-title" data-layer="text" id="raw-real-heading">
-          <span>{portfolioContent.rawToReal.titleBefore}<i className="title-period white-period">.</i></span>
-          <span>{portfolioContent.rawToReal.titleAfter}<i className="title-period">.</i></span>
-        </h2>
-      </div>
+    <section className="raw-real-section section-shell container-x" id="raw-real" data-scene="raw-real" aria-labelledby="raw-real-heading">
+      <SectionHeader
+        className="raw-real-heading"
+        label={portfolioContent.rawToReal.eyebrow}
+        titleLines={[`${portfolioContent.rawToReal.titleBefore}.`, `${portfolioContent.rawToReal.titleAfter}.`]}
+        accentLastLine
+        id="raw-real-heading"
+        titleClassName="raw-real-title"
+      />
       <div className="raw-real-layout">
         <p className="raw-real-caption" data-layer="text">{portfolioContent.rawToReal.caption}</p>
         <div className="comparison" data-layer="card">
@@ -64,7 +66,9 @@ export function RawToRealSection() {
         </div>
       </div>
       <p className="raw-real-meta" data-layer="text">
-        <span>{portfolioContent.rawToReal.project}</span> / {portfolioContent.rawToReal.year} · UI/UX · FRONTEND · SHIPPED
+        {[portfolioContent.rawToReal.project, portfolioContent.rawToReal.year].filter(Boolean).join(" / ")}
+        {portfolioContent.rawToReal.project || portfolioContent.rawToReal.year ? " · " : ""}
+        UI/UX · FRONTEND · SHIPPED
       </p>
     </section>
   );
@@ -102,15 +106,17 @@ export function AboutSection() {
   }, []);
 
   return (
-    <section className="about-section section-shell" id="about" data-scene="about" aria-labelledby="about-heading">
+    <section className="about-section section-shell container-x" id="about" data-scene="about" aria-labelledby="about-heading">
       <div className="about-heading-row">
-        <div>
-          <p className="eyebrow" data-layer="text"><span>{about.eyebrow.slice(0, 2)}</span> / {about.eyebrow.slice(5)}</p>
-          <h2 className="display-title about-heading" data-layer="text" id="about-heading">
-            <span>{about.titleBefore}<i className="title-period white-period">.</i></span>
-            <span>{about.titleAfter.split(" ").slice(0, -2).join(" ")} <em>{about.titleAfter.split(" ").slice(-2).join(" ")}<i className="title-period">.</i></em></span>
-          </h2>
-        </div>
+        <SectionHeader
+          className="about-section-header"
+          index={about.eyebrow.slice(0, 2)}
+          label={about.eyebrow.slice(5)}
+          titleLines={[`${about.titleBefore}.`, `${about.titleAfter}.`]}
+          accentLastLine
+          id="about-heading"
+          titleClassName="about-heading"
+        />
         <p className="about-bio" data-layer="text">
           {about.bioLines.map((line) => <span data-layer="text" key={line}>{line}</span>)}
         </p>
@@ -121,13 +127,13 @@ export function AboutSection() {
           <h3 className="micro-heading" data-layer="text">{about.educationLabel}</h3>
           <div className="education-row" data-layer="line">
             <p data-layer="text">{about.education}</p>
-            <span data-layer="text">{about.educationYear}</span>
+            {about.educationYear && <span data-layer="text">{about.educationYear}</span>}
           </div>
           <h3 className="micro-heading toolkit-heading" data-layer="text">{about.toolkitLabel}</h3>
           <div className="toolkit-tags">
             {about.skills.map((skill) => <span data-layer="text" key={skill}>{skill}</span>)}
           </div>
-          <div className="tool-icons" aria-label="Creative tools">
+          <div className="tool-icons" role="group" aria-label="Creative tools">
             {about.toolIcons.map((tool) => (
               <span className="tool-icon" data-layer="icon" key={tool.name} title={tool.name} aria-label={tool.name}>{tool.short}</span>
             ))}
@@ -162,11 +168,15 @@ export function AboutSection() {
 
 export function JourneySection() {
   return (
-    <section className="journey-section section-shell" id="journey" data-scene="journey" aria-labelledby="journey-heading">
-      <div className="journey-heading">
-        <p className="eyebrow" data-layer="text"><span>{journey.eyebrow.slice(0, 2)}</span> / {journey.eyebrow.slice(5)}</p>
-        <h2 className="display-title journey-title" data-layer="text" id="journey-heading">{journey.title}<i className="title-period">.</i></h2>
-      </div>
+    <section className="journey-section section-shell container-x" id="journey" data-scene="journey" aria-labelledby="journey-heading">
+      <SectionHeader
+        className="journey-heading"
+        index={journey.eyebrow.slice(0, 2)}
+        label={journey.eyebrow.slice(5)}
+        titleLines={[`${journey.title}.`]}
+        id="journey-heading"
+        titleClassName="journey-title"
+      />
 
       <div className="journey-layout">
         <div className="journey-roles" data-layer="line">
@@ -180,7 +190,7 @@ export function JourneySection() {
           </article>
           {journey.roles.map((role) => (
             <article className="journey-role" data-layer="card" key={role.title}>
-              <p className="journey-period" data-layer="text">{role.period}</p>
+              {role.period && <p className="journey-period" data-layer="text">{role.period}</p>}
               <div className="journey-role-copy">
                 <h3 data-layer="text">{role.title}</h3>
                 <p className="journey-subtitle" data-layer="text">{role.subtitle}</p>
@@ -200,7 +210,7 @@ export function JourneySection() {
               <li className="milestone-row" data-layer="line" key={milestone.title}>
                 <span className="milestone-index" data-layer="text">{String(index + 1).padStart(2, "0")}</span>
                 <span className="milestone-title" data-layer="text">{milestone.title}</span>
-                <span className="milestone-year" data-layer="text">{milestone.year}</span>
+                {milestone.year && <span className="milestone-year" data-layer="text">{milestone.year}</span>}
                 <span className="milestone-arrow" data-layer="icon" aria-hidden="true">↗</span>
               </li>
             ))}

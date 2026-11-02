@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { portfolioContent } from "@/data/content";
 import { ShowreelModal } from "@/components/showreel-modal";
 import { useAgentBuild } from "@/components/agent-build/BuildProvider";
+import { SectionHeader } from "@/components/section-header";
 
 type IconName = typeof portfolioContent.contact.socials[number]["icon"] | typeof portfolioContent.footer.socialLinks[number]["icon"] | "email" | "coffee";
 
@@ -25,11 +26,14 @@ export function ContactSection() {
 
   return (
     <>
-      <section className="contact-section section-shell" id="contact" data-scene="contact" aria-labelledby="contact-heading">
-        <p className="eyebrow" data-layer="text"><span>{contact.eyebrow.slice(0, 2)}</span> / {contact.eyebrow.slice(5)}</p>
-        <h2 className="display-title contact-heading" data-layer="text" id="contact-heading">
-          {contact.title}<i className="title-period">.</i>
-        </h2>
+      <section className="contact-section section-shell container-x" id="contact" data-scene="contact" aria-labelledby="contact-heading">
+        <SectionHeader
+          index={contact.eyebrow.slice(0, 2)}
+          label={contact.eyebrow.slice(5)}
+          titleLines={[`${contact.title}.`]}
+          id="contact-heading"
+          titleClassName="contact-heading"
+        />
 
         <div className="contact-grid">
           <div className="contact-intro">
@@ -39,12 +43,12 @@ export function ContactSection() {
             </a>
           </div>
 
-          <div className="contact-details" aria-label="Contact details">
-            <div className="contact-row" data-layer="line" id="contact-email">
+          <div className="contact-details" role="group" aria-label="Contact details">
+            {contact.email && <div className="contact-row" data-layer="line" id="contact-email">
               <span className="contact-icon" data-layer="icon"><ContactIcon name="email" /></span>
               <span className="contact-label" data-layer="text">{contact.emailLabel}</span>
               <span className="contact-value" data-layer="text">{contact.email}</span>
-            </div>
+            </div>}
             {contact.socials.map((item) => (
               <a className="contact-row" data-layer="line" href={item.href} target="_blank" rel="noreferrer" key={item.label}>
                 <span className="contact-icon" data-layer="icon"><ContactIcon name={item.icon} /></span>
@@ -78,14 +82,14 @@ export function SiteFooter() {
   const { replayBuild } = useAgentBuild();
 
   return (
-    <footer className="site-footer section-shell" data-scene="footer">
+    <footer className="site-footer section-shell container-x" data-scene="footer">
       <a className="footer-wordmark" data-layer="text" href="#top" aria-label="Kasif, back to top">
         KASIF<span className="title-period">.</span>
       </a>
       <p className="footer-project-prompt" data-layer="text">{footer.projectPrompt}<span aria-hidden="true"> ↗</span></p>
       <button className="footer-replay-build" data-layer="button" type="button" onClick={replayBuild}>Replay build <span aria-hidden="true">↗</span></button>
       <nav className="footer-socials" aria-label="Social links">
-        {footer.socialLinks.map((item) => (
+        {footer.socialLinks.filter((item) => item.href || item.icon !== "email").map((item) => (
           <a
             href={item.href || "#contact-email"}
             data-layer="button"
@@ -98,7 +102,7 @@ export function SiteFooter() {
           </a>
         ))}
       </nav>
-      <p className="footer-copyright" data-layer="text">© {portfolioContent.identity.name} · {footer.note}</p>
+      <p className="footer-copyright" data-layer="text">© {portfolioContent.identity.name}{footer.note ? ` · ${footer.note}` : ""}</p>
     </footer>
   );
 }

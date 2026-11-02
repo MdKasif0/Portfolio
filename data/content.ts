@@ -20,24 +20,25 @@ export const portfolioContent = {
     location: "INDIA",
     reelLabel: "PLAY REEL",
     reelMetadata: "UI / UX · WEB",
-    reelEmbedUrl: "[PLACEHOLDER]",
+    reelEmbedUrl: undefined,
     reelModalKicker: "KASIF / SHOWREEL",
     reelModalTitle: "A little more in motion",
-    reelPlaceholderLabel: "REEL EMBED · [PLACEHOLDER]",
-    reelPlaceholderInstruction: "Add a YouTube or X video URL in data/content.ts.",
+    reelPlaceholderLabel: "SHOWREEL PREVIEW",
+    reelPlaceholderInstruction: "The showreel link will appear here when available.",
     cutoutAlt: "Portrait of Md Kasif Uddin",
-    cutoutPlaceholder: "ADD CUTOUT · /public/hero-cutout.png",
+    cutoutPlaceholder: "ADD CUTOUT · /public/hero-cutout.webp",
     stats: [
-      { value: "[N]", label: "YEARS BUILDING" },
-      { value: "[N]", label: "PROJECTS SHIPPED" },
+      { value: undefined, label: "YEARS BUILDING" },
+      { value: undefined, label: "PROJECTS SHIPPED" },
       { value: "6", label: "BRAND COLLABS" }
     ],
     cvLabel: "DOWNLOAD CV",
-    cvHref: "[PLACEHOLDER]",
+    cvHref: undefined,
     asideNote: "Every pixel, a different feeling.",
     scrollLabel: "SCROLL TO DISCOVER +",
     footerLabel: "SELECTED WORK · 2024–2026",
-    cutoutPath: "/hero-cutout.png"
+    cutoutPath: "/hero-cutout.webp",
+    cutoutMobilePath: "/hero-cutout-mobile.webp"
   },
   navigation: [
     { label: "Work", href: "#work" },
@@ -48,7 +49,7 @@ export const portfolioContent = {
   ] satisfies NavItem[],
   navigationCta: { label: "Let's talk", href: "#contact" },
   footer: {
-    note: "[PLACEHOLDER]",
+    note: undefined,
     projectPrompt: "Tell your project",
     socialLinks: [
       { label: "X", href: "https://x.com/md_kasif_uddin", icon: "x" },
@@ -70,13 +71,13 @@ export const portfolioContent = {
     openProject: "Open project",
     placeholderThumbnail: "PROJECT PREVIEW",
     projects: [
-      { title: "GitRoasted", tag: "AI TOOL", subtitle: "AI GitHub-profile roasting tool", categories: ["AI Tools", "Web Apps"], year: "[YEAR]", href: "[PLACEHOLDER]", art: "gitroasted" },
-      { title: "ReviewPilot", tag: "AI SAAS", subtitle: "AI-powered pull-request code-review SaaS", categories: ["AI Tools", "SaaS"], year: "[YEAR]", href: "[PLACEHOLDER]", art: "reviewpilot" },
-      { title: "GreenBoard", tag: "SAAS", subtitle: "Tutor-marketplace SaaS", categories: ["SaaS", "Web Apps"], year: "[YEAR]", href: "[PLACEHOLDER]", art: "greenboard" },
-      { title: "Gravites Network", tag: "CREATOR PLATFORM", subtitle: "Creator-led marketing platform on X", categories: ["Content", "Websites"], year: "[YEAR]", href: "[PLACEHOLDER]", art: "gravites" },
-      { title: "AI Checkers Arena", tag: "AI TOOL", subtitle: "Spectator platform where LLMs play International Checkers", categories: ["AI Tools", "Web Apps"], year: "[YEAR]", href: "[PLACEHOLDER]", art: "checkers" },
-      { title: "Cookie", tag: "[CATEGORY]", subtitle: "[PLACEHOLDER]", categories: ["[CATEGORY]"], year: "[YEAR]", href: "[PLACEHOLDER]", art: "cookie" },
-      { title: "ShiftKit", tag: "[CATEGORY]", subtitle: "[PLACEHOLDER]", categories: ["[CATEGORY]"], year: "[YEAR]", href: "[PLACEHOLDER]", art: "shiftkit" }
+      { title: "GitRoasted", tag: "AI TOOL", subtitle: "AI GitHub-profile roasting tool", categories: ["AI Tools", "Web Apps"], year: undefined, href: undefined, art: "gitroasted" },
+      { title: "ReviewPilot", tag: "AI SAAS", subtitle: "AI-powered pull-request code-review SaaS", categories: ["AI Tools", "SaaS"], year: undefined, href: undefined, art: "reviewpilot" },
+      { title: "GreenBoard", tag: "SAAS", subtitle: "Tutor-marketplace SaaS", categories: ["SaaS", "Web Apps"], year: undefined, href: undefined, art: "greenboard" },
+      { title: "Gravites Network", tag: "CREATOR PLATFORM", subtitle: "Creator-led marketing platform on X", categories: ["Content", "Websites"], year: undefined, href: undefined, art: "gravites" },
+      { title: "AI Checkers Arena", tag: "AI TOOL", subtitle: "Spectator platform where LLMs play International Checkers", categories: ["AI Tools", "Web Apps"], year: undefined, href: undefined, art: "checkers" },
+      { title: "Cookie", tag: undefined, subtitle: undefined, categories: [], year: undefined, href: undefined, art: "cookie" },
+      { title: "ShiftKit", tag: undefined, subtitle: undefined, categories: [], year: undefined, href: undefined, art: "shiftkit" }
     ],
     githubProfile: "https://github.com/MdKasif0"
   },
@@ -89,17 +90,17 @@ export const portfolioContent = {
     eyebrow: "RECOGNITION & COLLABS",
     titleWhite: "THE WORK",
     titleRed: "THE RECOGNITION",
-    count: "[N]+",
+    count: undefined,
     countLabel: "PROJECTS & COLLABS",
-    summary: "Hackathon participation and creative brand collaborations, with proof details to be added.",
+    summary: "Selected hackathon participation and creative brand collaborations.",
     proofLabel: "VIEW PROOF",
-    proofHref: "[PLACEHOLDER]",
+    proofHref: undefined,
     listLabel: "SELECTED RECOGNITION",
     yearColumn: "YEAR",
     entries: [
-      { title: "TrustLayer", subtitle: "Hackverse · Terrabyte Society · Chandigarh University", year: "[YEAR]" },
-      { title: "ResQVision", subtitle: "D4 Community One-Day Solo Vibe Coding Hackathon", year: "[YEAR]" },
-      { title: "Brand collaborations", subtitle: "6 brand collaborations", year: "[YEAR]" }
+      { title: "TrustLayer", subtitle: "Hackverse · Terrabyte Society · Chandigarh University", year: undefined },
+      { title: "ResQVision", subtitle: "D4 Community One-Day Solo Vibe Coding Hackathon", year: undefined },
+      { title: "Brand collaborations", subtitle: "6 brand collaborations", year: undefined }
     ]
   },
   rawToReal: {
@@ -110,10 +111,10 @@ export const portfolioContent = {
     beforeLabel: "WIREFRAME",
     afterLabel: "FINAL UI",
     meta: "PROJECT NAME / YEAR · UI/UX · FRONTEND · SHIPPED",
-    project: "[PROJECT NAME]",
-    year: "[YEAR]",
-    beforePlaceholder: "FIGMA WIREFRAME · [PLACEHOLDER]",
-    afterPlaceholder: "FINAL SCREENSHOT · [PLACEHOLDER]",
+    project: undefined,
+    year: undefined,
+    beforePlaceholder: "WIREFRAME PREVIEW",
+    afterPlaceholder: "FINAL UI PREVIEW",
     sliderLabel: "Reveal final interface"
   },
   about: {
@@ -127,7 +128,7 @@ export const portfolioContent = {
     ],
     educationLabel: "EDUCATION & SKILLS",
     education: "B.Tech CSE — Chandigarh University, Mohali",
-    educationYear: "[YEAR]",
+    educationYear: undefined,
     toolkitLabel: "CREATIVE TOOLKIT",
     skills: [
       "JavaScript", "TypeScript", "Python", "React", "Next.js", "Node.js", "OpenAI",
@@ -160,22 +161,22 @@ export const portfolioContent = {
     eyebrow: "03 / THE JOURNEY",
     title: "KEEP MOVING. KEEP BUILDING",
     activeRole: "Freelance Frontend Dev & UI/UX Designer",
-    activePeriod: "[YEAR] · NOW",
+    activePeriod: "CURRENT",
     activeSubtitle: "Freelance · Frontend development & product design",
     activeDescription: "Designing and building interfaces from first idea to final detail.\nCombining frontend craft with a thoughtful user experience.\nTurning rough concepts into products that feel alive.",
     roles: [
-      { title: "Tech Content Creator on X", period: "[YEAR] — [YEAR]", subtitle: "@md_kasif_uddin · Tech content" },
-      { title: "Brand collaborations", period: "[YEAR] — [YEAR]", subtitle: "Creative collaborations · 6 brands" },
-      { title: "B.Tech CSE student", period: "[YEAR] — [YEAR]", subtitle: "Chandigarh University · Mohali" }
+      { title: "Tech Content Creator on X", period: undefined, subtitle: "@md_kasif_uddin · Tech content" },
+      { title: "Brand collaborations", period: undefined, subtitle: "Creative collaborations · 6 brands" },
+      { title: "B.Tech CSE student", period: undefined, subtitle: "Chandigarh University · Mohali" }
     ],
     milestonesLabel: "A FEW MILESTONES",
     milestonesTitleWhite: "LITTLE WINS",
     milestonesTitleRed: "BIG MEANING",
     milestones: [
-      { title: "GitRoasted launch", year: "[PLACEHOLDER]" },
-      { title: "ReviewPilot", year: "[PLACEHOLDER]" },
-      { title: "Brand collab milestone", year: "[PLACEHOLDER]" },
-      { title: "Hackathon participation", year: "[PLACEHOLDER]" }
+      { title: "GitRoasted launch", year: undefined },
+      { title: "ReviewPilot", year: undefined },
+      { title: "Brand collaboration", year: undefined },
+      { title: "Hackathon participation", year: undefined }
     ]
   },
   contact: {
@@ -183,7 +184,7 @@ export const portfolioContent = {
     title: "LET'S WORK TOGETHER",
     introduction: "Got a product idea? Let's build something worth shipping.",
     cta: "START THE CONVERSATION",
-    email: "[PLACEHOLDER]",
+    email: undefined,
     emailLabel: "EMAIL",
     socials: [
       { label: "X", value: "@md_kasif_uddin", href: "https://x.com/md_kasif_uddin", icon: "x" },
@@ -199,11 +200,9 @@ export const portfolioContent = {
     modalLabel: "OPEN SHOWREEL",
     reelModalKicker: "KASIF / SHOWREEL",
     reelModalTitle: "A little more in motion",
-    reelPlaceholderLabel: "REEL EMBED · [PLACEHOLDER]",
-    reelPlaceholderInstruction: "Add a YouTube or X video URL in data/content.ts."
+    reelPlaceholderLabel: "SHOWREEL PREVIEW",
+    reelPlaceholderInstruction: "The showreel link will appear here when available."
   },
-  siteUrl: "https://[PLACEHOLDER]",
-  sections: [
-    { id: "contact", number: "05", label: "Contact", placeholder: "[PLACEHOLDER]" }
-  ]
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || process.env.URL || undefined,
+  sections: []
 } as const;
