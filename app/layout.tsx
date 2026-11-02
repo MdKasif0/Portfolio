@@ -1,23 +1,7 @@
 import type { Metadata } from "next";
-import { Anton, Caveat, Plus_Jakarta_Sans } from "next/font/google";
+import { anton, caveat, jakarta } from "@/app/fonts";
 import { portfolioContent } from "@/data/content";
 import "./globals.css";
-
-const anton = Anton({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-display"
-});
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-body"
-});
-
-const caveat = Caveat({
-  subsets: ["latin"],
-  variable: "--font-script"
-});
 
 const socialImage = portfolioContent.siteUrl
   ? new URL("/og-image.svg", portfolioContent.siteUrl).toString()

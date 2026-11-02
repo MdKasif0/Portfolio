@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import Lenis from "lenis";
 import { BuildProvider } from "@/components/agent-build/BuildProvider";
 import { portfolioContent } from "@/data/content";
+import { MagneticCursor } from "@/components/ui/magnetic-cursor";
 
 const MotionPreferenceContext = createContext<{
   motionEnabled: boolean;
@@ -89,33 +90,14 @@ export function MotionShell({ children }: { children: ReactNode }) {
 
   return (
     <MotionPreferenceContext.Provider value={{ motionEnabled, setMotionEnabled }}>
-      <div className={motionEnabled ? "motion-enabled" : "motion-disabled"} data-motion={motionEnabled ? "on" : "off"}>
-        <MotionPolish />
-        <CustomCursor />
-        <BuildProvider motionEnabled={motionEnabled} scrollTo={scrollTo} cancelScroll={cancelScroll}>
-          {children}
-        </BuildProvider>
-      </div>
+      <MagneticCursor enabled={motionEnabled} cursorSize={14} cursorColor="#F7F7F8" blendMode="exclusion" shape="circle" magneticFactor={.3} hoverPadding={10} lerpAmount={.16} speedMultiplier={.015} maxScaleX={.9} maxScaleY={.35} contrastBoost={1}>
+        <div className={motionEnabled ? "motion-enabled" : "motion-disabled"} data-motion={motionEnabled ? "on" : "off"}>
+          <MotionPolish />
+          <BuildProvider motionEnabled={motionEnabled} scrollTo={scrollTo} cancelScroll={cancelScroll}>{children}</BuildProvider>
+        </div>
+      </MagneticCursor>
     </MotionPreferenceContext.Provider>
   );
-}
-
-function CustomCursor() {
-  const { motionEnabled } = useMotionPreference();
-  const [state, setState] = useState("default");
-  useEffect(() => {
-    if (!motionEnabled || !window.matchMedia("(pointer:fine)").matches) return;
-    const cursor = document.querySelector<HTMLElement>(".site-cursor");
-    if (!cursor) return;
-    const move = (event: PointerEvent) => {
-      cursor.style.transform = `translate3d(${event.clientX}px,${event.clientY}px,0)`;
-      const target = event.target instanceof Element ? event.target.closest("a,button,[role=slider],.project-card") : null;
-      setState(target?.matches("[role=slider]") ? "drag" : target?.classList.contains("showreel-card") ? "play" : target?.classList.contains("project-card") ? "view" : target ? "link" : "default");
-    };
-    window.addEventListener("pointermove", move, { passive: true });
-    return () => window.removeEventListener("pointermove", move);
-  }, [motionEnabled]);
-  return <span className={`site-cursor is-${state}`} aria-hidden="true"><i /><b>{state === "default" ? "" : state.toUpperCase()}</b></span>;
 }
 
 function MotionPolish() {

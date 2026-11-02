@@ -6,7 +6,8 @@ import { HeroSection } from "@/components/hero-section";
 import { WorkSection } from "@/components/work-section";
 import { CollaboratorStrip, RecognitionSection } from "@/components/collab-recognition";
 import { AboutSection, JourneySection, RawToRealSection } from "@/components/about-journey";
-import { ContactSection, SiteFooter } from "@/components/contact-footer";
+import { ContactSection } from "@/components/contact-footer";
+import { SiteFooter } from "@/components/site-footer";
 import { Atmosphere, RulerDivider } from "@/components/design-primitives";
 
 export default function Home() {

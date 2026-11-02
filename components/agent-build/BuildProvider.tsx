@@ -16,7 +16,7 @@ import { CursorLayer } from "@/components/agent-build/CursorLayer";
 import { useBuildScript } from "@/components/agent-build/useBuildScript";
 import type { BuildFrame, BuildLayer, BuildPhase, CursorPosition, LayerType } from "@/components/agent-build/types";
 
-type BuildContextValue = { replayBuild: () => void; phase: BuildPhase };
+type BuildContextValue = { replayBuild: () => void; phase: BuildPhase; buildWillRun: boolean };
 const BuildContext = createContext<BuildContextValue | null>(null);
 
 export function useAgentBuild() {
@@ -90,7 +90,7 @@ function collectLayers(): BuildLayer[] {
 }
 
 function setHidden(elements: BuildLayer[], snapshots: ElementSnapshot[]) {
-  elements.forEach(({ element }) => {
+  elements.filter(({ kind }) => kind !== "canvas").forEach(({ element }) => {
     snapshots.push({ element, inert: element.inert });
     element.classList.add("bm-hidden");
     element.inert = true;
@@ -173,6 +173,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     try {
       restoreLayers(snapshotsRef.current);
     } finally {
+      document.querySelector<HTMLElement>(".hwf")?.dispatchEvent(new CustomEvent("hwf:reveal", { detail: 1 }));
       revealedRef.current.clear();
       setFrame(null);
       setTypedText("");
@@ -566,7 +567,9 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         const rect = element.getBoundingClientRect();
         return style.visibility !== "visible" || rect.width === 0 || rect.height === 0;
       }).length;
-      return { totalLayers: layers.length, hiddenLayers, hiddenHeadings, pass: hiddenLayers === 0 && hiddenHeadings === 0 };
+      const footer = document.querySelector<HTMLElement>(".hwf");
+      const footerReady = footer?.dataset.hwfReady === "true";
+      return { totalLayers: layers.length, hiddenLayers, hiddenHeadings, pass: hiddenLayers === 0 && hiddenHeadings === 0 && Boolean(footerReady) };
     };
     return () => { delete window.__buildModeAudit; };
   }, []);
@@ -576,7 +579,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     playSound();
   }, [phase, muted, playSound]);
 
-  const contextValue = useMemo(() => ({ replayBuild, phase }), [phase, replayBuild]);
+  const contextValue = useMemo(() => ({ replayBuild, phase, buildWillRun: phase === "building" || phase === "scanning" || phase === "finishing" }), [phase, replayBuild]);
 
   return (
     <BuildContext.Provider value={contextValue}>

@@ -3,12 +3,11 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { portfolioContent } from "@/data/content";
 import { ShowreelModal } from "@/components/showreel-modal";
-import { useAgentBuild } from "@/components/agent-build/BuildProvider";
 import { SectionHeader } from "@/components/section-header";
 
 type IconName = typeof portfolioContent.contact.socials[number]["icon"] | typeof portfolioContent.footer.socialLinks[number]["icon"] | "email" | "coffee";
 
-function ContactIcon({ name }: { name: IconName }) {
+export function ContactIcon({ name }: { name: IconName }) {
   const paths: Record<IconName, ReactNode> = {
     x: <path d="M4 3h2.5l5.5 10h-2.5L4 3Zm0 10 4-4m3-6L7 7" />,
     instagram: <><rect x="2.5" y="2.5" width="11" height="11" rx="3" /><circle cx="8" cy="8" r="2.5" /><circle cx="11.5" cy="4.7" r=".6" fill="currentColor" stroke="none" /></>,
@@ -19,7 +18,6 @@ function ContactIcon({ name }: { name: IconName }) {
 
   return <svg viewBox="0 0 16 16" aria-hidden="true">{paths[name]}</svg>;
 }
-
 export function ContactSection() {
   const [reelOpen, setReelOpen] = useState(false);
   const [copied, setCopied] = useState("");
@@ -103,35 +101,5 @@ export function ContactSection() {
       </section>
       {reelOpen && <ShowreelModal onClose={() => setReelOpen(false)} />}
     </>
-  );
-}
-
-export function SiteFooter() {
-  const footer = portfolioContent.footer;
-  const { replayBuild } = useAgentBuild();
-
-  return (
-    <footer className="site-footer section-shell container-x" data-scene="footer">
-      <a className="footer-wordmark" data-layer="text" data-kind="footer-wordmark" href="#top" aria-label="Kasif, back to top">
-        KASIF<span className="title-period">.</span>
-      </a>
-      <p className="footer-project-prompt" data-layer="text">{footer.projectPrompt}<span aria-hidden="true"> ↗</span></p>
-      <button className="footer-replay-build" data-layer="button" type="button" onClick={replayBuild}>Replay build <span aria-hidden="true">▶</span></button>
-      <nav className="footer-socials" aria-label="Social links">
-        {footer.socialLinks.map((item) => (
-          <a
-            href={item.href || "#contact"}
-            data-layer="button"
-            target={item.href ? "_blank" : undefined}
-            rel={item.href ? "noreferrer" : undefined}
-            aria-label={item.label}
-            key={item.label}
-          >
-            <ContactIcon name={item.icon} />
-          </a>
-        ))}
-      </nav>
-      <p className="footer-copyright" data-layer="text">© {new Date().getFullYear()} {portfolioContent.identity.name}{footer.note ? ` · ${footer.note}` : ""}</p>
-    </footer>
   );
 }

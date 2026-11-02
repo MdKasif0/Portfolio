@@ -86,6 +86,12 @@ function recipeFor(frame: BuildFrame) {
   if (kind === "form-select") return "DRAW_BOX + TYPE · INSERT CARET SYMBOL";
   if (kind === "form-submit") return "STYLE BUTTON · TYPE SEND PROJECT";
   if (kind === "footer-wordmark") return "TYPE + RESIZE FULL WIDTH · STYLE STROKE TO FILL";
+  if (kind === "canvas") return "DRAW_TEXTBOX · TYPE KASIF · SET_SLIDER DOT SIZE 0 → 100";
+  if (kind === "footer-column-title") return "TYPE COLUMN HEADING · RESIZE";
+  if (kind === "footer-link") return "COPY_PASTE LINK · RETYPE";
+  if (kind === "footer-social") return "DRAW_BOX CIRCLE · OPEN_PICKER → PICK_SYMBOL";
+  if (kind === "footer-replay") return "DRAW_BOX + TYPE + PLAY SYMBOL";
+  if (kind === "footer-ist") return "DRAW_BOX + TYPE + CLOCK SYMBOL";
   if (section === "nav") return "STYLE NAV DETAIL";
   return `${frame.cue?.toUpperCase() ?? "BUILD"} / ${frame.layer.type.toUpperCase()}`;
 }
