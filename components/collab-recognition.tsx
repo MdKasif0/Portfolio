@@ -1,5 +1,10 @@
+"use client";
+
+import { useRef, type CSSProperties } from "react";
+import { useInView } from "framer-motion";
 import { portfolioContent } from "@/data/content";
 import { SectionHeader } from "@/components/section-header";
+import { CountUp } from "@/components/design-primitives";
 
 const collaborators = portfolioContent.collaborators;
 const recognition = portfolioContent.recognition;
@@ -27,20 +32,32 @@ function LaurelWreath() {
 }
 
 export function CollaboratorStrip() {
-  const marqueeNames = [...collaborators.names, ...collaborators.names];
+  const countRef = useRef<HTMLDivElement>(null);
+  const countInView = useInView(countRef, { once: true, amount: 0.6 });
 
   return (
     <section className="collab-strip section-shell container-x" data-build-section="collaborators" data-scene="collaborators" aria-label="Collaborations">
-      <div className="collab-strip-label">
-        <span data-layer="text">{collaborators.label}</span>
-        <strong data-layer="text">{collaborators.title}</strong>
-      </div>
-      <div className="collab-marquee">
-        <div className="collab-marquee-track">
-          {marqueeNames.map((name, index) => (
-            <span className={`collab-wordmark wordmark-${index % collaborators.names.length}`} data-layer="text" key={`${name}-${index}`}>{name}</span>
-          ))}
+      <div className="collab-strip-copy">
+        <div className="collab-strip-label">
+          <span data-layer="text">{collaborators.label}</span>
+          <strong data-layer="text">{collaborators.title}</strong>
         </div>
+        <p className="collab-count" ref={countRef} data-layer="text" data-kind="collaboration-count">
+          <b><CountUp value={collaborators.count} active={countInView} /></b> {collaborators.countLabel}
+        </p>
+      </div>
+      <div className="collab-marquees" aria-label={collaborators.names.join(", ")}>
+        {[1, -1].map((direction, row) => (
+          <div className={`collab-marquee collab-marquee-${row + 1}`} key={row}>
+            <div className="collab-marquee-track" style={{ "--marquee-direction": direction } as CSSProperties}>
+              {[...collaborators.names, ...collaborators.names].map((name, index) => (
+                <span className="collab-logo-plate" data-layer="card" data-kind="logo-plate" aria-hidden={index >= collaborators.names.length} key={`${name}-${index}`}>
+                  <span className="collab-wordmark" data-layer="text" data-kind="collaboration-logo">{name}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );

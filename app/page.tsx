@@ -11,6 +11,12 @@ import { Atmosphere, RulerDivider } from "@/components/design-primitives";
 
 export default function Home() {
   const cvAvailable = existsSync(join(process.cwd(), "public", "cv.pdf"));
+  const projectImages = Object.fromEntries(
+    ["GitRoasted", "ReviewPilot", "GreenBoard", "Gravites Network", "AI Checkers Arena", "Cookie", "ShiftKit"]
+      .map((title) => title.toLowerCase().replace(/[^a-z0-9]+/g, "-"))
+      .filter((slug) => existsSync(join(process.cwd(), "public", "projects", `${slug}.webp`)))
+      .map((slug) => [slug, `/projects/${slug}.webp`])
+  );
   return (
     <MotionShell>
       <Atmosphere />
@@ -19,7 +25,7 @@ export default function Home() {
       <main id="main-content">
         <HeroSection cvAvailable={cvAvailable} />
         <RulerDivider label="001 / 064" />
-        <WorkSection />
+        <WorkSection projectImages={projectImages} />
         <RulerDivider label="002 / 128" />
         <CollaboratorStrip />
         <RulerDivider label="003 / 192" />

@@ -11,6 +11,7 @@ const actLabels = {
 
 function recipeFor(frame: BuildFrame) {
   const { kind, index, section } = frame.layer;
+  const projectPosition = Number(frame.layer.element.closest<HTMLElement>("[data-project-position]")?.dataset.projectPosition ?? 0);
   if (kind === "nav-frame") return "DRAW_BOX / PILL · BLUR 16";
   if (kind === "logo") return "TYPE LOGO · RESIZE";
   if (kind === "nav-link") return `TYPE LINK · COPY / RETYPE ${Math.min(index + 1, 4)}`;
@@ -35,6 +36,29 @@ function recipeFor(frame: BuildFrame) {
   if (kind === "handwritten") return "PEN TOOL · DRAW STROKE";
   if (kind === "availability") return "DRAW PILL · STYLE STATUS DOT";
   if (kind === "scroll-cue") return "DRAW_LINE · ANIMATE SCROLL CUE";
+  if (kind === "filter-segment") return "DRAW_BOX / PILL · TYPE FILTER LABELS";
+  if (kind === "filter-tab") return `TYPE FILTER · ${frame.layer.text.slice(0, 20)}`;
+  if (kind === "filter-indicator") return "DRAW_BOX · SLIDE RED INDICATOR";
+  if (kind === "work-search") return "DRAW_BOX · MAGNIFIER · TYPE ⌘K";
+  if (kind === "search-input") return "TYPE SEARCH HINT · LIVE FILTER";
+  if (kind === "project-card") return projectPosition === 1
+    ? "BUILD CARD FROM SCRATCH · BROWSER CHROME · MOCK"
+    : `COPY / PASTE CARD 0${projectPosition} · RETYPE · SWAP MOCK`;
+  if (kind === "browser-frame") return projectPosition === 1
+    ? "DRAW_BROWSER · INSERT THREE CHROME DOTS"
+    : `COPY / PASTE BROWSER · RETINT MOCK 0${projectPosition}`;
+  if (kind === "project-mock" || kind === "mock-screen") return `DRAW PRODUCT MOCK · ${frame.layer.element.closest<HTMLElement>("[data-project-position]")?.getAttribute("data-project-position") ?? "DETAILS"}`;
+  if (kind === "project-tag") return "STYLE TAG CHIP · TYPE CATEGORY";
+  if (kind === "project-index") return `TYPE ${frame.layer.text} · RESIZE 80 → 320`;
+  if (kind === "project-title" || kind === "project-description") return `TYPE ${frame.layer.text.slice(0, 24)}`;
+  if (kind === "project-meta") return "TYPE CATEGORY · OMIT UNKNOWN YEAR";
+  if (kind === "project-arrow") return "INSERT ARROW · STYLE HOVER CIRCLE";
+  if (kind === "project-stack-chip") return "COPY / PASTE · RETYPE TECH CHIP";
+  if (kind === "view-all") return "TYPE VIEW ALL · EXPAND GRID";
+  if (kind === "carousel-prev" || kind === "carousel-next") return "DRAW_CIRCLE · INSERT ARROW";
+  if (kind === "carousel-progress" || kind === "carousel-progress-value") return "DRAW_LINE · SCROLL PROGRESS";
+  if (kind === "logo-plate") return `DROP_WORDMARK · COPY / PASTE ×6 · ${frame.layer.text.slice(0, 16)}`;
+  if (kind === "collaboration-logo") return "TYPE WORDMARK · JAKARTA BOLD";
   if (section === "nav") return "STYLE NAV DETAIL";
   return `${frame.cue?.toUpperCase() ?? "BUILD"} / ${frame.layer.type.toUpperCase()}`;
 }

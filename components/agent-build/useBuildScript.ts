@@ -14,8 +14,8 @@ export type DirectorCue = BuildFrame & {
 const sectionWindows: Record<string, [number, number]> = {
   nav: [350, 1150],
   top: [1050, 6650],
-  work: [6400, 15100],
-  collaborators: [14500, 17500],
+  work: [6400, 15400],
+  collaborators: [14800, 17800],
   recognition: [17000, 21100],
   "raw-real": [20700, 23400],
   about: [23000, 27200],
@@ -68,6 +68,8 @@ export function useBuildScript(layers: BuildLayer[], cursorLimit: number, mobile
       const heroLayer = layer.section === "top";
       const startedAt = heroLayer
         ? (120 + Math.floor(position / 10) * 400) * timeScale
+        : layer.section === "work"
+          ? (windowStart + position * 48) * timeScale
         : Math.max(0, (windowStart + (sectionLayers.length > 1
           ? (position / (sectionLayers.length - 1)) * spread
           : spread / 2) + jitter) * timeScale);
