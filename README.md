@@ -41,15 +41,20 @@ components/
   about-journey.tsx       Raw-to-Real, About, process, and Journey sections
   agent-build/
     AgentCursor.tsx       Multiplayer cursor visual, persona tags, and status
-    BuildProvider.tsx     Client-only state machine, seeded director, reveal, tour, and replay context
+    BuildDebugPanel.tsx   Optional sampled work-ratio, idle-gap, window, and action diagnostics
+    BuildProvider.tsx     Client-only state machine, DOM capture, reveal, tour, and replay context
     BuildInspector.tsx    Floating live design-tool selection inspector
     ControlBar.tsx        Speed, sound, progress, skip, and completion controls
-    CursorLayer.tsx       Fixed overlay with cursors and active wireframe
+    CursorLayer.tsx       Fixed overlay with task cursors, frames, and tool inspector
     DimensionChip.tsx     Selection dimensions
-    WireframeBox.tsx      Selection handles and text/image placeholder
+    GhostLayer.tsx        Computed-style DOM clone, image placeholder, and progressive text
+    LayerProgressPanel.tsx Compact list of recently completed layers
+    ToolChrome.tsx        Per-task action and style-value labels
+    WireframeBox.tsx      Action-specific selection frame, handles, and ghost preview
     buildMode.config.ts   Feature defaults and agent palette
-    types.ts              Build state, layer, and cursor types
-    useBuildScript.ts     Seeded six-act timeline with per-section choreography
+    taskCompiler.ts       Deterministic action recipes, worker queues, and debug metrics
+    types.ts              Build phases, layers, actions, frames, and debug types
+    useBuildScript.ts     Compile captured layers into a deterministic task timeline
   contact-footer.tsx      Contact section, social links, and site footer
   collab-recognition.tsx  Collaborator strip and recognition panel
   hero-section.tsx        Hero, portrait, stats, and showreel trigger
@@ -98,8 +103,10 @@ No unprovided email address, award, year, or project statistic is fabricated. Ke
 
 - The Motion toggle disables Lenis and visual motion; the system also honors `prefers-reduced-motion`.
 - Agent Build Mode automatically runs after every page load, then restores the original DOM and interaction state. Use **Replay build** in the footer to run it again; press Escape or use the control bar's × to skip.
-- Tune the intro delay, default speed, sound, cursor caps, and session behavior in `components/agent-build/buildMode.config.ts`. Set `enabled: false` to disable the feature without removing its components. Keep `data-layer` markers on meaningful content if sections are edited.
-- The director maps marked layers into a deterministic ~35-second six-act desktop sequence (scan, blueprint, build, polish, finale, handoff); the mobile version is shorter, capped at 10 cursors, and omits trails. Replay reuses the same seeded sequence. In development, the control bar includes a timeline scrubber for inspecting and seeking the build.
+- Tune the intro delay, desktop/mobile speed, active workers, rendered-cursor caps, sound, action timings, sparse-window minimum task duration, camera-window size/handoff, seed, and session behavior in `components/agent-build/buildMode.config.ts`. Set `enabled: false` to disable the feature without removing its components. Keep `data-layer` markers on meaningful content if sections are edited.
+- The engine captures each marked layer's geometry, hierarchy, image source, and computed style once, then compiles a seeded, viewport-windowed recipe and worker schedule. The real DOM remains the source of truth; cursors and selection frames are a temporary overlay, and each original layer is restored after its recipe. Repeated cards use copy/retype/swap recipes. Desktop rendering is capped at 14 cursors; mobile at 8, with a shorter timeline.
+- Add `?buildDebug=1` to show the diagnostics panel. It samples active worker time at a 10 Hz target and reports the active camera window, cumulative sampled action counts, sampled work ratio, longest gap, and idle violations. The completed run also prints a per-window runtime report to the browser console. The development control bar includes a timeline scrubber. Layer totals are discovered from the current DOM (300 in the default server-rendered page), rather than hard-coded, so filters and project pagination can change the total.
+- Press Escape or × to skip; use **Replay build** in the footer or **Replay** on the completion bar to run it again. A user input cancels the guided camera movement while the build continues. The Motion toggle and `prefers-reduced-motion` skip the build and leave the site interactive.
 - The mobile navigation expands into a full-screen menu and closes on selection or Escape.
 - The project filter tabs, showreel dialog, and Raw-to-Real range slider support keyboard interaction.
 - Next Image is used for the hero portrait; add any future raster images with `next/image`.

@@ -3,21 +3,30 @@
 import { useLayoutEffect, useRef } from "react";
 import type { CSSProperties } from "react";
 import { DimensionChip } from "@/components/agent-build/DimensionChip";
-import type { BuildLayer } from "@/components/agent-build/types";
+import { GhostLayer } from "@/components/agent-build/GhostLayer";
+import { ToolChrome } from "@/components/agent-build/ToolChrome";
+import type { BuildAction, BuildLayer } from "@/components/agent-build/types";
 
 export function WireframeBox({
   layer,
   style,
+  action,
   typedText,
-  durationMs
+  actionProgress
 }: {
   layer: BuildLayer;
   style: CSSProperties;
+  action: BuildAction;
   typedText: string;
-  durationMs: number;
+  actionProgress: number;
 }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const isImage = layer.type === "image" || layer.type === "card";
+  const drawing = action === "DRAW_BOX" || action === "DRAW_TEXTBOX" || action === "DRAW_LINE";
+  const filling = action === "FILL";
+  const roundCorners = action === "ROUND_CORNERS";
+  const progress = Math.max(0, Math.min(1, actionProgress));
+  const dimensionProgress = drawing ? progress : 1;
 
   useLayoutEffect(() => {
     const node = frameRef.current;
@@ -30,39 +39,26 @@ export function WireframeBox({
   return (
     <div
       ref={frameRef}
-      className={`agent-wireframe${isImage ? " is-image" : ""}`}
-      style={{ ...style, "--wireframe-duration": `${durationMs}ms` } as CSSProperties}
+      className={`agent-wireframe${isImage ? " is-image" : ""}${drawing ? " is-drawing" : ""}${filling ? " is-filling" : ""}${roundCorners ? " is-rounding" : ""}`}
+      data-action={action}
+      style={{
+        ...style,
+        "--action-progress": progress,
+        "--fill-color": layer.textStyle.backgroundColor,
+        "--target-radius": layer.textStyle.borderRadius,
+        "--draw-width": `${dimensionProgress * 100}%`,
+        "--draw-height": `${dimensionProgress * 100}%`
+      } as CSSProperties}
       aria-hidden="true"
     >
-      {isImage ? (
-        <span className="agent-image-placeholder">
-          <svg viewBox="0 0 16 16" fill="none">
-            <rect x="2" y="2.5" width="12" height="11" rx="1" />
-            <circle cx="5.5" cy="6" r="1.2" />
-            <path d="m3.5 12 3.2-3.1 2.2 1.8 1.7-1.6 2 2.9" />
-          </svg>
-        </span>
-      ) : (
-        <span
-          className="agent-typing-text"
-          style={{
-            fontFamily: layer.textStyle.fontFamily,
-            fontSize: layer.textStyle.fontSize,
-            fontWeight: layer.textStyle.fontWeight,
-            lineHeight: layer.textStyle.lineHeight,
-            letterSpacing: layer.textStyle.letterSpacing,
-            textAlign: layer.textStyle.textAlign
-          }}
-        >
-          {typedText}
-          <i className="agent-ibeam" />
-        </span>
-      )}
+      <GhostLayer layer={layer} action={action} text={typedText} />
+      {action === "TYPE" && <i className="agent-ibeam" />}
       <i className="agent-handle top-left" />
       <i className="agent-handle top-right" />
       <i className="agent-handle bottom-left" />
       <i className="agent-handle bottom-right" />
-      <DimensionChip width={layer.rect.width} height={layer.rect.height} />
+      <DimensionChip width={layer.rect.width * dimensionProgress} height={layer.rect.height * dimensionProgress} />
+      <ToolChrome action={action} layer={layer} />
     </div>
   );
 }
