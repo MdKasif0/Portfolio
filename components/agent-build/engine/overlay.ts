@@ -27,7 +27,10 @@ export class Overlay {
   readonly root: HTMLDivElement;
   private rects = new Map<Element, DOMRect>();
   private decorations = new Set<Decoration>();
+  private sparkPool: HTMLElement[] = [];
   tray: AssetTray | null = null;
+  /** Set by the quality governor when frames run long: optional chrome (tool rows, sparks) is skipped. */
+  lowQuality = false;
 
   constructor(private clock: Clock) {
     this.root = h("div", "ab-overlay");
@@ -64,8 +67,21 @@ export class Overlay {
     decoration.node.remove();
   }
 
+  /** A pooled "+" spark at a point (skipped under the quality governor). */
+  spark(point: { x: number; y: number }) {
+    if (this.lowQuality) return;
+    const node = this.sparkPool.pop() ?? h("span", "ab-sparkle");
+    node.style.transform = `translate3d(${point.x}px, ${point.y}px, 0)`;
+    node.style.animation = "none";
+    this.root.appendChild(node);
+    void node.offsetWidth;
+    node.style.animation = "";
+    this.clock.wait(520).then(() => { node.remove(); this.sparkPool.push(node); }, () => node.remove());
+  }
+
   /** Show a decoration for `ms` of build time without blocking the caller. */
   flash(decoration: Decoration, ms: number) {
+    if (this.lowQuality && decoration instanceof ToolRow) return decoration;
     this.add(decoration);
     this.clock.wait(ms).then(() => this.fadeOut(decoration), () => this.remove(decoration));
     return decoration;
@@ -183,7 +199,7 @@ export class Caret implements Decoration {
 /** A small chip (dimension, font size, radius, gap, hex) placed beside a point, off the target. */
 export class Chip implements Decoration {
   node: HTMLSpanElement;
-  constructor(public anchor: Anchor, public avoid: Element | null, text: string, variant: "blue" | "dark" | "key" | "red" = "dark") {
+  constructor(public anchor: Anchor, public avoid: Element | null, text: string, variant: "blue" | "dark" | "key" | "red" | "green" = "dark") {
     this.node = h("span", `ab-chip is-${variant}`, text);
   }
   set text(value: string) {
@@ -337,5 +353,75 @@ export class LineDraw implements Decoration {
     this.node.style.width = this.vertical ? "1px" : `${this.length}px`;
     this.node.style.height = this.vertical ? `${this.length}px` : "1px";
     this.chip.textContent = String(Math.round(this.length));
+  }
+}
+
+/** A guide line (precise agents snap to it) along one edge of an element. */
+export class GuideLine implements Decoration {
+  node = h("span", "ab-guide");
+  constructor(public el: Element, public edge: "left" | "top") {}
+  update(overlay: Overlay) {
+    const rect = overlay.rect(this.el);
+    if (this.edge === "left") {
+      place(this.node, rect.left, rect.top - 40);
+      this.node.style.width = "1px";
+      this.node.style.height = `${rect.height + 80}px`;
+    } else {
+      place(this.node, rect.left - 40, rect.top);
+      this.node.style.width = `${rect.width + 80}px`;
+      this.node.style.height = "1px";
+    }
+  }
+}
+
+/** Baton pass: a short dotted arc from one agent to the one taking over its element. */
+export class BatonArc implements Decoration {
+  node = h("span", "ab-baton");
+  private path: SVGPathElement;
+  constructor(public from: () => { x: number; y: number }, public to: () => { x: number; y: number }, color: string) {
+    this.node.innerHTML = '<svg width="100%" height="100%" fill="none"><path stroke-width="1.5" stroke-dasharray="3 4" stroke-linecap="round"/></svg>';
+    this.path = this.node.querySelector("path") as SVGPathElement;
+    this.path.setAttribute("stroke", color);
+  }
+  update() {
+    const a = this.from(), b = this.to();
+    const mx = (a.x + b.x) / 2, my = Math.min(a.y, b.y) - 28 - Math.abs(a.x - b.x) * 0.15;
+    this.path.setAttribute("d", `M${a.x} ${a.y} Q${mx} ${my} ${b.x} ${b.y}`);
+  }
+}
+
+/** The left-edge layers panel: layer names appear as they complete, then get a ✓. */
+export class LayersPanel implements Decoration {
+  node = h("div", "ab-layers");
+  private list = h("ul", "");
+  constructor(private rows: number) {
+    this.node.append(h("small", "", "LAYERS"), this.list);
+  }
+  private items: HTMLElement[] = [];
+  /** Rows sit in fixed slots moved by transform, so adding names never reflows the panel. */
+  push(name: string) {
+    const row = this.items.length >= this.rows ? this.items.shift() as HTMLElement : this.list.appendChild(h("li", ""));
+    row.className = "";
+    row.textContent = "";
+    row.append(h("span", "", name), h("b", "", "✓"));
+    this.items.push(row);
+    this.items.forEach((item, index) => { item.style.transform = `translateY(${index * 11}px)`; });
+    void row.offsetWidth;
+    row.className = "is-done";
+  }
+  fade() {
+    this.node.classList.add("is-fading");
+  }
+  update() {
+    // Docked with CSS.
+  }
+}
+
+/** Go live: a red shockwave ring from the click point. */
+export class Shockwave implements Decoration {
+  node = h("span", "ab-shockwave");
+  constructor(public point: { x: number; y: number }) {}
+  update() {
+    place(this.node, this.point.x, this.point.y);
   }
 }

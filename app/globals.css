@@ -956,10 +956,11 @@ html[data-motion="ready"] .section-header-rule { animation: eyebrow-rule 850ms v
   transform: skewX(-18deg);
   animation: hero-word-sweep 6s ease-in-out infinite;
 }
+/* Moves with a transform (140% of the word = 140/23 of the sweep's own width), so it never shifts layout. */
 @keyframes hero-word-sweep {
-  0%, 62% { left: -30%; opacity: 0; }
+  0%, 62% { transform: skewX(-18deg) translateX(0); opacity: 0; }
   67% { opacity: .8; }
-  87%, 100% { left: 110%; opacity: 0; }
+  87%, 100% { transform: skewX(-18deg) translateX(608.7%); opacity: 0; }
 }
 .hero-v2-hud {
   position: absolute;
@@ -2063,3 +2064,31 @@ html[data-motion="ready"] .hwf-status i::after, html[data-motion="ready"] .hwf-c
 /* Fixed-width counters so the control bar never resizes (and shifts) as numbers change. */
 .agent-count > span:last-child { min-width: 58px; font-variant-numeric: tabular-nums; }
 .agent-progress-label { min-width: 104px; font-variant-numeric: tabular-nums; }
+/* Build Mode film chrome (Step 2) */
+.ab-chip.is-green { background: #16a34a; color: #fff; }
+.ab-guide { z-index: 2; background: #e879f9; box-shadow: 0 0 4px rgba(232,121,249,.7); }
+.ab-baton { z-index: 3; inset: 0; width: 100vw; height: 100vh; animation: ab-fade-out .52s ease-out forwards; }
+.ab-baton svg { overflow: visible; }
+.ab-line.is-gradient { background: linear-gradient(#ff8a5c, #e5322d); width: 2px !important; }
+.ab-scanline { z-index: 3; background: linear-gradient(90deg, transparent, #fff 18%, #fff 82%, transparent); box-shadow: 0 0 14px 3px rgba(255,255,255,.75); }
+.ab-rotate-handle { z-index: 3; width: 10px; height: 10px; margin: -5px 0 0 -5px; border: 1.5px solid #3b82f6; border-radius: 50%; background: #fff; }
+.ab-tick { z-index: 4; display: grid; width: 20px; height: 20px; margin: -10px 0 0 -10px; place-items: center; border-radius: 50%; background: #16a34a; color: #fff; font-size: 11px; font-weight: 800; box-shadow: 0 0 0 4px rgba(22,163,74,.25); animation: ab-pop .2s cubic-bezier(.2,.8,.2,1.4) both; }
+.ab-layers { z-index: 1; top: 26vh !important; left: 8px !important; width: 66px; padding: 6px 0 6px 6px; border-left: 1px solid rgba(255,255,255,.12); background: linear-gradient(90deg, rgba(8,8,13,.55), transparent); transform: none !important; transition: opacity .5s ease !important; }
+.ab-layers small { display: block; margin-bottom: 4px; color: rgba(255,255,255,.4); font-size: 6px; letter-spacing: .16em; }
+.ab-layers ul { position: relative; height: 100px; margin: 0; padding: 0; list-style: none; }
+.ab-layers li { position: absolute; top: 0; left: 0; display: flex; width: 60px; gap: 3px; overflow: hidden; color: rgba(231,231,237,.62); font-size: 6.5px; line-height: 1.35; opacity: 0; transition: opacity .25s ease, transform .25s ease; }
+.ab-layers li.is-done { opacity: 1; }
+.ab-layers li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ab-layers li b { color: #4ade80; font-weight: 700; }
+.ab-layers.is-fading { opacity: 0; }
+@media (max-width: 1279px) { .ab-layers { display: none; } }
+.ab-shockwave { z-index: 6; width: 24px; height: 24px; margin: -12px 0 0 -12px; border: 2px solid #e5322d; border-radius: 50%; animation: ab-shock .9s cubic-bezier(.15,.7,.2,1) forwards; }
+@keyframes ab-shock { from { opacity: .95; scale: .4; } to { opacity: 0; scale: 70; border-width: .2px; } }
+.ab-lights { position: fixed; z-index: 112; inset: 0; background: rgba(255,255,255,.22); mix-blend-mode: screen; pointer-events: none; animation: ab-lights .7s ease-out forwards; }
+@keyframes ab-lights { 0% { opacity: 0; } 18% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes ab-fade-out { 0%, 60% { opacity: 1; } 100% { opacity: 0; } }
+.agent-go-live { animation: ab-pop .25s ease-out both; }
+/* The bar keeps one width through building, finale and summary, so swapping its contents never shifts it. */
+@media (min-width: 701px) { .agent-control-bar { width: 600px; } }
+@media (max-width: 700px) { .agent-control-bar { width: calc(100vw - 32px); } }
+.ab-no-transition { transition: none !important; }

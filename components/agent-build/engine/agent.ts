@@ -5,13 +5,22 @@
  * `state` for the watchdog.
  */
 
+import { buildModeConfig } from "@/components/agent-build/buildMode.config";
 import { clamp, easeInOut, easeOut, lerp, type Clock, type Rng } from "@/components/agent-build/engine/clock";
 import { Chip, h, type Anchor, type Decoration, type Overlay } from "@/components/agent-build/engine/overlay";
 
 export type AgentState = "spawn" | "travel" | "act" | "exit";
 
 export const AGENT_COLORS = ["#22D3EE", "#F472B6", "#FB923C", "#A78BFA", "#FACC15", "#4ADE80", "#60A5FA", "#F87171", "#2DD4BF", "#E879F9", "#FDBA74", "#A3E635", "#93C5FD", "#FCA5A5"] as const;
-export const AGENT_NAMES = ["layout", "copy", "visual", "motion", "systems", "detail", "type", "media", "grid", "color", "icons", "polish", "spacing", "review"] as const;
+export const AGENT_NAMES = [
+  "layout", "copy", "visual", "motion", "systems", "detail", "type", "media", "grid", "color",
+  "icons", "polish", "spacing", "review", "brand", "content", "a11y", "perf", "qa", "lead",
+  "shapes", "tokens", "assets", "rhythm", "contrast", "kerning", "states", "flow", "pixel", "ship"
+] as const;
+
+/** Working styles: how an agent's hands behave. */
+export type AgentStyle = "sloppy" | "precise" | "showy";
+const STYLES: AgentStyle[] = ["sloppy", "precise", "showy"];
 
 export class Agent implements Decoration {
   readonly node: HTMLElement;
@@ -26,10 +35,15 @@ export class Agent implements Decoration {
   violation = false;
   readonly color: string;
   readonly name: string;
+  readonly style: AgentStyle;
+  /** Rects of text other agents are typing; this cursor steers softly around them. */
+  avoid: () => DOMRect[] = () => [];
+  private push = { x: 0, y: 0 };
 
   constructor(readonly id: number, readonly rng: Rng, readonly clock: Clock, readonly overlay: Overlay, start: { x: number; y: number }) {
     this.color = AGENT_COLORS[id % AGENT_COLORS.length];
     this.name = `${AGENT_NAMES[id % AGENT_NAMES.length]}-agent`;
+    this.style = STYLES[id % STYLES.length];
     this.node = h("span", "ab-cursor");
     this.node.style.setProperty("--agent", this.color);
     this.node.innerHTML = '<svg viewBox="0 0 16 20" fill="none"><path d="M1.5 1.2 14 11.3l-5.6.5-3 4.9L1.5 1.2Z" fill="currentColor" stroke="#08080D" stroke-width="1.1" stroke-linejoin="round"/></svg>';
@@ -52,11 +66,20 @@ export class Agent implements Decoration {
 
   update(overlay: Overlay) {
     const point = overlay.point(this.anchor);
+    // Soft repulsion: never sit on top of text another agent is typing.
+    let tx = 0, ty = 0;
+    for (const rect of this.avoid()) {
+      if (point.x < rect.left - 6 || point.x > rect.right + 6 || point.y < rect.top - 6 || point.y > rect.bottom + 6) continue;
+      const up = point.y - rect.top + 8, down = rect.bottom - point.y + 8;
+      ty += up < down ? -Math.min(up, 14) : Math.min(down, 14);
+    }
+    this.push.x += (tx - this.push.x) * 0.2;
+    this.push.y += (ty - this.push.y) * 0.2;
     // 0.3px hand tremor while working.
     const t = this.clock.time / 1000;
     const tremor = this.state === "act" ? 0.3 : 0;
-    const x = point.x + Math.sin(t * 9.1 + this.id) * tremor;
-    const y = point.y + Math.cos(t * 7.3 + this.id * 2) * tremor;
+    const x = point.x + this.push.x + Math.sin(t * 9.1 + this.id) * tremor;
+    const y = point.y + this.push.y + Math.cos(t * 7.3 + this.id * 2) * tremor;
     this.node.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${this.pressed ? 0.86 : 1})`;
     this.node.classList.toggle("is-violation", this.violation);
   }
@@ -82,8 +105,10 @@ export class Agent implements Decoration {
       this.setState("act");
       return;
     }
-    const duration = clamp(150 + distance * 0.32, 150, 450);
-    const overshoot = this.rng.range(2, 5);
+    const d = buildModeConfig.durations;
+    const pace = this.style === "precise" ? 1.12 : this.style === "sloppy" ? 0.88 : 1;
+    const duration = clamp(d.travelMin + distance * 0.3, d.travelMin, d.travelMax) * pace * this.tempo;
+    const overshoot = this.style === "sloppy" ? this.rng.range(4, 7) : this.style === "precise" ? this.rng.range(1, 2.5) : this.rng.range(2, 5);
     const lift = Math.min(90, distance * 0.18 + 12) * (this.rng.chance(0.5) ? 1 : -1);
     await this.clock.tween(duration, (raw) => {
       const a = this.overlay.point(from), b = this.overlay.point(target);
@@ -124,16 +149,36 @@ export class Agent implements Decoration {
     this.anchor = { ...target };
   }
 
-  /** 80–200ms of human hesitation, then a press. */
-  async click(hold = 70) {
-    await this.clock.wait(this.rng.range(80, 200));
+  /** Duration multiplier for this film (desktop or the mobile cut). */
+  tempo = 1;
+
+  private hesitate() {
+    const d = buildModeConfig.durations;
+    return this.clock.wait(this.rng.range(d.hesitationMin, d.hesitationMax) * this.tempo);
+  }
+
+  /** Human hesitation, then a press. Showy agents add a little flourish before big clicks. */
+  async click(hold = 70, big = false) {
+    if (big && this.style === "showy") await this.flourish();
+    await this.hesitate();
     this.pressed = true;
     await this.clock.wait(hold);
     this.pressed = false;
   }
 
+  /** A quick loop around the click point. */
+  async flourish() {
+    const centre = { ...this.anchor };
+    const radius = 9;
+    await this.clock.tween(240 * this.tempo, (raw) => {
+      const angle = raw * Math.PI * 2;
+      this.anchor = { ...centre, x: centre.x + Math.cos(angle) * radius - radius, y: centre.y + Math.sin(angle) * radius };
+    });
+    this.anchor = centre;
+  }
+
   async doubleClick() {
-    await this.clock.wait(this.rng.range(80, 160));
+    await this.hesitate();
     for (let index = 0; index < 2; index += 1) {
       this.pressed = true;
       await this.clock.wait(55);
@@ -144,7 +189,7 @@ export class Agent implements Decoration {
 
   /** Press, drag along `path`, release. */
   async drag(target: Anchor, ms: number, onStep?: (progress: number) => void) {
-    await this.clock.wait(this.rng.range(80, 200));
+    await this.hesitate();
     this.pressed = true;
     await this.glide(target, ms, onStep);
     this.pressed = false;
@@ -162,7 +207,8 @@ export class Agent implements Decoration {
    */
   async maybeSlip(avoid: Element | null) {
     this.actions += 1;
-    if (!this.rng.chance(1 / 25)) return;
+    const rate = buildModeConfig.realism.mistakeRate * (this.style === "sloppy" ? 2 : this.style === "precise" ? 0.3 : 1);
+    if (!this.rng.chance(rate)) return;
     const here = this.anchor;
     const off: Anchor = { ...here, x: here.x + this.rng.range(-26, 26), y: here.y + this.rng.range(14, 24) };
     await this.glide(off, 160);

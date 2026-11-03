@@ -68,12 +68,15 @@ export function MotionShell({ children }: { children: ReactNode }) {
     };
   }, [motionEnabled]);
 
-  const scrollTo = (target: number, duration: number) => {
+  const scrollTo = (target: number, duration: number, overshoot = false) => {
     if (lenisInstance) {
       lenisInstance.scrollTo(target, {
         duration,
         immediate: duration === 0,
-        easing: (value) => value < 0.5 ? 4 * value ** 3 : 1 - (-2 * value + 2) ** 3 / 2
+        // Long cinematic ease; hero moments settle with a slight overshoot.
+        easing: overshoot
+          ? (value) => 1 + 2.2 * (value - 1) ** 3 + 1.2 * (value - 1) ** 2
+          : (value) => value < 0.5 ? 4 * value ** 3 : 1 - (-2 * value + 2) ** 3 / 2
       });
     } else {
       window.scrollTo({ top: target, behavior: duration === 0 ? "auto" : "smooth" });

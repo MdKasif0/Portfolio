@@ -68,7 +68,7 @@ export function RecognitionSection() {
   const countInView = useInView(countRef, { once: true, amount: 0.4 });
 
   return (
-    <section className="recognition-section section-shell container-x" id="recognition" data-scene="recognition" aria-labelledby="recognition-heading">
+    <section className="recognition-section section-shell container-x" id="recognition" data-scene="recognition" data-layer="card" data-kind="recognition-panel" aria-labelledby="recognition-heading">
       <span className="recognition-aurora recognition-aurora-one" aria-hidden="true" />
       <span className="recognition-aurora recognition-aurora-two" aria-hidden="true" />
       <div className="recognition-intro">
