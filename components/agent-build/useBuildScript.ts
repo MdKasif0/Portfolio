@@ -21,7 +21,7 @@ const sectionWindows: Record<string, [number, number]> = {
   about: [23000, 27200],
   journey: [26700, 30900],
   contact: [30400, 33400],
-  footer: [32900, 34800]
+  footer: [32900, 36900]
 };
 
 const hash = (value: string) => value.split("").reduce((result, character) =>
@@ -76,10 +76,27 @@ export function useBuildScript(layers: BuildLayer[], cursorLimit: number, mobile
         : Math.max(0, (windowStart + (sectionLayers.length > 1
           ? (position / (sectionLayers.length - 1)) * spread
           : spread / 2) + jitter) * timeScale);
+      // The halftone wordmark is printed by one agent across most of the footer act,
+      // while the others build the studio line, columns and rule above it.
+      if (layer.kind === "canvas") {
+        // Starts once the tour scroll has reached the footer, ends with the act.
+        const printStart = (windowStart + 1300) * timeScale;
+        return {
+          layer,
+          cursorId: cursorLimit - 1, // the print head has the last agent to itself
+          startedAt: printStart,
+          endsAt: (windowEnd - 100) * timeScale,
+          act: actFor(layer.section, printStart, mobile),
+          cue: "place" as const,
+          seed
+        };
+      }
       const duration = (layer.type === "text" ? 640 : 510) * timeScale;
       return {
         layer,
-        cursorId: heroLayer ? position % Math.min(cursorLimit, 10) : seed % cursorLimit,
+        cursorId: heroLayer
+          ? position % Math.min(cursorLimit, 10)
+          : layer.section === "footer" ? seed % Math.max(1, cursorLimit - 1) : seed % cursorLimit,
         startedAt,
         endsAt: startedAt + duration,
         act: actFor(layer.section, startedAt, mobile),

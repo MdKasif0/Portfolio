@@ -12,7 +12,7 @@ export const buildModeConfig = {
   mobileAgentLimit: 10,
   mobileSpeedDefault: 2,
   mobileTimeScale: 0.53,
-  productionDurationMs: 34_800,
+  productionDurationMs: 36_900,
   cursorTrailLength: 18,
   cursorSpring: 0.16,
   frameRateCap: 60,

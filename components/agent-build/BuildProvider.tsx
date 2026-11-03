@@ -10,6 +10,7 @@ import {
   useState,
   type ReactNode
 } from "react";
+import { HWF_PRINT_SOFT } from "@/components/ui/halftone-wordmark-footer";
 import { buildModeConfig } from "@/components/agent-build/buildMode.config";
 import { ControlBar } from "@/components/agent-build/ControlBar";
 import { CursorLayer } from "@/components/agent-build/CursorLayer";
@@ -152,6 +153,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   const lastTourSectionRef = useRef("");
   const takeoverRef = useRef(false);
   const phaseRef = useRef(phase);
+  const lastPrintRef = useRef(-1);
   const scrollToRef = useRef(scrollTo);
   const cancelScrollRef = useRef(cancelScroll);
   const speedRef = useRef(speed);
@@ -238,6 +240,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     setElapsedMs(0);
     setTimelineProgress(0);
     setDirectorAct("scan");
+    lastPrintRef.current = -1;
     setFrame(null);
     setPositions([]);
     cursorPositionsRef.current = [];
@@ -424,6 +427,16 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         }
         if (revealedRef.current.has(item.layer.id)) completed += 1;
       });
+
+      // The footer wordmark is printed in step with its agent: dots drop in as the head sweeps across.
+      const printFrame = script.find((item) => item.layer.kind === "canvas");
+      if (printFrame) {
+        const printed = wordmarkPrintProgress(printFrame, timelineTime);
+        if (Math.abs(printed - lastPrintRef.current) > 0.004 || (printed === 1 && lastPrintRef.current !== 1)) {
+          lastPrintRef.current = printed;
+          document.querySelector<HTMLElement>(".hwf")?.dispatchEvent(new CustomEvent("hwf:reveal", { detail: printed }));
+        }
+      }
 
       const currentFrame = activeFrame as BuildFrame | null;
       if (currentFrame) {
@@ -684,6 +697,23 @@ function applyCursorPhysics(
   });
 }
 
+/** 0 → 1 share of the footer wordmark printed at `time`; 0 before its frame, 1 after. Linear, like a print head. */
+function wordmarkPrintProgress(frame: BuildFrame, time: number) {
+  return clamp((time - frame.startedAt) / Math.max(1, frame.endsAt - frame.startedAt), 0, 1);
+}
+
+/** Where the print head sits: the column the halftone reveal sweep is currently filling. */
+function wordmarkPrintHead(frame: BuildFrame, time: number) {
+  const printed = wordmarkPrintProgress(frame, time);
+  // Mirrors the footer's sweep edge (see HWF_PRINT_SOFT in the footer component).
+  const frontier = clamp(printed * (1 + HWF_PRINT_SOFT) - HWF_PRINT_SOFT / 2, 0, 1);
+  const { rect } = frame.layer;
+  return {
+    x: rect.x + rect.width * (0.03 + 0.94 * frontier),
+    y: rect.y + rect.height * (0.42 + 0.12 * Math.sin(printed * Math.PI * 6))
+  };
+}
+
 function createCursorPositions(frames: BuildFrame[], time: number, count: number, scrollY: number): CursorPosition[] {
   const positions: CursorPosition[] = [];
   const byCursor = Array.from({ length: count }, () => [] as BuildFrame[]);
@@ -701,11 +731,14 @@ function createCursorPositions(frames: BuildFrame[], time: number, count: number
     }
     const current = ownFrames[currentIndex];
     const previous = ownFrames[Math.max(0, currentIndex - 1)];
-    const currentX = current.layer.rect.x + current.layer.rect.width / 2;
-    const currentY = current.layer.rect.y + current.layer.rect.height / 2 - scrollY;
+    const printing = current.layer.kind === "canvas" && time <= current.endsAt;
+    // While printing the wordmark the agent rides the reveal frontier instead of parking at the centre.
+    const head = printing ? wordmarkPrintHead(current, time) : null;
+    const currentX = head ? head.x : current.layer.rect.x + current.layer.rect.width / 2;
+    const currentY = (head ? head.y : current.layer.rect.y + current.layer.rect.height / 2) - scrollY;
     const previousX = currentIndex > 0 ? previous.layer.rect.x + previous.layer.rect.width / 2 : window.innerWidth / 2;
     const previousY = currentIndex > 0 ? previous.layer.rect.y + previous.layer.rect.height / 2 - scrollY : window.innerHeight / 2;
-    const progress = easeInOut(clamp((time - current.startedAt) / Math.max(1, current.endsAt - current.startedAt), 0, 1));
+    const progress = easeInOut(clamp((time - current.startedAt) / Math.max(1, (current.endsAt - current.startedAt) * (printing ? 0.16 : 1)), 0, 1));
     const lift = Math.min(110, Math.abs(currentX - previousX) * 0.16 + 30);
     const control1X = previousX + (currentX - previousX) * 0.32;
     const control2X = currentX - (currentX - previousX) * 0.16;
