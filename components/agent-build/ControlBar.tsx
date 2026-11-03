@@ -1,4 +1,4 @@
-import { agentColors } from "@/components/agent-build/buildMode.config";
+import { AGENT_COLORS } from "@/components/agent-build/engine/agent";
 import type { BuildPhase } from "@/components/agent-build/types";
 
 export function ControlBar({
@@ -11,9 +11,6 @@ export function ControlBar({
   touring,
   elapsedMs,
   directorAct,
-  debug,
-  timelineProgress,
-  onSeek,
   onStart,
   onSkip,
   onDismiss,
@@ -30,9 +27,6 @@ export function ControlBar({
   touring: boolean;
   elapsedMs: number;
   directorAct: string;
-  debug: boolean;
-  timelineProgress: number;
-  onSeek: (progress: number) => void;
   onStart: () => void;
   onSkip: () => void;
   onDismiss: () => void;
@@ -52,7 +46,7 @@ export function ControlBar({
       ) : (
         <div className="agent-count">
           <span className="agent-dot-cluster" aria-hidden="true">
-            {agentColors.slice(0, 5).map((color) => <i key={color} style={{ backgroundColor: color }} />)}
+            {AGENT_COLORS.slice(0, 5).map((color) => <i key={color} style={{ backgroundColor: color }} />)}
           </span>
           <span>{agentCount} agents</span>
         </div>
@@ -60,7 +54,7 @@ export function ControlBar({
 
       {!isFinished && (
         <div className="agent-progress" aria-label={`${layersDone} of ${layersTotal} layers`}>
-          <span className="agent-progress-label">{layersDone} / {layersTotal || 364} layers</span>
+          <span className="agent-progress-label"><span className="agent-roll" key={layersDone}>{layersDone}</span> / {layersTotal} layers</span>
           <span className="agent-progress-track"><i style={{ transform: `scaleX(${progress / 100})` }} /></span>
         </div>
       )}
@@ -73,21 +67,6 @@ export function ControlBar({
           {directorAct}
         </span>
       )}
-      {!isFinished && debug && phase === "building" && (
-        <label className="agent-debug-scrub">
-          <span>TIME</span>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.001"
-            value={Math.min(1, timelineProgress)}
-            onChange={(event) => onSeek(Number(event.currentTarget.value))}
-            aria-label="Scrub build timeline"
-          />
-        </label>
-      )}
-
       {!isFinished && (
         <>
           {phase !== "scanning" && (
