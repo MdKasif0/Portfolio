@@ -249,7 +249,7 @@ export const portfolioContent = {
     milestonesTitleRed: "BIG MEANING",
     milestones: [
       { title: "Launched GitRoasted", year: "2025" },
-      { title: "Shipped ReviewPilot", year: "2026" },
+      { title: "Shipped GigSense", year: "2026" },
       { title: "20+ brand collaborations", year: "2026" },
       { title: "1st Runner-Up, InnoSprint 2.0", year: "2026" }
     ]
