@@ -86,7 +86,13 @@ function recipeFor(frame: BuildFrame) {
   if (kind === "form-select") return "DRAW_BOX + TYPE · INSERT CARET SYMBOL";
   if (kind === "form-submit") return "STYLE BUTTON · TYPE SEND PROJECT";
   if (kind === "footer-wordmark") return "TYPE + RESIZE FULL WIDTH · STYLE STROKE TO FILL";
-  if (kind === "canvas") return "DRAW_TEXTBOX · TYPE KASIF · SET_SLIDER DOT SIZE 0 → 100";
+  if (kind === "canvas") return "SET_TYPE KASIF · FIT WIDTH · CROP 20% · HALFTONE 3×3 → PRINT DOTS";
+  if (kind === "footer-label") return "TYPE STUDIO LINE · TRACK +180";
+  if (kind === "footer-meta") return "TYPE META · OPACITY 45%";
+  if (kind === "footer-roles") return "TYPE ROLES · STACK · OPACITY 62%";
+  if (kind === "footer-status") return "INSERT LIVE DOT · TYPE STATUS";
+  if (kind === "footer-rule") return "DRAW_LINE HAIRLINE 0.5PX · FULL WIDTH";
+  if (kind === "footer-top") return "TYPE BACK TO TOP · INSERT ARROW";
   if (kind === "footer-column-title") return "TYPE COLUMN HEADING · RESIZE";
   if (kind === "footer-link") return "COPY_PASTE LINK · RETYPE";
   if (kind === "footer-social") return "DRAW_BOX CIRCLE · OPEN_PICKER → PICK_SYMBOL";

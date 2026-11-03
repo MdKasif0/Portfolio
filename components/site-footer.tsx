@@ -21,19 +21,34 @@ export function SiteFooter() {
     { title:"Selected work", links:projects },
     { title:"Connect", links:[...contact.socials.map(item=>({ label:socialNames[item.label] ?? item.label, href:item.href, external:true })), ...(email ? [{ label:email, href:`mailto:${email}` }] : [])] }
   ];
-  useEffect(()=>{ const root=document.querySelector<HTMLElement>(".hwf"); if (!root) return; root.dispatchEvent(new CustomEvent("hwf:reveal",{detail:buildWillRun?0:1})); },[buildWillRun]);
 
-  const brand = <>
-    <a className="hwf-logo" href="#top" data-magnetic data-layer="text" data-kind="footer-logo" aria-label="Kasif, back to top" style={{fontFamily:anton.style.fontFamily}}>{identity.displayName}<span aria-hidden="true">.</span></a>
-    <p className="hwf-roles" data-layer="text" data-kind="footer-roles">{identity.roles.map((role)=><span key={role}>{role}</span>)}</p>
-    <p className="hwf-status" data-layer="text" data-kind="footer-status"><i aria-hidden="true" />{hero.availability}</p>
+  const brandExtra = <>
+    <span className="hwf-roles" data-layer="text" data-kind="footer-roles">{identity.roles.map((role)=><span key={role}>{role}</span>)}</span>
+    <span className="hwf-status" data-layer="text" data-kind="footer-status"><i aria-hidden="true" />{hero.availability}</span>
     <nav className="hwf-socials" aria-label="Footer social links">{footer.socialLinks.filter(item=>item.icon!=="email"||email).map(item=><a data-magnetic data-magnetic-variant="outline" data-layer="button" data-kind="footer-social" key={item.label} href={item.href || `mailto:${email}`} aria-label={item.label} target={item.href?"_blank":undefined} rel={item.href?"noreferrer":undefined}><ContactIcon name={item.icon}/></a>)}</nav>
   </>;
-  const rule = <div className="hwf-rule-slot">
-    <span className="hwf-copy" data-layer="text" data-kind="footer-meta">© {new Date().getFullYear()} {identity.name} · {contact.location}</span>
+  const ruleStart = <>
     <IstClock/>
-    <button type="button" onClick={replayBuild} data-magnetic data-magnetic-variant="outline" data-layer="button" data-kind="footer-replay">Replay build <span aria-hidden="true">▶</span></button>
-  </div>;
+    <button type="button" className="hwf-replay" onClick={replayBuild} data-magnetic data-layer="button" data-kind="footer-replay"><span className="hwf-link-label">Replay build</span> <span aria-hidden="true">▶</span></button>
+  </>;
 
-  return <div id="footer" className="halftone-footer-wrap"><div className="halftone-footer-glow" aria-hidden="true"/><HalftoneWordmarkFooter wordmark={identity.displayName} columns={columns} palette={{background:"transparent",ink:"#E5322D",warm:"#F7F7F8",text:"#C9C9D2",accent:"#F2503E"}} fontFamily={`${anton.style.fontFamily}, Anton, Impact, sans-serif`} fontWeight={400} monoFamily="var(--font-body), system-ui, sans-serif" dotGap={gap} radius={96} crop={.28} grain={.55} interactive={motionEnabled} animate={motionEnabled} reveal={buildWillRun?0:1} brand={brand} rule={rule}/></div>;
+  return <div id="footer" className="halftone-footer-wrap"><div className="halftone-footer-glow" aria-hidden="true"/><HalftoneWordmarkFooter
+    wordmark={identity.displayName}
+    label={identity.name}
+    meta={`© ${new Date().getFullYear()} · ${contact.location}`}
+    brandExtra={brandExtra}
+    columns={columns}
+    ruleStart={ruleStart}
+    palette={{ background:"transparent", ink:"#E5322D", warm:"#F7F7F8", text:"#C9C9D2" }}
+    fontFamily={`${anton.style.fontFamily}, Anton, Impact, sans-serif`}
+    fontWeight={400}
+    monoFamily="var(--font-body), system-ui, sans-serif"
+    dotGap={gap}
+    radius={80}
+    crop={.2}
+    grain={.5}
+    interactive={motionEnabled}
+    animate={motionEnabled}
+    reveal={buildWillRun ? 0 : 1}
+  /></div>;
 }
