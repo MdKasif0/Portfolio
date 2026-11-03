@@ -42,7 +42,7 @@ export function RevealFade({ children, className = "" }: { children: ReactNode; 
   );
 }
 
-export function CountUp({ value, active = true }: { value: number; active?: boolean }) {
+export function CountUp({ value, suffix = "", active = true }: { value: number; suffix?: string; active?: boolean }) {
   const [count, setCount] = useState(active ? value : 0);
   useEffect(() => {
     if (!active) {
@@ -59,7 +59,7 @@ export function CountUp({ value, active = true }: { value: number; active?: bool
     frame = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(frame);
   }, [active, value]);
-  return <>{count}</>;
+  return <>{count}{suffix}</>;
 }
 
 export function Magnetic({ children, strength = 0.12 }: { children: ReactNode; strength?: number }) {

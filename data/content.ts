@@ -28,15 +28,15 @@ export const portfolioContent = {
     cutoutAlt: "Portrait of Md Kasif Uddin",
     cutoutPlaceholder: "ADD CUTOUT · /public/hero-cutout.webp",
     stats: [
-      { value: undefined, label: "YEARS BUILDING" },
-      { value: undefined, label: "PROJECTS SHIPPED" },
-      { value: "6", label: "BRAND COLLABS" }
+      { value: "3+", label: "YEARS BUILDING" },
+      { value: "∞", label: "PROJECTS SHIPPED" },
+      { value: "20+", label: "BRAND COLLABS" }
     ],
     cvLabel: "DOWNLOAD CV",
-    cvHref: undefined,
+    cvHref: "/cv.pdf",
     asideNote: "Every pixel, a different feeling.",
     scrollLabel: "SCROLL TO DISCOVER +",
-    footerLabel: "SELECTED WORK · 2024–2026",
+    footerLabel: "SELECTED WORK · 2025–2026",
     cutoutPath: "/hero-cutout.webp",
     cutoutMobilePath: "/hero-cutout-mobile.webp"
   },
@@ -55,7 +55,7 @@ export const portfolioContent = {
       { label: "X", href: "https://x.com/md_kasif_uddin", icon: "x" },
       { label: "Instagram", href: "https://instagram.com/M_Kasif_Uddin", icon: "instagram" },
       { label: "GitHub", href: "https://github.com/MdKasif0", icon: "github" },
-      { label: "Email", href: "", icon: "email" }
+      { label: "Email", href: "mailto:mdkasifuddin123@gmail.com", icon: "email" }
     ]
   },
   work: {
@@ -64,7 +64,7 @@ export const portfolioContent = {
     title: "WORK THAT SPEAKS",
     allWork: "ALL WORK",
     noResults: "No projects match that search. Try another title or category.",
-    filters: ["All", "Web Apps", "AI Tools", "SaaS", "UI/UX", "Content", "Websites"],
+    filters: ["All", "AI & ML", "Web Apps", "3D & Games", "macOS"],
     searchPlaceholder: "Search: title or category…",
     viewAll: "VIEW ALL",
     openProject: "Open project",
@@ -72,100 +72,92 @@ export const portfolioContent = {
       {
         title: "GitRoasted",
         tag: "AI TOOL",
-        subtitle: "An AI roast of your GitHub profile, with a little heat to back it up.",
-        categories: ["AI Tools", "Web Apps"],
-        year: undefined,
-        href: "https://github.com/MdKasif0/GitRoasted",
+        subtitle: "Scores any GitHub profile out of 1,000, then lets an AI roast it.",
+        categories: ["AI & ML", "Web Apps"],
+        year: "2025",
+        href: "https://gitroasted.netlify.app",
         githubHref: "https://github.com/MdKasif0/GitRoasted",
-        liveHref: undefined,
-        overview: "A playful AI-powered GitHub profile roasting tool.",
-        role: "Frontend development · Product design",
-        stack: ["AI", "GitHub profiles"],
-        art: "gitroasted"
-      },
-      {
-        title: "ReviewPilot",
-        tag: "AI SAAS",
-        subtitle: "AI-powered reviews that make pull requests easier to navigate.",
-        categories: ["AI Tools", "SaaS"],
-        year: undefined,
-        href: undefined,
-        githubHref: undefined,
-        liveHref: undefined,
-        overview: "An AI pull-request code-review SaaS concept.",
-        role: "Frontend development · Product design",
-        stack: ["AI", "Pull-request reviews"],
-        art: "reviewpilot"
-      },
-      {
-        title: "GreenBoard",
-        tag: "SAAS",
-        subtitle: "A tutor marketplace that brings learners and teachers together.",
-        categories: ["SaaS", "Web Apps"],
-        year: undefined,
-        href: undefined,
-        githubHref: undefined,
-        liveHref: undefined,
-        overview: "A marketplace experience for finding and connecting with tutors.",
-        role: "Frontend development · Product design",
-        stack: ["Marketplace", "Tutor discovery"],
-        art: "greenboard"
-      },
-      {
-        title: "Gravites Network",
-        tag: "CREATOR PLATFORM",
-        subtitle: "A creator-led marketing platform built around X.",
-        categories: ["Content", "Websites"],
-        year: undefined,
-        href: undefined,
-        githubHref: undefined,
-        liveHref: undefined,
-        overview: "A creator-led marketing platform connecting creators and brands on X.",
-        role: "Frontend development · Product design",
-        stack: ["Creator network", "X"],
-        art: "gravites"
-      },
-      {
-        title: "AI Checkers Arena",
-        tag: "AI TOOL",
-        subtitle: "Watch language models compete in International Checkers.",
-        categories: ["AI Tools", "Web Apps"],
-        year: undefined,
-        href: "https://github.com/MdKasif0/AI-Checkers-Arena",
-        githubHref: "https://github.com/MdKasif0/AI-Checkers-Arena",
-        liveHref: undefined,
-        overview: "A spectator platform for International Checkers games played by language models.",
-        role: "Frontend development · Product design",
-        stack: ["LLMs", "International Checkers"],
-        art: "checkers"
+        liveHref: "https://gitroasted.netlify.app",
+        overview: "A free, open-source tool that reads real git activity, scores a developer's GitHub profile out of 1,000 and delivers an unfiltered AI roast, with shareable result cards and an installable PWA.",
+        role: "Product design · Full-stack development",
+        stack: ["Next.js", "TypeScript", "Genkit · Gemini", "Firebase", "PWA"],
+        art: "gitroasted",
+        cover: "gitroasted"
       },
       {
         title: "Cookie",
         tag: "MACOS COMPANION",
-        subtitle: "A quiet, warm desktop cat companion that lives on your Mac.",
-        categories: ["UI/UX"],
-        year: undefined,
-        href: "https://github.com/MdKasif0/Cookie",
+        subtitle: "A quiet, warm desktop cat that lives on your Mac.",
+        categories: ["macOS"],
+        year: "2026",
+        href: "https://cookie-v1.netlify.app/",
         githubHref: "https://github.com/MdKasif0/Cookie",
-        liveHref: undefined,
-        overview: "A lightweight, offline macOS companion that explores your desktop, responds to context, and stays private.",
-        role: "macOS desktop companion",
-        stack: ["SwiftUI", "SpriteKit", "macOS"],
-        art: "cookie"
+        liveHref: "https://cookie-v1.netlify.app/",
+        overview: "A lightweight, fully offline macOS companion that roams your windows and Dock with real physics, adapts to what you're working on, and never sends a byte of data anywhere.",
+        role: "Native macOS app · Design & engineering",
+        stack: ["Swift", "SwiftUI", "SpriteKit", "Sparkle"],
+        art: "cookie",
+        cover: "cookie"
       },
       {
-        title: "ShiftKit",
-        tag: "MACOS UTILITY",
-        subtitle: "A local-first radial menu for everyday file actions.",
-        categories: ["UI/UX"],
-        year: undefined,
-        href: "https://github.com/MdKasif0/ShiftKit",
-        githubHref: "https://github.com/MdKasif0/ShiftKit",
+        title: "Shadow of the Crimson Gate",
+        tag: "3D ACTION GAME",
+        subtitle: "A cinematic Japanese dark-fantasy action game, built for the browser.",
+        categories: ["3D & Games", "Web Apps"],
+        year: "2026",
+        href: "https://shadow-of-the-crimson-gate.netlify.app/",
+        githubHref: "https://github.com/MdKasif0/Shadow-of-the-Crimson-Gate",
+        liveHref: "https://shadow-of-the-crimson-gate.netlify.app/",
+        overview: "Real-time katana combat with dashes and combos, multi-phase yokai boss fights, moonlit atmospheric lighting and synthesized audio, all running in the browser on a custom Three.js engine with saved progress.",
+        role: "Game design · Engine & graphics programming",
+        stack: ["Three.js", "TypeScript", "WebGL", "Web Audio API"],
+        art: "crimson",
+        cover: "shadow-of-the-crimson-gate"
+      },
+      {
+        title: "Kerr Black Hole",
+        tag: "3D SIMULATION",
+        subtitle: "A procedural, Interstellar-inspired rotating black hole in Blender.",
+        categories: ["3D & Games"],
+        year: "2026",
+        href: "https://github.com/MdKasif0/black-hole-blender",
+        githubHref: "https://github.com/MdKasif0/black-hole-blender",
         liveHref: undefined,
-        overview: "A privacy-respecting macOS utility that opens contextual file actions in a radial menu while you hold Shift during a drag.",
-        role: "macOS utility",
-        stack: ["SwiftUI", "ImageIO", "PDFKit", "AVFoundation"],
-        art: "shiftkit"
+        overview: "A scientifically inspired, fully procedural Kerr black hole: a lensed Einstein ring, a Keplerian accretion disk with a white-hot to crimson thermal gradient, and 250,000+ plasma particles, generated from Python and rendered in Cycles.",
+        role: "3D simulation · Technical art",
+        stack: ["Blender", "Python", "Geometry Nodes", "Cycles"],
+        art: "blackhole",
+        cover: "kerr-black-hole"
+      },
+      {
+        title: "AI Checkers Arena",
+        tag: "AI ARENA",
+        subtitle: "Watch large language models battle live in International Checkers.",
+        categories: ["AI & ML", "Web Apps"],
+        year: "2026",
+        href: "https://github.com/MdKasif0/AI-Checkers-Arena",
+        githubHref: "https://github.com/MdKasif0/AI-Checkers-Arena",
+        liveHref: undefined,
+        overview: "A live spectator arena where AI models play full games of International Checkers, with human-vs-AI matches, a model leaderboard tracking win rate, illegal moves and latency, and Google sign-in.",
+        role: "Product design · Full-stack development",
+        stack: ["Next.js", "TypeScript", "OpenRouter", "Supabase", "Framer Motion"],
+        art: "checkers",
+        cover: "ai-checkers-arena"
+      },
+      {
+        title: "Object Detection Suite",
+        tag: "COMPUTER VISION",
+        subtitle: "Production-ready YOLOv8 engines for images, video and live webcam.",
+        categories: ["AI & ML"],
+        year: "2026",
+        href: "https://github.com/MdKasif0/Object-Detection",
+        githubHref: "https://github.com/MdKasif0/Object-Detection",
+        liveHref: undefined,
+        overview: "Five ready-to-run YOLOv8 engines: an analytics dashboard with interactive charts, YouTube and webcam tracking, multi-threaded FP16 batch processing, and beginner-friendly scripts, each with a Google Colab notebook and auto-installed dependencies.",
+        role: "Machine learning · Tooling",
+        stack: ["Python", "YOLOv8", "OpenCV", "Supervision", "Plotly"],
+        art: "vision",
+        cover: "object-detection-suite"
       }
     ],
     githubProfile: "https://github.com/MdKasif0"
@@ -173,7 +165,8 @@ export const portfolioContent = {
   collaborators: {
     label: "BEEN PART OF /",
     title: "THE BIGGER PICTURE.",
-    count: 6,
+    count: 20,
+    countSuffix: "+",
     countLabel: "brand collaborations",
     names: ["Blackbox AI", "Kimi", "SuperApp", "yapper.so", "Glass Editor", "startblock.shop"]
   },
@@ -181,17 +174,18 @@ export const portfolioContent = {
     eyebrow: "RECOGNITION & COLLABS",
     titleWhite: "THE WORK",
     titleRed: "THE RECOGNITION",
-    count: 6,
-    countLabel: "PROJECTS & COLLABS",
-    summary: "Hackathons entered and brand collaborations, built in public.",
+    count: 22,
+    countSuffix: "+",
+    countLabel: "HACKATHONS & COLLABS",
+    summary: "Hackathon podiums and brand collaborations, built in public.",
     proofLabel: "VIEW PROOF",
     proofHref: undefined,
     listLabel: "SELECTED RECOGNITION",
     yearColumn: "TYPE",
     entries: [
-      { title: "TrustLayer", subtitle: "Hackverse · Terrabyte Society · Chandigarh University", type: "HACKATHON", year: undefined, href: undefined },
-      { title: "ResQVision", subtitle: "D4 Community One-Day Solo Vibe Coding Hackathon", type: "HACKATHON", year: undefined, href: undefined },
-      { title: "Brand collaborations", subtitle: "Six creative collaborations", type: "COLLAB", year: undefined, href: undefined }
+      { title: "GigSense", subtitle: "1st Runner-Up · InnoSprint 2.0 solo hackathon by D4 Community × Google for Developers, Chandigarh University · financial intelligence and evidence ledger for gig couriers", type: "RUNNER-UP", year: "2026", href: "/certificates/innosprint-2-0.pdf", linkLabel: "VIEW CERTIFICATE" },
+      { title: "TrustLayer", subtitle: "Hackverse · Terrabyte Society, Chandigarh University · multi-layer media verification", type: "HACKATHON", year: "2026", href: "https://trustlayer-v1.netlify.app/", linkLabel: "VIEW PROJECT" },
+      { title: "Brand collaborations", subtitle: "20+ creative collaborations with AI and tech brands", type: "COLLAB", year: "2026", href: undefined, linkLabel: undefined }
     ]
   },
   rawToReal: {
@@ -203,7 +197,7 @@ export const portfolioContent = {
     afterLabel: "FINAL UI",
     meta: "GitRoasted / UI/UX · FRONTEND · SHIPPED",
     project: "GitRoasted",
-    year: undefined,
+    year: "2025",
     sliderLabel: "Reveal final interface"
   },
   about: {
@@ -211,19 +205,20 @@ export const portfolioContent = {
     titleBefore: "NOT JUST CODE",
     titleAfter: "A WAY OF TELLING STORIES",
     bioLines: [
-      "Freelance frontend developer, UI/UX designer and tech content creator on X @md_kasif_uddin.",
-      "Building client work, brand collaborations and independent AI products.",
-      "Bringing ideas to life through thoughtful interfaces and code."
+      "A developer in delusion: convinced every idea can ship, then shipping it.",
+      "Freelance software engineer building AI-powered products, full-stack web apps and native macOS tools, from the first sketch to production.",
+      "Building in public as a tech creator on X, @md_kasif_uddin."
     ],
     educationLabel: "EDUCATION",
     education: "B.Tech CSE — Chandigarh University, Mohali",
-    educationYear: undefined,
+    educationYear: "1ST YEAR · 2026 –",
     toolkitLabel: "CREATIVE TOOLKIT",
     toolkitGroups: [
-      { label: "Frontend", skills: ["JavaScript", "TypeScript", "React", "Next.js"] },
-      { label: "Backend & Data", skills: ["Node.js", "Python", "Firebase", "MongoDB", "PostgreSQL"] },
-      { label: "AI", skills: ["OpenAI", "TensorFlow", "Hugging Face"] },
-      { label: "Tools", skills: ["Cursor", "n8n", "Git", "Docker", "Netlify"] }
+      { label: "Languages", skills: ["TypeScript", "JavaScript", "Python", "Swift"] },
+      { label: "Frontend", skills: ["React", "Next.js", "Tailwind CSS", "Three.js"] },
+      { label: "Backend & Data", skills: ["Node.js", "Supabase", "Firebase", "PostgreSQL"] },
+      { label: "AI & ML", skills: ["OpenAI", "Gemini", "Hugging Face", "TensorFlow"] },
+      { label: "Tools", skills: ["Git", "Figma", "Docker", "n8n", "Netlify"] }
     ],
     processLabel: "FROM IDEA TO FINAL SHIP",
     process: [
@@ -241,22 +236,22 @@ export const portfolioContent = {
     eyebrow: "03 / THE JOURNEY",
     title: "KEEP MOVING. KEEP BUILDING",
     activeRole: "Freelance Frontend Dev & UI/UX Designer",
-    activePeriod: "CURRENT",
+    activePeriod: "2025 — NOW",
     activeSubtitle: "Freelance · Frontend development & product design",
     activeDescription: "Designing and building interfaces from first idea to final detail.\nCombining frontend craft with a thoughtful user experience.\nTurning rough concepts into products that feel alive.",
     roles: [
-      { title: "Tech Content Creator on X", period: undefined, subtitle: "@md_kasif_uddin · Tech content" },
-      { title: "Brand collaborations", period: undefined, subtitle: "Creative collaborations · 6 brands" },
-      { title: "B.Tech CSE student", period: undefined, subtitle: "Chandigarh University · Mohali" }
+      { title: "Tech Content Creator on X", period: "2026", subtitle: "@md_kasif_uddin · AI, dev tools and building in public" },
+      { title: "Brand collaborations", period: "2026", subtitle: "20+ collaborations with AI and tech brands" },
+      { title: "B.Tech CSE student", period: "2026", subtitle: "Chandigarh University, Mohali · First year" }
     ],
     milestonesLabel: "A FEW MILESTONES",
     milestonesTitleWhite: "LITTLE WINS",
     milestonesTitleRed: "BIG MEANING",
     milestones: [
-      { title: "GitRoasted launch", year: undefined },
-      { title: "ReviewPilot", year: undefined },
-      { title: "Brand collaboration", year: undefined },
-      { title: "Hackathon participation", year: undefined }
+      { title: "Launched GitRoasted", year: "2025" },
+      { title: "Shipped ReviewPilot", year: "2026" },
+      { title: "20+ brand collaborations", year: "2026" },
+      { title: "1st Runner-Up, InnoSprint 2.0", year: "2026" }
     ]
   },
   contact: {
@@ -264,7 +259,7 @@ export const portfolioContent = {
     title: "LET'S WORK TOGETHER",
     introduction: "Got a product idea? Let's build something worth shipping.",
     cta: "START THE CONVERSATION",
-    email: undefined,
+    email: "mdkasifuddin123@gmail.com",
     emailLabel: "EMAIL",
     socials: [
       { label: "X", value: "@md_kasif_uddin", href: "https://x.com/md_kasif_uddin", icon: "x" },
@@ -283,6 +278,6 @@ export const portfolioContent = {
     reelPlaceholderLabel: "SHOWREEL PREVIEW",
     reelPlaceholderInstruction: "The showreel link will appear here when available."
   },
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || process.env.URL || undefined,
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || process.env.URL || "https://kasif-portfolio.netlify.app",
   sections: []
 } as const;

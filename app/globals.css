@@ -1573,6 +1573,9 @@ html[data-motion="ready"] .hero-v2-animate .hero-v2-stats { animation: hero-v2-c
 .mock-screen { position: relative; height: 82%; overflow: hidden; padding: 7% 8%; color: #f5f5f5; font: 7px/1.35 var(--font-body),sans-serif; }
 .project-real-image { z-index: 3; object-fit: cover; opacity: 0; transition: opacity .3s ease; }
 .has-project-image .project-real-image { opacity: 1; }.has-project-image .mock-product { opacity: 0; }
+/* GitHub Open Graph covers are 2:1, so the frame matches them and nothing gets cropped. */
+.project-thumbnail.has-project-image { aspect-ratio: 2 / 1; background-color: #fff; }
+.has-project-image .project-tag { top: -10px; background: #111014; border-color: rgba(255,255,255,.18); }
 .project-tag { z-index: 4; top: 12px; left: 12px; padding: 6px 8px; border-radius: 999px; background: rgba(5,5,10,.64); backdrop-filter: blur(8px); font-size: 7px; }
 .project-index { z-index: 4; right: 13px; bottom: -.37em; overflow: visible; color: #f2503e; font-size: clamp(66px,8vw,112px); line-height: .8; pointer-events: none; background: linear-gradient(180deg,#f2503e 8%,rgba(229,50,45,.76) 55%,rgba(229,50,45,.13) 100%); background-clip: text; -webkit-text-fill-color: transparent; text-shadow: none; }
 .project-card-copy { position: relative; z-index: 5; padding: 28px 3px 0; }
@@ -1651,7 +1654,7 @@ html[data-motion="ready"] .hero-v2-animate .hero-v2-stats { animation: hero-v2-c
   .work-filters { width: 100%; gap: 2px; padding: 3px; }.work-filter { min-height: 32px; flex: 0 0 auto; gap: 5px; padding-inline: 9px; font-size: 8px; }.work-filter small { font-size: 7px; }
   .work-search, .work-search:focus-within { width: 100%; }.work-grid.work-carousel-track { gap: 15px; padding: 7px 2px 29px; }.work-carousel-track > .project-card { flex-basis: 86%; }
   .project-thumbnail { aspect-ratio: 1.55 / 1; }.mock-product { inset: 10% 9% 12%; }.project-index { right: 9px; font-size: 78px; }.project-card-copy { padding-top: 26px; }
-  .project-card-title h3 { font-size: 12px; }.project-subtitle { min-height: auto; font-size: 9px; }.project-stack-chips { opacity: 1; transform: none; }.project-view-cursor { display: none; }
+  .project-card-title h3 { font-size: 12px; }.project-subtitle { min-height: auto; font-size: 9px; }.project-stack-chips { opacity: 1; transform: none; }.has-project-image .project-stack-chips { display: none; }.project-view-cursor { display: none; }
   .work-carousel-footer { grid-template-columns: 1fr auto; gap: 13px; }.work-carousel-progress { grid-row: 2; grid-column: 1 / -1; }.work-carousel-controls { grid-column: 2; grid-row: 1; }.work-carousel-controls button { width: 31px; height: 31px; }
   .work-grid-expanded { grid-template-columns: 1fr; gap: 31px; }.work-grid-expanded .project-card:nth-child(n+5) { margin-top: 0; }
   .collab-strip { padding-block: 23px; }.collab-strip-copy { align-items: flex-start; flex-direction: column; gap: 7px; }.collab-logo-plate { width: 126px; }
@@ -2114,4 +2117,17 @@ html[data-motion="ready"] .hwf-status i::after, html[data-motion="ready"] .hwf-c
 @media (min-width: 701px) {
   .hero-v2-reel { bottom: 40px; }
   .hero-v2-bottomline { border-top: 0; background: linear-gradient(90deg, transparent 252px, rgba(255,255,255,.14) 252px) 0 0 / 100% 1px no-repeat; }
+}
+/* Hero stats rail holds three stats + CV: slightly tighter so it clears the HUD's corner label. */
+@media (min-width: 1280px) {
+  .hero-v2-stats { gap: 14px; padding: 15px 16px; }
+  .hero-stat-value { font-size: 38px; }
+}
+/* Symbol stats (∞): Anton draws it small, so it is scaled to sit with the numerals. */
+.stat-symbol { display: inline-block; font-size: 1.25em; line-height: .74; }
+/* Floating skill chips never tuck under the stats rail. */
+@media (min-width: 1280px) and (max-width: 1439px) { .hero-v2-chip-3 { right: 15%; } }
+@media (min-width: 701px) and (max-width: 1279px) {
+  .hero-v2-chip-4 { left: 49%; }
+  .hero-hud-label-bottom { opacity: 0; }
 }

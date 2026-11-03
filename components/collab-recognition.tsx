@@ -43,7 +43,7 @@ export function CollaboratorStrip() {
           <strong data-layer="text">{collaborators.title}</strong>
         </div>
         <p className="collab-count" ref={countRef} data-layer="text" data-kind="collaboration-count">
-          <b><CountUp value={collaborators.count} active={countInView} /></b> {collaborators.countLabel}
+          <b><CountUp value={collaborators.count} suffix={collaborators.countSuffix} active={countInView} /></b> {collaborators.countLabel}
         </p>
       </div>
       <div className="collab-marquees" aria-label={collaborators.names.join(", ")}>
@@ -82,7 +82,7 @@ export function RecognitionSection() {
         <div className="recognition-count-wrap">
           <div className="recognition-count" ref={countRef} data-layer="card" data-kind="recognition-count">
             <LaurelWreath />
-            <span className="recognition-number" data-layer="text" data-kind="recognition-number"><CountUp value={recognition.count} active={countInView} /></span>
+            <span className="recognition-number" data-layer="text" data-kind="recognition-number"><CountUp value={recognition.count} suffix={recognition.countSuffix} active={countInView} /></span>
           </div>
           <span className="recognition-count-label" data-layer="text">{recognition.countLabel}</span>
         </div>
@@ -108,13 +108,13 @@ export function RecognitionSection() {
               </div>
               <p className="recognition-row-subtitle" data-layer="text">{entry.subtitle}</p>
               {entry.type === "COLLAB" && (
-                <div className="recognition-avatar-stack" aria-label="Six brand collaborators">
+                <div className="recognition-avatar-stack" aria-label={`${collaborators.count}${collaborators.countSuffix} brand collaborators`}>
                   {collaborators.names.map((name, collaboratorIndex) => (
                     <span data-layer="icon" data-kind="recognition-avatar" title={name} key={name} style={{ "--avatar-index": collaboratorIndex } as CSSProperties}>{name.slice(0, 1)}</span>
                   ))}
                 </div>
               )}
-              {entry.href && <a className="recognition-row-link" data-cursor-label="OPEN" href={entry.href} target="_blank" rel="noreferrer">VIEW PROOF <span aria-hidden="true">↗</span></a>}
+              {entry.href && <a className="recognition-row-link" data-cursor-label="OPEN" href={entry.href} target="_blank" rel="noreferrer">{entry.linkLabel ?? "VIEW PROOF"} <span aria-hidden="true">↗</span></a>}
               {!entry.href && <span className="recognition-row-note">PARTICIPATION & COLLABORATION</span>}
             </li>
           ))}

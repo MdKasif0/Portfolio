@@ -46,44 +46,6 @@ export function ProductMock({ project, mode = "final" }: { project: Project; mod
               <span className="heat-label" data-layer="text">ROAST LEVEL <b>TOASTED</b></span>
             </div>
           )}
-          {project.art === "reviewpilot" && (
-            <div className="review-view">
-              <div className="review-filebar" data-layer="text"><span>src/components/Review.tsx</span><b>+12 −3</b></div>
-              <div className="review-code" data-layer="card">
-                <span><i>18</i><b> const result = await reviewPullRequest();</b></span>
-                <span className="review-added"><i>19</i> if (!result) return null;</span>
-                <span><i>20</i><b> return &lt;Review data=&#123;result&#125; /&gt;;</b></span>
-                <span><i>21</i><b> &#125;</b></span>
-              </div>
-              <div className="review-comment" data-layer="text"><b>✳ AI REVIEW</b><span>Consider handling the empty response before rendering.</span></div>
-            </div>
-          )}
-          {project.art === "greenboard" && (
-            <div className="greenboard-view">
-              <div className="tutor-heading" data-layer="text"><b>Find your next tutor</b><span>View all ↗</span></div>
-              <div className="tutor-cards">
-                {["A", "M", "R"].map((initial, index) => (
-                  <div className={`tutor-card tutor-card-${index + 1}`} data-layer="card" key={initial}>
-                    <i data-layer="icon">{initial}</i><span><b>{["Anika", "Maya", "Rohan"][index]}</b><small>{["Mathematics", "Physics", "Chemistry"][index]}</small></span><em>★ 4.9</em>
-                  </div>
-                ))}
-              </div>
-              <div className="tutor-schedule" data-layer="line"><b>YOUR WEEK</b><span>MON　TUE　WED　THU　FRI</span><i /></div>
-            </div>
-          )}
-          {project.art === "gravites" && (
-            <div className="gravites-view">
-              <svg viewBox="0 0 360 170" aria-hidden="true" data-layer="line">
-                <path d="M66 82 145 38 223 73 294 34M66 82l69 60 88-69 71 60M145 38l-10 104m88-69 71 60" />
-              </svg>
-              <span className="network-node node-brand" data-layer="icon">BRAND</span>
-              <span className="network-node node-creator node-one" data-layer="icon">@creator_01</span>
-              <span className="network-node node-creator node-two" data-layer="icon">@creator_02</span>
-              <span className="network-node node-creator node-three" data-layer="icon">@creator_03</span>
-              <span className="network-node node-creator node-four" data-layer="icon">@creator_04</span>
-              <small data-layer="text">GOOD PEOPLE. BETTER REACH.</small>
-            </div>
-          )}
           {project.art === "checkers" && (
             <div className="checkers-view">
               <div className="checkers-player" data-layer="text"><i /> GPT-4o <b>VS</b> Claude 3.7 <i /></div>
@@ -111,16 +73,6 @@ export function ProductMock({ project, mode = "final" }: { project: Project; mod
                 <span className="cookie-chat" data-layer="text">A little company?</span>
               </div>
               <span className="cookie-caption" data-layer="text">OFFLINE · RIGHT AT HOME</span>
-            </div>
-          )}
-          {project.art === "shiftkit" && (
-            <div className="shiftkit-view">
-              <div className="shiftkit-files" data-layer="card"><i /><i /><i /><span>project-files.zip</span></div>
-              <div className="shiftkit-menu" data-layer="card">
-                {["IMG", "PDF", "ZIP", "MOV", "↗", "＋"].map((item, index) => <span className={`shiftkit-action shiftkit-action-${index + 1}`} data-layer="icon" key={item}>{item}</span>)}
-                <b data-layer="icon">⌘</b>
-              </div>
-              <small data-layer="text">HOLD SHIFT · PICK AN ACTION</small>
             </div>
           )}
         </div>
@@ -199,7 +151,7 @@ function ProjectCard({
             <Image
               className="project-real-image"
               src={imagePath}
-              alt={`${project.title} product screenshot`}
+              alt={`${project.title} cover`}
               fill
               sizes="(max-width: 700px) 90vw, (max-width: 1100px) 45vw, 30vw"
               onError={() => setImageFailed(true)}
@@ -229,7 +181,7 @@ function ProjectCard({
   );
 }
 
-function ProjectDrawer({ project, onClose }: { project: Project; onClose: () => void }) {
+function ProjectDrawer({ project, imagePath, onClose }: { project: Project; imagePath?: string; onClose: () => void }) {
   const closeButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -294,8 +246,9 @@ function ProjectDrawer({ project, onClose }: { project: Project; onClose: () => 
         <h2 id="project-drawer-title" data-layer="text" data-kind="drawer-title">{project.title}<span>.</span></h2>
         <p id="project-drawer-overview" className="project-drawer-overview" data-layer="text" data-kind="drawer-overview">{project.overview}</p>
         <div className="project-drawer-gallery" data-layer="image" data-kind="drawer-gallery">
-          <div className={`project-thumbnail art-${project.art}`}>
+          <div className={`project-thumbnail art-${project.art}${imagePath ? " has-project-image" : ""}`}>
             <ProductMock project={project} />
+            {imagePath && <Image className="project-real-image" src={imagePath} alt={`${project.title} cover`} fill sizes="(max-width: 700px) 90vw, 480px" />}
           </div>
         </div>
         <dl className="project-drawer-details">
@@ -545,7 +498,7 @@ export function WorkSection({ projectImages = {} }: { projectImages?: Record<str
       </AnimatePresence>
 
       <AnimatePresence>
-        {selectedProject && <ProjectDrawer project={selectedProject} onClose={closeDrawer} />}
+        {selectedProject && <ProjectDrawer project={selectedProject} imagePath={projectImages[selectedProject.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")]} onClose={closeDrawer} />}
       </AnimatePresence>
     </section>
   );
