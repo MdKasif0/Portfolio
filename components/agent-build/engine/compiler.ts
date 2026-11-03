@@ -9,6 +9,8 @@
  */
 
 import { hash } from "@/components/agent-build/engine/clock";
+import { rememberClass } from "@/components/agent-build/engine/ghost";
+import { EXTRA_JOBS, ruleFor, type SceneRule } from "@/components/agent-build/engine/scenes";
 
 export type ActionName =
   | "DRAW_BOX" | "FILL" | "ROUND_CORNERS"
@@ -17,7 +19,23 @@ export type ActionName =
   | "OPEN_PICKER" | "PICK_SYMBOL" | "DROP" | "SCALE" | "RECOLOR"
   | "ADD_SYMBOL" | "DRAW_LINE"
   | "COPY" | "PASTE" | "RETYPE" | "SWAP_IMAGE"
-  | "PRINT";
+  | "GRADIENT" | "STROKE" | "ROTATE" | "SLAM" | "MASK"
+  | "SLIDER_DEMO" | "MARQUEE" | "STAMP"
+  | "QA_CHECK" | "HOVER_PLAY" | "GO_LIVE";
+
+/** Action families the scheduler balances within each camera window. */
+export type ActionCategory = "box" | "type" | "image" | "copy" | "symbol" | "resize" | "style" | "motion";
+export const CATEGORY: Record<ActionName, ActionCategory> = {
+  DRAW_BOX: "box", FILL: "box", ROUND_CORNERS: "box", DRAW_LINE: "box",
+  DRAW_TEXTBOX: "type", TYPE: "type", RETYPE: "type",
+  RESIZE_TEXT: "resize", SCALE: "resize",
+  STYLE: "style", RECOLOR: "style", GRADIENT: "style", SLAM: "style",
+  DROP_IMAGE: "image", CROP: "image", SWAP_IMAGE: "image", MASK: "image", STAMP: "image",
+  OPEN_PICKER: "symbol", PICK_SYMBOL: "symbol", DROP: "symbol", ADD_SYMBOL: "symbol",
+  COPY: "copy", PASTE: "copy",
+  STROKE: "motion", ROTATE: "motion", SLIDER_DEMO: "motion", MARQUEE: "motion",
+  QA_CHECK: "style", HOVER_PLAY: "motion", GO_LIVE: "motion"
+};
 
 export type NodeKind = "frame" | "text" | "image" | "icon" | "button" | "line" | "canvas";
 
@@ -49,6 +67,9 @@ export interface BuildNode {
   text: string;
   style: NodeStyle;
   instant: boolean;
+  /** Part of an ancestor that is built as one piece (absorb rule). */
+  absorbed: boolean;
+  rule: SceneRule;
   job: Job | null;
 }
 
@@ -76,6 +97,13 @@ export interface Job {
    * the real element is shown at that point. Defaults to the end of the recipe.
    */
   unlockAfter: number;
+  rule: SceneRule;
+  /** Dominant action family, for per-window balancing. */
+  category: ActionCategory;
+  /** Agents currently holding part of this job (pairing and baton passes split it). */
+  holders: number;
+  /** Not claimable before this build time (new-window stagger). */
+  availableAt: number;
 }
 
 export interface BuildPlan {
@@ -163,8 +191,9 @@ function kindOf(element: Element, layer: string | undefined, text: string, style
 }
 
 function recipeFor(node: BuildNode): ActionName[] {
+  if (node.rule.recipe) return [...node.rule.recipe];
   const { kind, style, text, el } = node;
-  if (kind === "canvas") return ["DRAW_BOX", "PRINT"];
+  if (kind === "canvas") return ["DRAW_BOX", "STAMP"];
   if (kind === "frame") return style.radius > 1 ? ["DRAW_BOX", "FILL", "ROUND_CORNERS"] : ["DRAW_BOX", "FILL"];
   if (kind === "image") return el.querySelector("img") || el instanceof HTMLImageElement ? ["DRAW_BOX", "DROP_IMAGE", "CROP"] : ["DRAW_BOX", "DROP_IMAGE"];
   if (kind === "icon") return ["OPEN_PICKER", "PICK_SYMBOL", "DROP", "SCALE", "RECOLOR"];
@@ -179,6 +208,14 @@ function recipeFor(node: BuildNode): ActionName[] {
   if (style.fontSize >= 22) recipe.push("RESIZE_TEXT");
   if (style.fontSize >= 22 || style.mixedColors.length) recipe.push("STYLE");
   return recipe;
+}
+
+function categoryOf(actions: ActionName[]): ActionCategory {
+  const counts = new Map<ActionCategory, number>();
+  for (const action of actions) counts.set(CATEGORY[action], (counts.get(CATEGORY[action]) ?? 0) + 1);
+  // Prefer the family that makes the job distinctive (a text job is "type", an icon "symbol").
+  const order: ActionCategory[] = ["copy", "image", "symbol", "resize", "type", "motion", "style", "box"];
+  return order.find((category) => counts.has(category)) ?? "box";
 }
 
 /** Climb single-child wrappers so siblings in <li>s still group (footer links, chips). */
@@ -218,6 +255,8 @@ export function compilePlan(): BuildPlan {
       text,
       style,
       instant: svgInternal || rect.width < 1 || rect.height < 1 || rect.right < 0 || rect.left > viewportWidth || computed.opacity === "0" || computed.visibility === "hidden",
+      absorbed: false,
+      rule: ruleFor(el, el.dataset.kind || el.dataset.layer || "layer"),
       job: null
     };
     byElement.set(el, node);
@@ -240,6 +279,7 @@ export function compilePlan(): BuildPlan {
   // Parents before children (depth order is stable within a section).
   for (const node of [...nodes].sort((a, b) => a.depth - b.depth)) {
     if (node.parent?.instant) node.instant = true;
+    if (node.parent && (node.parent.rule.absorb || node.parent.absorbed)) node.absorbed = true;
   }
 
   const covered = new Set<BuildNode>();
@@ -254,7 +294,7 @@ export function compilePlan(): BuildPlan {
   const groups = new Map<string, BuildNode[]>();
   const containerIds = new Map<Element, number>();
   for (const node of nodes) {
-    if (node.instant || node.kind === "canvas") continue;
+    if (node.instant || node.absorbed || node.kind === "canvas" || node.rule.noGroup || node.rule.container) continue;
     const container = groupContainer(node.el);
     if (!container) continue;
     if (!containerIds.has(container)) containerIds.set(container, containerIds.size);
@@ -282,6 +322,10 @@ export function compilePlan(): BuildPlan {
       sectionIndex: primary.sectionIndex,
       state: {},
       unlockAfter: actions.length - 1,
+      rule: primary.rule,
+      category: categoryOf(actions),
+      holders: 0,
+      availableAt: 0,
       ...extra
     };
     jobs.push(job);
@@ -297,13 +341,16 @@ export function compilePlan(): BuildPlan {
     if (members.length < 2) continue;
     const [leader, ...copies] = members;
     const simple = copies.every((node) => !node.children.length && node.doc.width * node.doc.height < 2000);
-    const batchSize = simple ? 6 : 1;
+    const batchSize = simple ? 3 : 1;
     for (let index = 0; index < copies.length; index += batchSize) {
       const targets = copies.slice(index, index + batchSize);
       const job = makeJob(targets[0], ["COPY", "PASTE"], { copy: { source: leader, targets } });
       const texts = targets.some((target) => subtree(target).some((node) => node.text && node.kind !== "icon"));
       if (texts) job.actions.push("RETYPE");
       if (targets.some((target) => subtree(target).some((node) => node.kind === "image"))) job.actions.push("SWAP_IMAGE");
+      // Award rows: the red years are slammed in after the retype.
+      if (targets.some((target) => target.el.querySelector(".recognition-year"))) job.actions.push("SLAM");
+      job.category = "copy";
       job.nodes = targets.flatMap(subtree);
       job.nodes.forEach((node) => { covered.add(node); node.job = job; });
       copyJobs.push(job);
@@ -312,14 +359,21 @@ export function compilePlan(): BuildPlan {
 
   // ---- Everything else: one job per node ----------------------------------------------------
   for (const node of nodes) {
-    if (covered.has(node) || node.instant) continue;
+    if (covered.has(node) || node.instant || node.absorbed) continue;
+    if (node.rule.container) {
+      node.job = makeJob(node, [], { instant: true });
+      continue;
+    }
     const job = makeJob(node, recipeFor(node));
     if (node.kind === "frame" && node.children.length && job.actions[2] === "ROUND_CORNERS") job.unlockAfter = 1;
+    // Real assists on big type: one agent types while a second resizes; coloured words get a styling partner.
+    if (!job.rule.pair && job.actions.includes("RESIZE_TEXT") && node.style.fontSize >= 40) job.rule = { ...job.rule, pair: "resize" };
+    else if (!job.rule.pair && job.actions.includes("STYLE") && node.style.mixedColors.length) job.rule = { ...job.rule, pair: "style" };
     node.job = job;
   }
-  // Instant nodes ride along with the nearest ancestor job; orphans get an agentless job.
+  // Instant and absorbed nodes ride along with the nearest ancestor job; orphans get an agentless job.
   for (const node of nodes) {
-    if (!node.instant || node.job) continue;
+    if (!(node.instant || node.absorbed) || node.job) continue;
     let ancestor = node.parent;
     while (ancestor && !ancestor.job) ancestor = ancestor.parent;
     if (ancestor?.job) {
@@ -344,6 +398,30 @@ export function compilePlan(): BuildPlan {
       link(job, job.primary.parent?.job);
     }
   }
+  // Scene ordering: "after" kinds in the same section, and "last" waits for the whole page.
+  for (const job of jobs) {
+    const after = job.rule.after;
+    if (after) for (const other of jobs) if (other !== job && other.section === job.section && after.includes(other.primary.layerKind)) link(job, other);
+  }
+  for (const extra of EXTRA_JOBS) {
+    const el = document.querySelector<HTMLElement>(extra.selector);
+    if (!el) continue;
+    const rect = el.getBoundingClientRect();
+    const section = sectionOf(el);
+    const node: BuildNode = {
+      id: `${section}-${extra.kind}`, el, kind: "frame", layerKind: extra.kind, section, sectionIndex: sectionIndex.get(section) ?? 99,
+      order: nodes.length, depth: 0, parent: null, children: [],
+      doc: { x: rect.left + window.scrollX, y: rect.top + window.scrollY, width: rect.width, height: rect.height },
+      fixed: false, text: "", style: styleOf(el), instant: false, absorbed: false, rule: { after: extra.after }, job: null
+    };
+    const job = makeJob(node, [...extra.recipe], { nodes: [] });
+    node.job = job;
+    for (const other of jobs) if (other !== job && other.section === section && extra.after.includes(other.primary.layerKind)) link(job, other);
+  }
+  for (const job of jobs) {
+    if (!job.rule.last) continue;
+    for (const other of jobs) if (other !== job && !other.instant) link(job, other);
+  }
   for (const job of jobs) if (!job.deps.size) job.status = "ready";
 
   // Hide every layer the build will reveal (the halftone canvas is printed in place instead).
@@ -351,6 +429,7 @@ export function compilePlan(): BuildPlan {
   for (const node of nodes) {
     if (node.kind === "canvas") continue;
     if (node.el instanceof HTMLElement) inertBefore.set(node.el, node.el.inert);
+    rememberClass(node.el);
     node.el.classList.add("bm-hidden");
     if (node.el instanceof HTMLElement) node.el.inert = true;
   }

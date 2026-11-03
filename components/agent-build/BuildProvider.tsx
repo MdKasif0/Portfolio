@@ -16,6 +16,7 @@ import { BuildInspector } from "@/components/agent-build/BuildInspector";
 import { ControlBar } from "@/components/agent-build/ControlBar";
 import { compilePlan, type BuildPlan } from "@/components/agent-build/engine/compiler";
 import { BuildEngine, type Activity } from "@/components/agent-build/engine/engine";
+import { restoreClass } from "@/components/agent-build/engine/ghost";
 import type { BuildPhase } from "@/components/agent-build/types";
 
 type BuildContextValue = { replayBuild: () => void; phase: BuildPhase; buildWillRun: boolean };
@@ -30,7 +31,7 @@ export function useAgentBuild() {
 type BuildProviderProps = {
   children: ReactNode;
   motionEnabled: boolean;
-  scrollTo: (target: number, duration: number) => void;
+  scrollTo: (target: number, duration: number, overshoot?: boolean) => void;
   cancelScroll: () => void;
 };
 
@@ -41,15 +42,16 @@ const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: r
 function restorePage(plan: BuildPlan | null) {
   try {
     plan?.nodes.forEach(({ el }) => {
-      el.classList.remove("bm-hidden", "agent-layer-revealed");
+      el.classList.remove("bm-hidden", "agent-layer-revealed", "ab-no-transition");
       if (el instanceof HTMLElement) el.inert = plan.inertBefore.get(el) ?? false;
+      restoreClass(el);
     });
   } finally {
     document.querySelectorAll<HTMLElement>(".bm-hidden").forEach((element) => {
       element.classList.remove("bm-hidden");
       element.inert = false;
     });
-    document.querySelectorAll("[data-ab-ghost]").forEach((ghost) => ghost.remove());
+    document.querySelectorAll("[data-ab-ghost], [data-ab-ghost-layer]").forEach((ghost) => ghost.remove());
   }
 }
 
@@ -66,8 +68,10 @@ function actFor(progress: number) {
 export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll }: BuildProviderProps) {
   const [phase, setPhase] = useState<BuildPhase>("idle");
   const [visible, setVisible] = useState(false);
-  const [agentCount, setAgentCount] = useState(0);
-  const [peakAgents, setPeakAgents] = useState(0);
+  const [crew, setCrew] = useState(0);
+  const [cameraMoving, setCameraMoving] = useState(false);
+  const [finale, setFinale] = useState(false);
+  const [bugs, setBugs] = useState(0);
   const [layersDone, setLayersDone] = useState(0);
   const [layersTotal, setLayersTotal] = useState(0);
   const [speed, setSpeed] = useState<number>(buildModeConfig.speedDefault);
@@ -165,8 +169,9 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
       planRef.current = plan;
       setLayersTotal(plan.total);
       setLayersDone(0);
-      setAgentCount(0);
-      setPeakAgents(0);
+      setCrew(buildModeConfig.agents.rosterStart);
+      setFinale(false);
+      setBugs(0);
       setTouring(true);
       touringRef.current = true;
       takeoverRef.current = false;
@@ -175,7 +180,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         mobile: isMobile(),
         debug: new URLSearchParams(window.location.search).get("buildDebug") === "1",
         printSoft: HWF_PRINT_SOFT,
-        scrollTo: (target, duration) => scrollToRef.current(target, duration),
+        scrollTo: (target, duration, overshoot) => scrollToRef.current(target, duration, overshoot),
         isTouring: () => touringRef.current,
         spawnOrigin: () => {
           const dots = document.querySelector(".agent-dot-cluster")?.getBoundingClientRect();
@@ -189,10 +194,10 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
             setElapsedMs(now - startedAtRef.current);
           }
         },
-        onAgents: (active, peak) => {
-          setAgentCount(active);
-          setPeakAgents(peak);
-        },
+        goLiveButton: () => document.querySelector<HTMLElement>(".agent-control-bar .agent-go-live"),
+        onCrew: (count) => setCrew(count),
+        onCamera: (moving) => setCameraMoving(moving),
+        onFinale: () => setFinale(true),
         onActivity: (next) => {
           const now = performance.now();
           if (now - lastActivityRef.current < 140) return;
@@ -202,6 +207,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         onLayerDone: playSound,
         onComplete: () => {
           finishingAtRef.current = performance.now();
+          setBugs(engineRef.current?.metrics().violations ?? 0);
           setLayersDone(plan.total);
           setPhase("finishing");
         },
@@ -246,6 +252,13 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   }, [cleanup, motionEnabled, startBuild]);
 
   const dismiss = useCallback(() => setVisible(false), []);
+  /** Go live: during the finale (clicked by the lead agent, or the visitor) it flips the lights on. */
+  const goLive = useCallback((event?: { currentTarget: HTMLElement }) => {
+    const engine = engineRef.current;
+    if (!engine) return;
+    const rect = event?.currentTarget.getBoundingClientRect();
+    engine.goLive(rect ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } : { x: window.innerWidth / 2, y: window.innerHeight - 40 });
+  }, []);
   const cycleSpeed = useCallback(() => setSpeed((current) => current === 1 ? 2 : current === 2 ? 4 : 1), []);
   const toggleSound = useCallback(() => setMuted((current) => !current), []);
 
@@ -255,7 +268,8 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
 
   useEffect(() => {
     if (!buildModeConfig.enabled) return;
-    if (!motionEnabled || prefersReducedMotion()) {
+    // ?build=off shows the finished site straight away (also used to compare against the built page).
+    if (!motionEnabled || prefersReducedMotion() || new URLSearchParams(window.location.search).get("build") === "off") {
       setPhase("skipped");
       setVisible(false);
       return;
@@ -388,7 +402,11 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
       {visible && (
         <ControlBar
           phase={phase}
-          agentCount={phase === "done" ? peakAgents : agentCount}
+          agentCount={crew}
+          finale={finale}
+          bugs={bugs}
+          cameraMoving={cameraMoving}
+          onGoLive={goLive}
           layersDone={layersDone}
           layersTotal={layersTotal}
           speed={speed}

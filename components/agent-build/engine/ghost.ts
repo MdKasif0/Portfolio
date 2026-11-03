@@ -80,7 +80,23 @@ export function createGhost(original: Element, options: GhostOptions = {}): Ghos
     clone.setAttribute("width", String(box.width));
     clone.setAttribute("height", String(box.height));
   }
+  // Insert beside the original so the clone keeps the page's CSS context. A sibling can still
+  // change layout through structural selectors (:last-child, +, :nth-child), so check — within
+  // this task, before anything paints — and fall back if the page moved.
+  const parent = original.parentElement;
+  const snapshot = () => {
+    const a = original.getBoundingClientRect(), b = parent?.getBoundingClientRect();
+    return `${a.left},${a.top},${a.width},${a.height}|${b?.width},${b?.height}`;
+  };
+  const before = snapshot();
   original.after(clone);
+  if (snapshot() !== before) {
+    original.before(clone);
+    if (snapshot() !== before) {
+      clone.remove();
+      return detachedGhost(original, clone, fixed, box);
+    }
+  }
 
   // One read/write correction lands the clone exactly on the original (transforms included).
   const target = original.getBoundingClientRect();
@@ -95,20 +111,100 @@ export function createGhost(original: Element, options: GhostOptions = {}): Ghos
   };
 }
 
+let detachedLayer: HTMLElement | null = null;
+
+/**
+ * Fallback ghost outside the page flow: every element of the clone carries its computed
+ * styles inline (so it no longer depends on selectors), placed in a layer at the document origin.
+ */
+function detachedGhost(original: Element, clone: HTMLElement, fixed: boolean, box: { width: number; height: number }): Ghost {
+  const sources = [original, ...Array.from(original.querySelectorAll("*"))];
+  const copies = [clone, ...Array.from(clone.querySelectorAll("*"))];
+  const skip = new Set(["position", "left", "top", "right", "bottom", "margin", "margin-top", "margin-left", "margin-right", "margin-bottom", "opacity", "visibility", "transition", "animation", "pointer-events", "z-index"]);
+  copies.forEach((copy, index) => {
+    const from = sources[index];
+    if (!from || !(copy instanceof HTMLElement || copy instanceof SVGElement)) return;
+    const computed = getComputedStyle(from);
+    const own = copy.style.cssText;
+    let css = "";
+    for (let i = 0; i < computed.length; i += 1) {
+      const name = computed[i];
+      if (index === 0 && skip.has(name)) continue;
+      css += `${name}:${computed.getPropertyValue(name)};`;
+    }
+    copy.style.cssText = css + (index === 0 ? own : copy.getAttribute("data-ab-skip") !== null ? "visibility:hidden;" : "");
+    if (index > 0) copy.style.setProperty("visibility", copy.hasAttribute("data-ab-skip") ? "hidden" : computed.visibility);
+  });
+  if (!detachedLayer || !detachedLayer.isConnected) {
+    detachedLayer = document.createElement("div");
+    detachedLayer.setAttribute("data-ab-ghost-layer", "");
+    detachedLayer.setAttribute("aria-hidden", "true");
+    detachedLayer.style.cssText = "position:absolute;left:0;top:0;width:0;height:0;z-index:50;pointer-events:none;";
+    document.body.appendChild(detachedLayer);
+  }
+  const rect = original.getBoundingClientRect();
+  Object.assign(clone.style, {
+    position: fixed ? "fixed" : "absolute",
+    margin: "0",
+    left: `${rect.left + (fixed ? 0 : window.scrollX)}px`,
+    top: `${rect.top + (fixed ? 0 : window.scrollY)}px`,
+    width: `${box.width}px`,
+    height: `${box.height}px`,
+    opacity: "1",
+    visibility: "visible",
+    pointerEvents: "none"
+  });
+  detachedLayer.appendChild(clone);
+  return { node: clone, original, remove: () => clone.remove() };
+}
+
 /** The clone's counterpart of the source's index-th nested [data-layer] element. */
 export function ghostChild(ghost: Ghost, index: number) {
   return ghost.node.querySelector<HTMLElement>(`[data-ab-i="${index}"]`);
 }
 
+/**
+ * Snapshot an element's style attribute; the returned function puts it back byte-for-byte
+ * (or removes it if there was none), so the finished DOM matches the page without Build Mode.
+ */
+export function keepStyle(element: Element) {
+  const before = element.getAttribute("style");
+  return () => {
+    if (before === null) element.removeAttribute("style");
+    else if (element.getAttribute("style") !== before) element.setAttribute("style", before);
+  };
+}
+
+/** Each element's class attribute exactly as it was before Build Mode touched it. */
+const classBefore = new WeakMap<Element, string | null>();
+
+export function rememberClass(element: Element) {
+  if (!classBefore.has(element)) classBefore.set(element, element.getAttribute("class"));
+}
+
+/** Put the class attribute back byte-for-byte when its tokens match the original again. */
+export function restoreClass(element: Element) {
+  if (!classBefore.has(element)) return;
+  const before = classBefore.get(element) ?? null;
+  const tokens = (value: string | null) => (value ?? "").split(/\s+/).filter(Boolean).sort().join(" ");
+  if (tokens(before) !== tokens(element.getAttribute("class"))) return;
+  if (before === null) element.removeAttribute("class");
+  else if (element.getAttribute("class") !== before) element.setAttribute("class", before);
+}
+
 /** Show the real element(s) in the same frame the ghost goes, without replaying transitions. */
 export function reveal(elements: Element[], inertBefore: Map<Element, boolean>) {
   for (const element of elements) {
-    if (element instanceof HTMLElement || element instanceof SVGElement) element.style.setProperty("transition", "none", "important");
+    rememberClass(element);
+    element.classList.add("ab-no-transition");
     element.classList.remove("bm-hidden");
     if (element instanceof HTMLElement) element.inert = inertBefore.get(element) ?? false;
   }
   requestAnimationFrame(() => {
-    for (const element of elements) if (element instanceof HTMLElement || element instanceof SVGElement) element.style.removeProperty("transition");
+    for (const element of elements) {
+      element.classList.remove("ab-no-transition");
+      restoreClass(element);
+    }
   });
 }
 
