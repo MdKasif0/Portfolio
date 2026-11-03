@@ -7,7 +7,8 @@ export const buildModeConfig = {
   /** Default playback speed (desktop). The film is tuned to ~40–45s at 1x. */
   speedDefault: 1,
   mobileSpeedDefault: 2,
-  autoStartMs: 1200,
+  /** The opening curtain: cursors orbit the KASIF mark, then burst out as the build starts. */
+  autoStartMs: 2000,
   autoDismissMs: 6000,
   runOncePerSession: false,
   soundDefault: false,
