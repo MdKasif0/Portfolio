@@ -167,6 +167,7 @@ function ProjectCard({
   return (
     <motion.article
       className="project-card"
+      data-cursor-label="VIEW"
       data-layer="card"
       data-kind="project-card"
       data-project-position={index + 1}
@@ -288,7 +289,7 @@ function ProjectDrawer({ project, onClose }: { project: Project; onClose: () => 
       >
         <div className="project-drawer-heading">
           <span className="project-drawer-kicker" data-layer="text" data-kind="drawer-kicker">SELECTED WORK / {String(work.projects.indexOf(project) + 1).padStart(2, "0")}</span>
-          <button ref={closeButton} className="project-drawer-close" type="button" onClick={onClose} aria-label="Close case study">×</button>
+          <button ref={closeButton} className="project-drawer-close" data-magnetic type="button" onClick={onClose} aria-label="Close case study">×</button>
         </div>
         <h2 id="project-drawer-title" data-layer="text" data-kind="drawer-title">{project.title}<span>.</span></h2>
         <p id="project-drawer-overview" className="project-drawer-overview" data-layer="text" data-kind="drawer-overview">{project.overview}</p>
@@ -303,8 +304,8 @@ function ProjectDrawer({ project, onClose }: { project: Project; onClose: () => 
           <div><dt>CATEGORY</dt><dd data-layer="text" data-kind="drawer-category">{project.categories.join(" · ") || "Selected work"}</dd></div>
         </dl>
         <div className="project-drawer-links">
-          {project.liveHref && <a className="project-drawer-link is-primary" data-layer="button" data-kind="drawer-live-link" href={project.liveHref} target="_blank" rel="noreferrer">VISIT LIVE PROJECT <span>↗</span></a>}
-          {project.githubHref && <a className="project-drawer-link" data-layer="button" data-kind="drawer-github-link" href={project.githubHref} target="_blank" rel="noreferrer">VIEW ON GITHUB <span>↗</span></a>}
+          {project.liveHref && <a className="project-drawer-link is-primary" data-cursor-label="OPEN" data-layer="button" data-kind="drawer-live-link" href={project.liveHref} target="_blank" rel="noreferrer">VISIT LIVE PROJECT <span>↗</span></a>}
+          {project.githubHref && <a className="project-drawer-link" data-cursor-label="OPEN" data-layer="button" data-kind="drawer-github-link" href={project.githubHref} target="_blank" rel="noreferrer">VIEW ON GITHUB <span>↗</span></a>}
         </div>
       </motion.aside>
     </motion.div>
@@ -419,7 +420,7 @@ export function WorkSection({ projectImages = {} }: { projectImages?: Record<str
         titleLines={[`${work.title}.`]}
         id="work-heading"
         titleClassName="work-heading"
-        action={<a className="work-all-link" data-layer="button" href={portfolioContent.work.githubProfile} target="_blank" rel="noreferrer">{work.allWork} <span aria-hidden="true">↗</span></a>}
+        action={<a className="work-all-link" data-magnetic data-layer="button" href={portfolioContent.work.githubProfile} target="_blank" rel="noreferrer">{work.allWork} <span aria-hidden="true">↗</span></a>}
       />
 
       <div className="work-toolbar" data-layer="line" data-kind="work-toolbar">
@@ -427,6 +428,7 @@ export function WorkSection({ projectImages = {} }: { projectImages?: Record<str
           {work.filters.map((filter) => (
             <button
               className={`work-filter${activeFilter === filter ? " is-active" : ""}`}
+              data-magnetic
               data-layer="button"
               data-kind="filter-tab"
               key={filter}
@@ -505,6 +507,7 @@ export function WorkSection({ projectImages = {} }: { projectImages?: Record<str
           >
             <div
               className="work-grid work-carousel-track"
+              data-cursor-label="DRAG"
               ref={carouselRef}
               onScroll={updateCarouselProgress}
               onPointerDown={onCarouselPointerDown}
@@ -526,15 +529,15 @@ export function WorkSection({ projectImages = {} }: { projectImages?: Record<str
               </AnimatePresence>
             </div>
             <div className="work-carousel-footer">
-              <button className="work-view-all" data-layer="button" data-kind="view-all" type="button" onClick={() => setViewAll(true)}>
+              <button className="work-view-all" data-magnetic data-layer="button" data-kind="view-all" type="button" onClick={() => setViewAll(true)}>
                 VIEW ALL <span>({filteredProjects.length})</span><i aria-hidden="true">↗</i>
               </button>
               <div className="work-carousel-progress" data-layer="line" data-kind="carousel-progress" role="progressbar" aria-label="Carousel position" aria-valuenow={Math.round(carouselProgress * 100)} aria-valuemin={0} aria-valuemax={100}>
                 <i style={{ transform: `scaleX(${carouselProgress})` }} data-layer="line" data-kind="carousel-progress-value" />
               </div>
               <div className="work-carousel-controls">
-                <button data-layer="button" data-kind="carousel-prev" type="button" onClick={() => moveCarousel(-1)} aria-label="Scroll to previous projects">←</button>
-                <button data-layer="button" data-kind="carousel-next" type="button" onClick={() => moveCarousel(1)} aria-label="Scroll to next projects">→</button>
+                <button data-magnetic data-layer="button" data-kind="carousel-prev" type="button" onClick={() => moveCarousel(-1)} aria-label="Scroll to previous projects">←</button>
+                <button data-magnetic data-layer="button" data-kind="carousel-next" type="button" onClick={() => moveCarousel(1)} aria-label="Scroll to next projects">→</button>
               </div>
             </div>
           </motion.div>

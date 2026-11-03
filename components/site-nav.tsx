@@ -73,12 +73,12 @@ export function SiteNav() {
       </div>
       <header className={`site-nav${compressed ? " is-compressed" : ""}`} data-scene="nav" data-layer="card" data-kind="nav-frame">
         <div className="nav-inner container-x">
-          <a className="nav-logo" data-layer="text" data-kind="logo" href="#top" aria-label="Kasif, home">
+          <a className="nav-logo" data-magnetic data-layer="text" data-kind="logo" href="#top" aria-label="Kasif, home">
             KASIF<span className="logo-dot">.</span>
           </a>
           <nav id="primary-navigation" className={`nav-links${menuOpen ? " is-open" : ""}`} aria-label="Main navigation">
             {portfolioContent.navigation.map((item) => (
-              <a className={activeSection === item.href.slice(1) ? "is-active" : ""} data-layer="text" data-kind="nav-link" href={item.href} key={item.href} onClick={() => setMenuOpen(false)}>
+              <a className={activeSection === item.href.slice(1) ? "is-active" : ""} data-magnetic data-layer="text" data-kind="nav-link" href={item.href} key={item.href} onClick={() => setMenuOpen(false)}>
                 {item.label}{activeSection === item.href.slice(1) && <motion.i className="nav-active-underline" layoutId="nav-active-underline" />}
               </a>
             ))}
@@ -97,6 +97,7 @@ export function SiteNav() {
             </button>
             <button
               className="motion-toggle"
+              data-magnetic
               data-layer="button"
               data-kind="motion-switch"
               type="button"
@@ -107,7 +108,7 @@ export function SiteNav() {
               <span className={`motion-switch-track${motionEnabled ? " is-on" : ""}`} aria-hidden="true"><i /></span>
               <span className="motion-toggle-label">Motion {motionEnabled ? "on" : "off"}</span>
             </button>
-            <a className="talk-link" data-layer="button" data-kind="nav-cta" href={portfolioContent.navigationCta.href}>{portfolioContent.navigationCta.label} <span aria-hidden="true">↗</span></a>
+            <a className="talk-link" data-magnetic data-layer="button" data-kind="nav-cta" href={portfolioContent.navigationCta.href}>{portfolioContent.navigationCta.label} <span aria-hidden="true">↗</span></a>
           </div>
         </div>
         <div className="nav-scroll-progress" aria-hidden="true"><i style={{ transform: `scaleX(${progress})` }} /></div>

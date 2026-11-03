@@ -52,7 +52,7 @@ export function ContactSection() {
         <div className="contact-grid">
           <div className="contact-intro">
             <p data-layer="text">{contact.introduction}</p>
-            <a className="contact-cta magnetic-cta" data-layer="button" href={contact.socials[0].href} target="_blank" rel="noreferrer">
+            <a className="contact-cta magnetic-cta" data-magnetic data-magnetic-variant="outline" data-layer="button" href={contact.socials[0].href} target="_blank" rel="noreferrer">
               {contact.cta}<span aria-hidden="true">↗</span>
             </a>
           </div>
@@ -64,7 +64,7 @@ export function ContactSection() {
               <span className="contact-value" data-layer="text">{contact.email}</span>
             </div>}
             {contact.socials.map((item) => (
-              <button className={`contact-row${copied === item.value ? " is-copied" : ""}`} data-layer="line" data-kind="contact-row" type="button" onClick={() => copyHandle(item.value)} key={item.label} aria-label={`Copy ${item.label} handle`}>
+              <button className={`contact-row${copied === item.value ? " is-copied" : ""}`} data-magnetic data-magnetic-strength=".15" data-layer="line" data-kind="contact-row" type="button" onClick={() => copyHandle(item.value)} key={item.label} aria-label={`Copy ${item.label} handle`}>
                 <span className="contact-icon" data-layer="icon"><ContactIcon name={item.icon} /></span>
                 <span className="contact-label" data-layer="text">{item.label}</span>
                 <span className="contact-value" data-layer="text">{item.value}</span>
@@ -87,11 +87,11 @@ export function ContactSection() {
               <label>Email<input required name="email" type="email" placeholder="you@company.com" data-layer="button" data-kind="form-field" /></label>
               <label>Budget<select required name="budget" defaultValue="" data-layer="button" data-kind="form-select"><option value="" disabled>Select a range</option><option>Under $1k</option><option>$1k — $3k</option><option>$3k+</option></select></label>
               <label>Message<textarea required name="message" rows={3} placeholder="What are we building?" data-layer="button" data-kind="form-field" /></label>
-              <button className="form-submit" type="submit" data-layer="button" data-kind="form-submit">SEND PROJECT <span>↗</span></button>
+              <button className="form-submit" data-magnetic data-magnetic-variant="outline" type="submit" data-layer="button" data-kind="form-submit">SEND PROJECT <span>↗</span></button>
             </>}
           </form>
 
-          <button className="showreel-card" data-layer="card" type="button" onClick={() => setReelOpen(true)} aria-label={contact.modalLabel}>
+          <button className="showreel-card" data-cursor-label="PLAY" data-layer="card" type="button" onClick={() => setReelOpen(true)} aria-label={contact.modalLabel}>
             <span className="showreel-kicker" data-layer="text">{contact.cardKicker}</span>
             <span className="showreel-title" data-layer="text">{contact.cardTitleWhite}<br /><i>{contact.cardTitleRed}<b>.</b></i></span>
             <span className="showreel-play" data-layer="icon" aria-hidden="true"><span /></span>

@@ -1,6 +1,5 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { MotionShell } from "@/components/motion-shell";
 import { SiteNav } from "@/components/site-nav";
 import { HeroSection } from "@/components/hero-section";
 import { WorkSection } from "@/components/work-section";
@@ -19,7 +18,7 @@ export default function Home() {
       .map((slug) => [slug, `/projects/${slug}.webp`])
   );
   return (
-    <MotionShell>
+    <>
       <Atmosphere />
       <a className="skip-link" href="#main-content">Skip to content</a>
       <SiteNav />
@@ -41,6 +40,6 @@ export default function Home() {
         <ContactSection />
       </main>
       <SiteFooter />
-    </MotionShell>
+    </>
   );
 }

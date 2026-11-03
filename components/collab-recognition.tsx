@@ -87,7 +87,7 @@ export function RecognitionSection() {
           <span className="recognition-count-label" data-layer="text">{recognition.countLabel}</span>
         </div>
         <p className="recognition-summary" data-layer="text">{recognition.summary}</p>
-        {recognition.proofHref && <a className="recognition-proof" data-layer="button" href={recognition.proofHref}>{recognition.proofLabel} <span aria-hidden="true">↗</span></a>}
+        {recognition.proofHref && <a className="recognition-proof" data-magnetic data-layer="button" href={recognition.proofHref}>{recognition.proofLabel} <span aria-hidden="true">↗</span></a>}
       </div>
 
       <div className="recognition-list">
@@ -114,7 +114,7 @@ export function RecognitionSection() {
                   ))}
                 </div>
               )}
-              {entry.href && <a className="recognition-row-link" href={entry.href} target="_blank" rel="noreferrer">VIEW PROOF <span aria-hidden="true">↗</span></a>}
+              {entry.href && <a className="recognition-row-link" data-cursor-label="OPEN" href={entry.href} target="_blank" rel="noreferrer">VIEW PROOF <span aria-hidden="true">↗</span></a>}
               {!entry.href && <span className="recognition-row-note">PARTICIPATION & COLLABORATION</span>}
             </li>
           ))}

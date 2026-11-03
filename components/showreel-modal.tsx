@@ -80,9 +80,9 @@ export function ShowreelModal({ onClose }: { onClose: () => void }) {
             <p className="reel-kicker">{contact.reelModalKicker}</p>
             <h2 id="reel-title">{contact.reelModalTitle}<span className="title-period">.</span></h2>
           </div>
-          <button ref={closeButton} className="reel-close" type="button" onClick={onClose} aria-label="Close showreel">×</button>
+          <button ref={closeButton} className="reel-close" data-magnetic type="button" onClick={onClose} aria-label="Close showreel">×</button>
         </div>
-        <div className="reel-frame">
+        <div className="reel-frame" data-cursor-native>
           {embedUrl ? (
             <iframe
               src={embedUrl}

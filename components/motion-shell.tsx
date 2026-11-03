@@ -4,7 +4,6 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import Lenis from "lenis";
 import { BuildProvider } from "@/components/agent-build/BuildProvider";
 import { portfolioContent } from "@/data/content";
-import { MagneticCursor } from "@/components/ui/magnetic-cursor";
 
 const MotionPreferenceContext = createContext<{
   motionEnabled: boolean;
@@ -90,12 +89,10 @@ export function MotionShell({ children }: { children: ReactNode }) {
 
   return (
     <MotionPreferenceContext.Provider value={{ motionEnabled, setMotionEnabled }}>
-      <MagneticCursor enabled={motionEnabled} cursorSize={14} cursorColor="#F7F7F8" blendMode="exclusion" shape="circle" magneticFactor={.3} hoverPadding={10} lerpAmount={.16} speedMultiplier={.015} maxScaleX={.9} maxScaleY={.35} contrastBoost={1}>
-        <div className={motionEnabled ? "motion-enabled" : "motion-disabled"} data-motion={motionEnabled ? "on" : "off"}>
-          <MotionPolish />
-          <BuildProvider motionEnabled={motionEnabled} scrollTo={scrollTo} cancelScroll={cancelScroll}>{children}</BuildProvider>
-        </div>
-      </MagneticCursor>
+      <div className={motionEnabled ? "motion-enabled" : "motion-disabled"} data-motion={motionEnabled ? "on" : "off"}>
+        <MotionPolish />
+        <BuildProvider motionEnabled={motionEnabled} scrollTo={scrollTo} cancelScroll={cancelScroll}>{children}</BuildProvider>
+      </div>
     </MotionPreferenceContext.Provider>
   );
 }
@@ -127,31 +124,9 @@ function MotionPolish() {
       observer.disconnect();
     }, 2500);
 
-    const moveMagnetically = (event: PointerEvent) => {
-      if (!(event.currentTarget instanceof HTMLElement)) return;
-      const element = event.currentTarget;
-      const bounds = element.getBoundingClientRect();
-      const offsetX = (event.clientX - bounds.left - bounds.width / 2) * 0.12;
-      const offsetY = (event.clientY - bounds.top - bounds.height / 2) * 0.12;
-      element.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-    };
-    const resetMagnet = (event: PointerEvent) => {
-      if (event.currentTarget instanceof HTMLElement) event.currentTarget.style.transform = "";
-    };
-    const magnets = Array.from(document.querySelectorAll<HTMLElement>(".magnetic-cta"));
-    magnets.forEach((element) => {
-      element.addEventListener("pointermove", moveMagnetically);
-      element.addEventListener("pointerleave", resetMagnet);
-    });
-
     return () => {
       window.clearTimeout(safety);
       observer.disconnect();
-      magnets.forEach((element) => {
-        element.removeEventListener("pointermove", moveMagnetically);
-        element.removeEventListener("pointerleave", resetMagnet);
-        element.style.transform = "";
-      });
     };
   }, [motionEnabled]);
 

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { anton, caveat, jakarta } from "@/app/fonts";
 import { portfolioContent } from "@/data/content";
+import { MotionShell } from "@/components/motion-shell";
+import SiteCursor from "@/components/site-cursor";
 import "./globals.css";
 
 const socialImage = portfolioContent.siteUrl
@@ -36,7 +38,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   };
   return (
     <html lang="en" className={`${anton.variable} ${jakarta.variable} ${caveat.variable}`}>
-      <body>{children}<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} /></body>
+      <body><MotionShell><SiteCursor>{children}</SiteCursor></MotionShell><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} /></body>
     </html>
   );
 }
