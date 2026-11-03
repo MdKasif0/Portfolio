@@ -1395,7 +1395,10 @@ html[data-motion="ready"] .hero-marquee-row-two { animation: hero-marquee-right 
   justify-content: center;
   min-height: 36px;
   border-top: 1px solid rgba(255,255,255,.14);
+  /* The full-width rule overlaps the lower half of the reel button; only its own content takes the pointer. */
+  pointer-events: none;
 }
+.hero-v2-bottomline > * { pointer-events: auto; }
 .hero-v2-scroll {
   position: relative;
   display: inline-flex;
@@ -1577,7 +1580,7 @@ html[data-motion="ready"] .hero-v2-animate .hero-v2-stats { animation: hero-v2-c
 .work-carousel-track.is-dragging .project-link { pointer-events: none; }
 .work-carousel-track > .project-card { flex: 0 0 calc((100% - 48px) / 3); scroll-snap-align: start; }
 .project-card { min-width: 0; perspective: 1000px; transform-style: preserve-3d; }
-.project-link { width: 100%; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; cursor: none; }
+.project-link { width: 100%; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
 .project-card::before { position: absolute; z-index: 8; inset: 0; border: 1px solid transparent; border-radius: 5px; content: ""; pointer-events: none; background: radial-gradient(300px circle at var(--glare-x, 50%) var(--glare-y, 50%), rgba(242,80,62,.42), transparent 68%); opacity: 0; transition: opacity .25s ease; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; padding: 1px; }
 .project-card:hover::before, .project-card:focus-within::before { opacity: 1; }
 .project-thumbnail { display: block; overflow: visible; aspect-ratio: 16 / 9; isolation: isolate; border: 1px solid rgba(255,255,255,.08); border-radius: 4px; background-color: #111014; }
@@ -1937,3 +1940,32 @@ html[data-motion="ready"] .quote-signature path { animation: signature-draw 1.8s
 /* Halftone Wordmark Footer */
 .halftone-footer-wrap { position:relative; overflow:hidden; background:#05050a; }.halftone-footer-glow { position:absolute; inset:auto 0 0; height:75%; pointer-events:none; background:radial-gradient(60% 80% at 50% 100%,rgba(229,50,45,.22),transparent 70%); }.hwf { position:relative; isolation:isolate; display:flex; min-height:540px; flex-direction:column; justify-content:space-between; overflow:hidden; padding:clamp(30px,4vw,68px) max(20px,calc((100vw - 1280px)/2)); color:var(--hwf-text); font-family:var(--hwf-mono); }.hwf canvas { position:absolute; z-index:-1; inset:0; width:100%; height:100%; pointer-events:auto; touch-action:pan-y; }.hwf-top { position:relative; z-index:1; display:grid; grid-template-columns:minmax(180px,1fr) 2fr; gap:clamp(32px,8vw,130px); }.hwf-brand p,.hwf-brand small,.hwf-col h3,.hwf-col a,.hwf-rule { font-family:var(--hwf-mono); text-transform:uppercase; }.hwf-brand p { margin:0 0 8px; font-size:12px; font-weight:700; letter-spacing:.12em; }.hwf-brand small { color:#92919b; font-size:9px; letter-spacing:.14em; }.hwf-cols { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; }.hwf-col { display:flex; flex-direction:column; align-items:flex-start; gap:9px; }.hwf-col h3 { margin:0 0 8px; color:#fff; font-size:9px; letter-spacing:.16em; }.hwf-col a { color:var(--hwf-text); font-size:9px; letter-spacing:.04em; transition:color .18s ease; }.hwf-col a:hover,.hwf-up:hover { color:var(--hwf-accent); }.hwf-socials { display:flex; gap:8px; margin-top:22px; }.hwf-socials a { display:grid; width:36px; height:36px; place-items:center; border:1px solid rgba(255,255,255,.16); border-radius:50%; color:var(--hwf-text); transition:background .2s ease,border-color .2s ease,color .2s ease; }.hwf-socials a:hover { border-color:#e5322d; background:#e5322d; color:#fff; }.hwf-socials svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.2; }.hwf-rule { position:relative; z-index:1; display:flex; width:100%; align-items:center; justify-content:space-between; gap:16px; padding-top:18px; border-top:1px solid var(--hwf-text); font-size:9px; letter-spacing:.13em; }.hwf-rule-slot { display:flex; align-items:center; gap:14px; }.hwf-rule-slot button,.hwf-clock { border:1px solid rgba(255,255,255,.14); border-radius:999px; background:rgba(5,5,10,.5); color:var(--hwf-text); font:700 9px var(--hwf-mono); letter-spacing:.13em; text-transform:uppercase; }.hwf-rule-slot button { padding:8px 11px; cursor:pointer; }.hwf-clock { padding:8px 10px; color:#ff8d80; }.hwf-up { margin-left:auto; color:var(--hwf-text); font-weight:700; }.hwf a:focus-visible,.hwf button:focus-visible { outline:2px solid #f2503e; outline-offset:3px; }
 @media(max-width:720px) { .hwf { min-height:540px; padding:24px 20px; }.hwf-top { grid-template-columns:1fr; gap:30px; }.hwf-cols { grid-template-columns:repeat(2,minmax(0,1fr)); gap:25px 20px; }.hwf-col:last-child { grid-column:1 / -1; }.hwf-rule { align-items:flex-start; flex-direction:column; }.hwf-up { margin-left:0; }.hwf-rule-slot { flex-wrap:wrap; } }
+
+/* Magnetic cursor (components/ui/magnetic-cursor.tsx). The html class is added only after mount,
+   so SSR, no-JS, touch, reduced motion and Motion off all keep the native cursor. */
+@media (hover: hover) and (pointer: fine) {
+  html.has-custom-cursor, html.has-custom-cursor * { cursor: none !important; }
+  html.has-custom-cursor input, html.has-custom-cursor textarea,
+  html.has-custom-cursor [contenteditable="true"] { cursor: text !important; }
+  html.has-custom-cursor select, html.has-custom-cursor [data-cursor-native],
+  html.has-custom-cursor [data-cursor-native] * { cursor: auto !important; }
+  html.has-custom-cursor .project-view-cursor { display: none; }
+}
+.magnetic-cursor { box-sizing: border-box; }
+.magnetic-cursor .mc-label {
+  position: absolute; top: 0; left: 0; width: 0; height: 0; opacity: 0; visibility: hidden;
+  font: 700 11px/1 var(--font-body), system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: #fff; white-space: nowrap;
+}
+.magnetic-cursor .mc-label-inner { position: absolute; top: 0; left: 0; display: flex; align-items: center; gap: 6px; transform: translate(-50%,-50%); }
+.magnetic-cursor .mc-glyph { display: none; width: 0; height: 0; border-block: 4.5px solid transparent; border-left: 7px solid #fff; }
+.magnetic-cursor .mc-glyph[data-glyph="play"] { display: block; }
+.mc-you {
+  position: fixed; z-index: 10000; top: 0; left: 0; padding: 4px 7px; border: 1px solid rgba(255,255,255,.14); border-radius: 999px;
+  background: rgba(8,8,13,.72); color: #f7f7f8; font: 700 10px/1 var(--font-body), system-ui, sans-serif; letter-spacing: .14em;
+  pointer-events: none; opacity: 0; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.mc-ripple {
+  position: fixed; z-index: 9999; top: 0; left: 0; width: 72px; height: 72px; border: 1.5px solid #e5322d; border-radius: 50%;
+  pointer-events: none; opacity: 0; transform: translate(-200px,-200px);
+}

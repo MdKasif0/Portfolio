@@ -294,7 +294,7 @@ export function HeroSection({ cvAvailable = false }: { cvAvailable?: boolean }) 
             </div>
             <p className="hero-v2-introduction" data-layer="text" data-kind="introduction">{hero.introduction}</p>
             <div className="hero-v2-actions">
-              <a className="hero-v2-cta magnetic-cta" data-layer="button" data-kind="primary-cta" href="#work">
+              <a className="hero-v2-cta magnetic-cta" data-magnetic data-magnetic-variant="outline" data-layer="button" data-kind="primary-cta" href="#work">
                 <span>{hero.workCta}</span>
                 <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2v13m-5-5 5 5 5-5" /></svg>
               </a>
@@ -321,7 +321,7 @@ export function HeroSection({ cvAvailable = false }: { cvAvailable?: boolean }) 
                 />
               ))}
               {cvAvailable && (
-                <a className="hero-v2-cv" data-layer="button" data-kind="cv-download" href={hero.cvHref ?? "/cv.pdf"}>
+                <a className="hero-v2-cv" data-magnetic data-layer="button" data-kind="cv-download" href={hero.cvHref ?? "/cv.pdf"}>
                   <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2v10m-4-4 4 4 4-4M3 14v2h12v-2" /></svg>
                   {hero.cvLabel}
                 </a>
@@ -339,7 +339,7 @@ export function HeroSection({ cvAvailable = false }: { cvAvailable?: boolean }) 
           </div>
 
           <div className="hero-v2-reel">
-            <button className="hero-v2-reel-trigger" data-layer="button" data-kind="reel-button" type="button" onClick={() => setReelOpen(true)}>
+            <button className="hero-v2-reel-trigger" data-cursor-label="PLAY" data-layer="button" data-kind="reel-button" type="button" onClick={() => setReelOpen(true)}>
               <span className="hero-v2-reel-circle" data-layer="icon" data-kind="reel-progress" aria-hidden="true">
                 <svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" /><path d="m18 15 13 7-13 7z" /></svg>
               </span>
@@ -349,7 +349,7 @@ export function HeroSection({ cvAvailable = false }: { cvAvailable?: boolean }) 
           </div>
 
           <div className="hero-v2-bottomline">
-            <a className="hero-v2-scroll" data-layer="button" data-kind="scroll-cue" href="#work">
+            <a className="hero-v2-scroll" data-magnetic data-layer="button" data-kind="scroll-cue" href="#work">
               <span>{hero.scrollLabel}</span>
               <i data-layer="line" data-kind="scroll-line" aria-hidden="true" />
             </a>

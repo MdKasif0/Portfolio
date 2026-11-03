@@ -91,7 +91,7 @@ export function RawToRealSection() {
       />
       <div className="raw-real-layout">
         <p className="raw-real-caption" data-layer="text">{portfolioContent.rawToReal.caption}</p>
-        <div className={`comparison${isDemo ? " is-demo" : ""}`} ref={comparisonRef} data-layer="card" data-kind="wire-to-real-comparison">
+        <div className={`comparison${isDemo ? " is-demo" : ""}`} ref={comparisonRef} data-cursor-label="DRAG" data-layer="card" data-kind="wire-to-real-comparison">
           <div className="comparison-layer comparison-wireframe" data-layer="image" data-kind="wireframe-panel">
             <ProductMock project={gitRoasted} mode="wire" />
             <span className="comparison-chip" data-layer="text">{portfolioContent.rawToReal.beforeLabel}</span>
@@ -356,7 +356,7 @@ export function JourneySection() {
           </h3>
           <ol>
             {journey.milestones.map((milestone, index) => (
-              <li className="milestone-row" data-layer="line" data-kind="milestone-row" key={milestone.title}>
+              <li className="milestone-row" data-cursor-label="VIEW" data-layer="line" data-kind="milestone-row" key={milestone.title}>
                 <span className="milestone-index" data-layer="text">{String(index + 1).padStart(2, "0")}</span>
                 <span className="milestone-title" data-layer="text">{milestone.title}</span>
                 {milestone.year && <span className="milestone-year" data-layer="text">{milestone.year}</span>}

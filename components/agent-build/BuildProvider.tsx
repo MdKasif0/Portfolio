@@ -203,6 +203,8 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   }, [cleanup]);
 
   const startBuild = useCallback(() => {
+    // The auto-start and replay timers can fire after the visitor already skipped from the curtain.
+    if (phaseRef.current !== "scanning") return;
     if (!buildModeConfig.enabled || !motionEnabled || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setPhase("skipped");
       setVisible(false);
@@ -578,6 +580,15 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     if (phase !== "building" || muted) return;
     playSound();
   }, [phase, muted, playSound]);
+
+  // Exposes the run state on <html> so page-level UI (the visitor cursor's "YOU" tag) can react.
+  // done and skipped (also the error path, which calls skipBuild) clear it.
+  useEffect(() => {
+    const root = document.documentElement;
+    if (phase === "building" || phase === "finishing") root.dataset.build = phase;
+    else delete root.dataset.build;
+  }, [phase]);
+  useEffect(() => () => { delete document.documentElement.dataset.build; }, []);
 
   const contextValue = useMemo(() => ({ replayBuild, phase, buildWillRun: phase === "building" || phase === "scanning" || phase === "finishing" }), [phase, replayBuild]);
 
