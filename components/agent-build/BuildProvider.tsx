@@ -14,6 +14,7 @@ import { HWF_PRINT_SOFT } from "@/components/ui/halftone-wordmark-footer";
 import { buildModeConfig } from "@/components/agent-build/buildMode.config";
 import { BuildInspector } from "@/components/agent-build/BuildInspector";
 import { ControlBar } from "@/components/agent-build/ControlBar";
+import { CurtainSwarm } from "@/components/agent-build/CurtainSwarm";
 import { compilePlan, type BuildPlan } from "@/components/agent-build/engine/compiler";
 import { BuildEngine, type Activity } from "@/components/agent-build/engine/engine";
 import { restoreClass } from "@/components/agent-build/engine/ghost";
@@ -248,7 +249,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     setMuted(!buildModeConfig.soundDefault);
     setPhase("scanning");
     setVisible(true);
-    window.setTimeout(startBuild, 180);
+    window.setTimeout(startBuild, buildModeConfig.autoStartMs);
   }, [cleanup, motionEnabled, startBuild]);
 
   const dismiss = useCallback(() => setVisible(false), []);
@@ -394,8 +395,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
       {children}
       {visible && phase === "scanning" && (
         <div className="agent-build-curtain" aria-hidden="true">
-          <span className="agent-curtain-mark">K</span>
-          <span className="agent-curtain-cursors"><i /><i /><i /><i /></span>
+          <CurtainSwarm durationMs={buildModeConfig.autoStartMs} />
         </div>
       )}
       {visible && phase === "building" && activity && <BuildInspector activity={activity} act={actFor(progress)} />}
