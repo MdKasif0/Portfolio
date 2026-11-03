@@ -2092,3 +2092,26 @@ html[data-motion="ready"] .hwf-status i::after, html[data-motion="ready"] .hwf-c
 @media (min-width: 701px) { .agent-control-bar { width: 600px; } }
 @media (max-width: 700px) { .agent-control-bar { width: calc(100vw - 32px); } }
 .ab-no-transition { transition: none !important; }
+/* Hero copy: its box ends above the reel button and the bottom rule, and the content sits at the
+   bottom of that box. Tall screens look as before; shorter ones lift the copy instead of
+   colliding with the reel (the overflow, if any, goes up into the free space under the topline). */
+@media (min-width: 701px) {
+  .hero-v2-copy { top: 30%; bottom: 122px; display: flex; flex-direction: column; justify-content: flex-end; }
+  .hero-v2-copy > * { flex: none; }
+  /* The name also respects the viewport height (copy ≈ 1.37 × name size + 210px), so short laptop
+     screens keep the copy between the eyebrow and the reel. Tall screens are unchanged. */
+  .hero-v2-name { font-size: clamp(110px, min(18vw, calc(58vh - 260px)), 320px); }
+}
+/* Nav pill: inner padding so the logo clears the rounded end and the Let's talk pill sits
+   concentric with it (inset = (bar height − button height) / 2). */
+.site-nav .nav-inner { padding-inline: 30px 18px; }
+.site-nav.is-compressed .nav-inner { padding-inline: 26px 12px; }
+@media (max-width: 700px) {
+  .site-nav .nav-inner, .site-nav.is-compressed .nav-inner { padding-inline: 18px 12px; }
+}
+/* The reel sits on the hero's bottom rule, and the rule starts just after it (it used to run
+   through the PLAY REEL label). Desktop and tablet only; mobile has no rule. */
+@media (min-width: 701px) {
+  .hero-v2-reel { bottom: 40px; }
+  .hero-v2-bottomline { border-top: 0; background: linear-gradient(90deg, transparent 252px, rgba(255,255,255,.14) 252px) 0 0 / 100% 1px no-repeat; }
+}
