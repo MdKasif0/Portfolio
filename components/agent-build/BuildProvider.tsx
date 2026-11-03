@@ -14,7 +14,7 @@ import { HWF_PRINT_SOFT } from "@/components/ui/halftone-wordmark-footer";
 import { buildModeConfig } from "@/components/agent-build/buildMode.config";
 import { BuildInspector } from "@/components/agent-build/BuildInspector";
 import { ControlBar } from "@/components/agent-build/ControlBar";
-import { CurtainSwarm } from "@/components/agent-build/CurtainSwarm";
+import { CurtainSwarm, type SwarmHandoff } from "@/components/agent-build/CurtainSwarm";
 import { compilePlan, type BuildPlan } from "@/components/agent-build/engine/compiler";
 import { BuildEngine, type Activity } from "@/components/agent-build/engine/engine";
 import { restoreClass } from "@/components/agent-build/engine/ghost";
@@ -22,6 +22,12 @@ import type { BuildPhase } from "@/components/agent-build/types";
 
 type BuildContextValue = { replayBuild: () => void; phase: BuildPhase; buildWillRun: boolean };
 const BuildContext = createContext<BuildContextValue | null>(null);
+
+/** The control bar's agent tray (its avatar dots): where agents come from and go back to. */
+function trayPoint() {
+  const dots = document.querySelector(".agent-dot-cluster")?.getBoundingClientRect();
+  return dots ? { x: dots.left + dots.width / 2, y: dots.top + dots.height / 2 } : { x: window.innerWidth / 2, y: window.innerHeight - 40 };
+}
 
 export function useAgentBuild() {
   const context = useContext(BuildContext);
@@ -81,6 +87,10 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   const [activity, setActivity] = useState<Activity | null>(null);
   const [touring, setTouring] = useState(true);
   const [announcement, setAnnouncement] = useState("");
+  /** The intro's cursors stay on screen into the build until every one is handed to an agent. */
+  const [introLive, setIntroLive] = useState(false);
+  const [introRun, setIntroRun] = useState(0);
+  const handoffRef = useRef<SwarmHandoff | null>(null);
   const planRef = useRef<BuildPlan | null>(null);
   const engineRef = useRef<BuildEngine | null>(null);
   const startedAtRef = useRef(0);
@@ -156,6 +166,8 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     oscillator.stop(context.currentTime + 0.065);
   }, []);
 
+  const endIntro = useCallback(() => setIntroLive(false), []);
+
   const startBuild = useCallback(() => {
     // The auto-start and replay timers can fire after the visitor already skipped from the curtain.
     if (phaseRef.current !== "scanning") return;
@@ -183,10 +195,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         printSoft: HWF_PRINT_SOFT,
         scrollTo: (target, duration, overshoot) => scrollToRef.current(target, duration, overshoot),
         isTouring: () => touringRef.current,
-        spawnOrigin: () => {
-          const dots = document.querySelector(".agent-dot-cluster")?.getBoundingClientRect();
-          return dots ? { x: dots.left + dots.width / 2, y: dots.top + dots.height / 2 } : { x: window.innerWidth / 2, y: window.innerHeight - 40 };
-        },
+        spawnOrigin: (agentId) => handoffRef.current?.take(agentId) ?? trayPoint(),
         onProgress: (done) => {
           const now = performance.now();
           if (now - lastUiRef.current > 60 || done >= plan.total) {
@@ -248,6 +257,8 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     setSpeed(isMobile() ? buildModeConfig.mobileSpeedDefault : buildModeConfig.speedDefault);
     setMuted(!buildModeConfig.soundDefault);
     setPhase("scanning");
+    setIntroLive(true);
+    setIntroRun((run) => run + 1);
     setVisible(true);
     window.setTimeout(startBuild, buildModeConfig.autoStartMs);
   }, [cleanup, motionEnabled, startBuild]);
@@ -286,6 +297,8 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     if (alreadyRan) return;
     setSpeed(isMobile() ? buildModeConfig.mobileSpeedDefault : buildModeConfig.speedDefault);
     setPhase("scanning");
+    setIntroLive(true);
+    setIntroRun((run) => run + 1);
     setVisible(true);
     const timer = window.setTimeout(startBuild, buildModeConfig.autoStartMs);
     return () => window.clearTimeout(timer);
@@ -393,9 +406,9 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   return (
     <BuildContext.Provider value={contextValue}>
       {children}
-      {visible && phase === "scanning" && (
-        <div className="agent-build-curtain" aria-hidden="true">
-          <CurtainSwarm durationMs={buildModeConfig.autoStartMs} />
+      {visible && (phase === "scanning" || (phase === "building" && introLive)) && (
+        <div key={introRun} className={`agent-build-curtain${phase === "building" ? " is-handoff" : ""}`} aria-hidden="true">
+          <CurtainSwarm durationMs={buildModeConfig.autoStartMs} building={phase === "building"} handoff={handoffRef} trayPoint={trayPoint} onDone={endIntro} />
         </div>
       )}
       {visible && phase === "building" && activity && <BuildInspector activity={activity} act={actFor(progress)} />}

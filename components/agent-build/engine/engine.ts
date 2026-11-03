@@ -82,8 +82,8 @@ export interface EngineOptions {
   scrollTo: (target: number, durationSeconds: number, overshoot?: boolean) => void;
   /** False once the visitor has taken over the camera. */
   isTouring: () => boolean;
-  /** Viewport point agents spawn from (the control bar's avatar dots). */
-  spawnOrigin: () => { x: number; y: number };
+  /** Viewport point agent `agentId` spawns from (an intro cursor, else the control bar's avatar dots). */
+  spawnOrigin: (agentId: number) => { x: number; y: number };
   /** The control bar's Go live button (rendered during the finale). */
   goLiveButton: () => HTMLElement | null;
   onProgress: (done: number, total: number) => void;
@@ -424,7 +424,7 @@ export class BuildEngine {
   private spawn(first?: Work, from?: { x: number; y: number }) {
     const id = this.nextRosterId();
     this.roster.add(id);
-    const origin = from ?? this.options.spawnOrigin();
+    const origin = from ?? this.options.spawnOrigin(id);
     const agent = new Agent(id, rng(C.seed + id * 7919 + this.peak * 31), this.clock, this.overlay, origin);
     agent.tempo = this.ctx.tempo;
     const runtime: Runtime = { agent, queue: first ? [first] : [], current: null, busy: true, idleSince: this.clock.realTime, busyMs: 0, idleMs: 0, action: null, exiting: false, lead: false };
