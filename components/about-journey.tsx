@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   siCursor,
@@ -213,6 +214,13 @@ function AboutQuote() {
   return (
     <aside className="about-quote" data-layer="card" data-kind="about-quote">
       <span className="quote-mark" data-layer="icon" data-kind="quote-mark" aria-hidden="true">“</span>
+      {/* The avatar rides the card's ring like a planet on its orbit (same geometry and drift as the ring). */}
+      <span className="quote-orbit" aria-hidden="true">
+        <span className="quote-avatar" data-layer="image" data-kind="quote-avatar">
+          <span className="quote-avatar-face"><Image src="/hero-cutout-mobile.webp" alt="" width={640} height={640} sizes="96px" /></span>
+          <i className="quote-avatar-status" />
+        </span>
+      </span>
       <blockquote data-layer="text">{about.quote}</blockquote>
       <span className="quote-signature" data-layer="text" data-kind="quote-signature">
         <span>{about.signature}</span>
