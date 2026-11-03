@@ -1564,8 +1564,8 @@ html[data-motion="ready"] .hero-v2-animate .hero-v2-stats { animation: hero-v2-c
 .mock-screen { position: relative; height: 82%; overflow: hidden; padding: 7% 8%; color: #f5f5f5; font: 7px/1.35 var(--font-body),sans-serif; }
 .project-real-image { z-index: 3; object-fit: cover; opacity: 0; transition: opacity .3s ease; }
 .has-project-image .project-real-image { opacity: 1; }.has-project-image .mock-product { opacity: 0; }
-/* GitHub Open Graph covers are 2:1, so the frame matches them and nothing gets cropped. */
-.project-thumbnail.has-project-image { aspect-ratio: 2 / 1; background-color: #fff; }
+/* Project covers are 1734×907 social cards, so the frame matches them and nothing important gets cropped. */
+.project-thumbnail.has-project-image { aspect-ratio: 1734 / 907; }
 .has-project-image .project-tag { top: -10px; background: #111014; border-color: rgba(255,255,255,.18); }
 .project-tag { z-index: 4; top: 12px; left: 12px; padding: 6px 8px; border-radius: 999px; background: rgba(5,5,10,.64); backdrop-filter: blur(8px); font-size: 7px; }
 .project-index { z-index: 4; right: 13px; bottom: -.37em; overflow: visible; color: #f2503e; font-size: clamp(66px,8vw,112px); line-height: .8; pointer-events: none; background: linear-gradient(180deg,#f2503e 8%,rgba(229,50,45,.76) 55%,rgba(229,50,45,.13) 100%); background-clip: text; -webkit-text-fill-color: transparent; text-shadow: none; }
@@ -1814,6 +1814,15 @@ html[data-motion="ready"] .recognition-aurora-two { animation: recognition-auror
 .about-quote::after { position: absolute; inset: 0; padding: 1px; border-radius: inherit; content: ""; pointer-events: none; background: linear-gradient(125deg,rgba(255,255,255,.38),transparent 35%,rgba(255,115,91,.58),transparent 74%,rgba(255,255,255,.14)); mask: linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); mask-composite: exclude; }
 html[data-motion="ready"] .about-quote::before { animation: quote-rings-drift 24s ease-in-out infinite alternate; }
 @keyframes quote-rings-drift { to { transform: translate3d(-8%,7%,0) rotate(12deg); } }
+/* Avatar on the ring: the orbit box copies the ring's box, so its -135° point sits on the arc. */
+.quote-orbit { position: absolute; top: 12%; right: -18%; width: 92%; aspect-ratio: 1; pointer-events: none; }
+html[data-motion="ready"] .quote-orbit { animation: quote-rings-drift 24s ease-in-out infinite alternate; }
+.quote-avatar { position: absolute; z-index: 1; top: 14.64%; left: 14.64%; display: block; width: clamp(64px,7vw,88px); aspect-ratio: 1; padding: 3px; border-radius: 50%; transform: translate(-50%,-50%); background: conic-gradient(from 210deg,rgba(255,142,125,.95),rgba(255,255,255,.08) 28%,rgba(255,255,255,.05) 55%,rgba(255,142,125,.6) 82%,rgba(255,142,125,.95)); box-shadow: 0 0 0 9px rgba(255,255,255,.025),0 0 0 18px rgba(255,255,255,.015),0 18px 40px rgba(8,3,6,.55),0 0 42px rgba(255,97,77,.22); }
+html[data-motion="ready"] .quote-avatar { animation: quote-avatar-steady 24s ease-in-out infinite alternate; }
+@keyframes quote-avatar-steady { to { transform: translate(-50%,-50%) rotate(-12deg); } }
+.quote-avatar-face { display: block; width: 100%; height: 100%; overflow: hidden; border-radius: 50%; background: radial-gradient(circle at 50% 16%,rgba(255,150,128,.6),transparent 62%),linear-gradient(165deg,#4a1823,#170a11 78%); }
+.quote-avatar-face img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale(1.22); transform-origin: 58% 30%; }
+.quote-avatar-status { position: absolute; right: 6%; bottom: 6%; width: 13px; height: 13px; border: 2.5px solid #2a0f17; border-radius: 50%; background: #3ddc84; box-shadow: 0 0 10px rgba(61,220,132,.65); }
 .quote-mark { z-index: 1; color: rgba(255,155,140,.8); font-size: 64px; line-height: .7; }
 .about-quote blockquote { max-width: 300px; margin-bottom: 22px; font-size: clamp(25px,2.6vw,36px); }
 .quote-signature { position: relative; display: inline-flex; width: fit-content; min-width: 110px; align-items: center; margin-bottom: 21px; color: #fff; font: 31px/1 var(--font-script),cursive; }
@@ -1866,7 +1875,7 @@ html[data-motion="ready"] .quote-signature path { animation: signature-draw 1.8s
   .toolkit-groups { gap: 14px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .recognition-aurora, .comparison-drag-hint, .about-quote::before { animation: none !important; }
+  .recognition-aurora, .comparison-drag-hint, .about-quote::before, .quote-orbit, .quote-avatar { animation: none !important; }
   .quote-signature path { stroke-dashoffset: 0; }
   .recognition-row-sweep { transition: none; }
 }
