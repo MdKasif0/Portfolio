@@ -19,10 +19,10 @@ const hero = portfolioContent.hero;
 const providedHeroStats: Array<{ value: string; label: string }> = hero.stats.flatMap((stat) =>
   stat.value ? [{ value: stat.value, label: stat.label }] : []
 );
-const heroStats = [
-  ...providedHeroStats,
-  { value: String(portfolioContent.work.projects.length), label: "PROJECTS" }
-];
+// Your own stats lead; the project count only fills in when fewer than three are provided.
+const heroStats = providedHeroStats.length >= 3
+  ? providedHeroStats
+  : [...providedHeroStats, { value: String(portfolioContent.work.projects.length), label: "PROJECTS" }];
 const marqueeCopy = "FRONTEND · UI/UX · AI PRODUCTS · TECH CONTENT · SHIPPED FAST";
 const hudTicks = Array.from({ length: 48 }, (_, index) => index);
 const heroChips = ["React", "Next.js", "UI/UX", "AI"];
@@ -38,7 +38,10 @@ function AnimatedStat({
   active: boolean;
   motionEnabled: boolean;
 }) {
-  const numericValue = Number(value);
+  // "3+" counts up to 3 and keeps the "+"; symbols like "∞" are shown as they are.
+  const match = /^(\d+)(.*)$/.exec(value);
+  const numericValue = match ? Number(match[1]) : Number.NaN;
+  const suffix = match ? match[2] : "";
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -63,8 +66,15 @@ function AnimatedStat({
   return (
     <div className="hero-stat" data-layer="card" data-kind="stat-card" role="listitem">
       <span className="hero-stat-value" data-layer="text" data-kind="stat-number">
-        {Number.isFinite(numericValue) && motionEnabled && active ? count : value}
-        <span className="stat-period">.</span>
+        {Number.isFinite(numericValue) ? (
+          <>
+            {motionEnabled && active ? count : numericValue}
+            {/* Plain numbers end with the red period; "3+" carries the red accent on its "+" instead. */}
+            <span className="stat-period">{suffix || "."}</span>
+          </>
+        ) : (
+          <span className="stat-symbol">{value}</span>
+        )}
       </span>
       <span className="hero-stat-label" data-layer="text" data-kind="stat-label">{label}</span>
     </div>

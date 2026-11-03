@@ -8,14 +8,17 @@ import { AboutSection, JourneySection, RawToRealSection } from "@/components/abo
 import { ContactSection } from "@/components/contact-footer";
 import { SiteFooter } from "@/components/site-footer";
 import { Atmosphere, RulerDivider } from "@/components/design-primitives";
+import { portfolioContent } from "@/data/content";
 
 export default function Home() {
   const cvAvailable = existsSync(join(process.cwd(), "public", "cv.pdf"));
+  // Each project's cover lives at /public/projects/<cover>.(webp|png|jpg); cards key it by title slug.
   const projectImages = Object.fromEntries(
-    ["GitRoasted", "ReviewPilot", "GreenBoard", "Gravites Network", "AI Checkers Arena", "Cookie", "ShiftKit"]
-      .map((title) => title.toLowerCase().replace(/[^a-z0-9]+/g, "-"))
-      .filter((slug) => existsSync(join(process.cwd(), "public", "projects", `${slug}.webp`)))
-      .map((slug) => [slug, `/projects/${slug}.webp`])
+    portfolioContent.work.projects.flatMap((project) => {
+      const file = ["webp", "png", "jpg"].map((ext) => `${project.cover}.${ext}`)
+        .find((name) => existsSync(join(process.cwd(), "public", "projects", name)));
+      return file ? [[project.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"), `/projects/${file}`]] : [];
+    })
   );
   return (
     <>

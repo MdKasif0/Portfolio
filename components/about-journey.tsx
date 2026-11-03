@@ -5,8 +5,10 @@ import { motion } from "framer-motion";
 import {
   siCursor,
   siDocker,
+  siFigma,
   siFirebase,
   siGit,
+  siGooglegemini,
   siHuggingface,
   siJavascript,
   siMongodb,
@@ -17,7 +19,11 @@ import {
   siPostgresql,
   siPython,
   siReact,
+  siSupabase,
+  siSwift,
+  siTailwindcss,
   siTensorflow,
+  siThreedotjs,
   siTypescript
 } from "simple-icons";
 import type { SimpleIcon } from "simple-icons";
@@ -170,7 +176,13 @@ const simpleIconsByName: Record<string, SimpleIcon> = {
   "n8n": siN8n,
   Git: siGit,
   Docker: siDocker,
-  Netlify: siNetlify
+  Netlify: siNetlify,
+  Swift: siSwift,
+  "Tailwind CSS": siTailwindcss,
+  "Three.js": siThreedotjs,
+  Supabase: siSupabase,
+  Gemini: siGooglegemini,
+  Figma: siFigma
 };
 
 function ToolkitIcon({ name }: { name: string }) {

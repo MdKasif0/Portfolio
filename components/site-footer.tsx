@@ -15,7 +15,7 @@ function IstClock() { const [time,setTime]=useState(""); useEffect(()=>{const up
 export function SiteFooter() {
   const { motionEnabled } = useMotionPreference(); const { replayBuild, buildWillRun } = useAgentBuild(); const gap = useDotGap();
   const { identity, hero, contact, navigation, work, footer } = portfolioContent; const email = contact.email;
-  const projects = work.projects.slice(0,5).map((project,index)=>{ const href = project.liveHref || project.githubHref || project.href || (index===0 ? "https://gitroasted.netlify.app" : "#work"); return { label:project.title, href, external:href.startsWith("http") }; });
+  const projects = work.projects.slice(0,5).map((project)=>{ const href = project.liveHref || project.githubHref; return { label:project.title, href, external:href.startsWith("http") }; });
   const columns: FooterColumn[] = [
     { title:"Navigate", links:navigation.map((item,index)=>({ label:item.label, href:item.href, index:String(index+1).padStart(2,"0") })) },
     { title:"Selected work", links:projects },
