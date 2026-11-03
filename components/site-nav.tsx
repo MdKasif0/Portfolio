@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { portfolioContent } from "@/data/content";
 import { useMotionPreference } from "@/components/motion-shell";
@@ -74,7 +75,8 @@ export function SiteNav() {
       <header className={`site-nav${compressed ? " is-compressed" : ""}`} data-scene="nav" data-layer="card" data-kind="nav-frame">
         <div className="nav-inner container-x">
           <a className="nav-logo" data-magnetic data-layer="text" data-kind="logo" href="#top" aria-label="Kasif, home">
-            KASIF<span className="logo-dot">.</span>
+            <Image className="nav-logo-mark" src="/logo-mark.png" alt="" width={128} height={128} priority />
+            <span>KASIF<span className="logo-dot">.</span></span>
           </a>
           <nav id="primary-navigation" className={`nav-links${menuOpen ? " is-open" : ""}`} aria-label="Main navigation">
             {portfolioContent.navigation.map((item) => (
