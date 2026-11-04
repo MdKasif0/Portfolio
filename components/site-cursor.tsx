@@ -9,7 +9,7 @@ export default function SiteCursor({ children }: { children: ReactNode }) {
   return (
     <MagneticCursor
       enabled={motionEnabled}
-      cursorSize={14}
+      cursorSize={18}
       cursorColor="#F7F7F8"
       blendMode="exclusion"
       shape="circle"

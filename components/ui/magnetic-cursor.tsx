@@ -54,6 +54,7 @@ const LABEL_SHADOW = "0 10px 30px rgba(229,50,45,.35)";
 const LABEL_SIZES: Record<string, number> = { VIEW: 88, PLAY: 80, DRAG: 80, OPEN: 80 };
 const LABEL_TEXT: Record<string, string> = { DRAG: "‹ DRAG ›" };
 const RING_SIZE = 56;
+const TEXT_SCALE = 1.25;
 const RIPPLE_POOL = 4;
 const NO_SHADOW = "0 0 0 0 rgba(0,0,0,0)";
 
@@ -365,9 +366,10 @@ export function MagneticCursor({
         scaleX = 1 + Math.min(speed, stretchX);
         scaleY = 1 - Math.min(speed, squashY);
       } else if (mode === "text") {
+        // Stays a circle over text, just slightly larger.
         rotation = 0;
-        scaleX = 0.5;
-        scaleY = 1.5;
+        scaleX = TEXT_SCALE;
+        scaleY = TEXT_SCALE;
       } else {
         rotation = 0;
       }
