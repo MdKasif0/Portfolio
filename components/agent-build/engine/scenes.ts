@@ -46,7 +46,7 @@ export const KIND_RULES: Record<string, SceneRule> = {
   "role-line": { recipe: ["DRAW_TEXTBOX", "TYPE", "STYLE"], noGroup: true, pair: "style" },
   "primary-cta": { recipe: ["DRAW_BOX", "FILL", "TYPE", "ADD_SYMBOL"] },
   "reel-button": { container: true },
-  "reel-progress": { recipe: ["DRAW_BOX", "OPEN_PICKER", "PICK_SYMBOL", "DROP", "RECOLOR"] },
+  "reel-progress": { recipe: ["DRAW_BOX", "DROP", "RECOLOR"] },
   "glass-chip-cluster": { container: true },
   "stat-number": { recipe: ["DRAW_TEXTBOX", "TYPE", "RESIZE_TEXT"], resizeFrom: 14 },
 
