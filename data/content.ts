@@ -177,15 +177,16 @@ export const portfolioContent = {
     count: 22,
     countSuffix: "+",
     countLabel: "HACKATHONS & COLLABS",
+    breakdown: [
+      { value: "2", label: "HACKATHONS" },
+      { value: "20+", label: "BRAND COLLABS" }
+    ],
     summary: "Hackathon podiums and brand collaborations, built in public.",
-    proofLabel: "VIEW PROOF",
-    proofHref: undefined,
     listLabel: "SELECTED RECOGNITION",
-    yearColumn: "TYPE",
     entries: [
-      { title: "GigSense", subtitle: "1st Runner-Up · InnoSprint 2.0 solo hackathon by D4 Community × Google for Developers, Chandigarh University · financial intelligence and evidence ledger for gig couriers", type: "RUNNER-UP", year: "2026", href: "/certificates/innosprint-2-0.pdf", linkLabel: "VIEW CERTIFICATE" },
-      { title: "TrustLayer", subtitle: "Hackverse · Terrabyte Society, Chandigarh University · multi-layer media verification", type: "HACKATHON", year: "2026", href: "https://trustlayer-v1.netlify.app/", linkLabel: "VIEW PROJECT" },
-      { title: "Brand collaborations", subtitle: "20+ creative collaborations with AI and tech brands", type: "COLLAB", year: "2026", href: undefined, linkLabel: undefined }
+      { title: "GigSense", result: "1ST RUNNER-UP", type: "SOLO HACKATHON", year: "2026", event: "InnoSprint 2.0 · D4 Community × Google for Developers · Chandigarh University", description: "A financial intelligence and evidence ledger for gig couriers.", href: "/certificates/innosprint-2-0.pdf", linkLabel: "VIEW CERTIFICATE", projectHref: "https://gigsense-v1.netlify.app/", projectLabel: "VIEW PROJECT", showPartners: false },
+      { title: "TrustLayer", result: undefined, type: "HACKATHON", year: "2026", event: "Hackverse · Terrabyte Society, Chandigarh University", description: "Multi-layer media verification.", href: "https://trustlayer-v1.netlify.app/", linkLabel: "VIEW PROJECT", projectHref: undefined, projectLabel: undefined, showPartners: false },
+      { title: "Brand collaborations", result: undefined, type: "COLLAB", year: "2026", event: undefined, description: "20+ creative collaborations with AI and tech brands.", href: undefined, linkLabel: undefined, projectHref: undefined, projectLabel: undefined, showPartners: true }
     ]
   },
   rawToReal: {
@@ -195,9 +196,16 @@ export const portfolioContent = {
     caption: "One screen. Many layers. See how a rough layout becomes a living product.",
     beforeLabel: "WIREFRAME",
     afterLabel: "FINAL UI",
-    meta: "GitRoasted / UI/UX · FRONTEND · SHIPPED",
     project: "GitRoasted",
     year: "2025",
+    url: "gitroasted.netlify.app",
+    liveLabel: "VISIT LIVE",
+    finalImage: "/raw-real/gitroasted-final.webp",
+    finalImageMobile: "/raw-real/gitroasted-final-mobile.webp",
+    wireImage: "/raw-real/gitroasted-wire.svg",
+    wireImageMobile: "/raw-real/gitroasted-wire-mobile.svg",
+    finalAlt: "The live GitRoasted landing page",
+    wireAlt: "A wireframe of the same GitRoasted page, drawn from its real layout",
     sliderLabel: "Reveal final interface"
   },
   about: {
@@ -258,6 +266,15 @@ export const portfolioContent = {
     eyebrow: "04 / YOUR NEXT STORY",
     title: "LET'S WORK TOGETHER",
     introduction: "Got a product idea? Let's build something worth shipping.",
+    formTitle: "START A PROJECT",
+    formSubtitle: "Tell me what you're building.",
+    budgets: ["Under $1k", "$1k — $3k", "$3k+"],
+    formSubmit: "SEND PROJECT",
+    formSending: "SENDING…",
+    formSentTitle: "MESSAGE SENT",
+    formSentBody: "Thanks. I'll reply by email.",
+    formSendAnother: "SEND ANOTHER",
+    formError: "That didn't send. Please email me instead:",
     cta: "START THE CONVERSATION",
     email: "mdkasifuddin123@gmail.com",
     emailLabel: "EMAIL",

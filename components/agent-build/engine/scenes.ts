@@ -61,12 +61,20 @@ export const KIND_RULES: Record<string, SceneRule> = {
   // 3. Collab strip — logos placed from the tray, then a motion agent starts the marquee.
   "logo-plate": { recipe: ["DRAW_BOX", "DROP_IMAGE"], absorb: true, noGroup: true },
 
-  // 4. Recognition
+  // 4. Recognition: panel, tally, then the feature card's award; the two smaller cards copy-paste.
   "recognition-panel": { recipe: ["DRAW_BOX", "GRADIENT", "ROUND_CORNERS"], hero: true },
-  "recognition-number": { recipe: ["DRAW_TEXTBOX", "TYPE", "RESIZE_TEXT"], resizeFrom: 24 },
-  "recognition-row": { flash: true },
+  "recognition-number": { recipe: ["DRAW_TEXTBOX", "TYPE", "RESIZE_TEXT"], resizeFrom: 24, noGroup: true },
+  "recognition-feature": { recipe: ["DRAW_BOX", "GRADIENT", "ROUND_CORNERS"], flash: true },
+  "recognition-card": { flash: true },
+  // The award is the hero: its seal is picked and dropped in, then the result slams in after the rest of the card.
+  "recognition-seal": { recipe: ["DRAW_BOX", "OPEN_PICKER", "PICK_SYMBOL", "DROP"], absorb: true },
+  "recognition-result": { recipe: ["DRAW_TEXTBOX", "TYPE", "SLAM"], late: true, noGroup: true },
 
   // 5. Raw → real
+  // The browser frame goes first, then its chrome, then both panels drop in and an agent drags the divider.
+  "comparison-browser": { recipe: ["DRAW_BOX", "FILL", "ROUND_CORNERS"], flash: true },
+  "wire-to-real-comparison": { container: true },
+  "comparison-dots": { recipe: ["DRAW_BOX", "OPEN_PICKER", "PICK_SYMBOL", "DROP"], absorb: true },
   "wireframe-panel": { recipe: ["DRAW_BOX", "DROP_IMAGE"], absorb: true },
   "final-panel": { recipe: ["DRAW_BOX", "DROP_IMAGE"], absorb: true },
   "comparison-handle": { recipe: ["DRAW_LINE", "SLIDER_DEMO"], after: ["wireframe-panel", "final-panel"] },
@@ -79,13 +87,16 @@ export const KIND_RULES: Record<string, SceneRule> = {
 
   // 7. Journey, contact, footer
   "contact-row": { noGroup: true },
+  // The form card first, then its fields; the budget options copy-paste; the send button goes last.
+  "project-form": { recipe: ["DRAW_BOX", "GRADIENT", "ROUND_CORNERS"], flash: true },
+  "form-submit": { late: true },
+  "showreel-card": { recipe: ["DRAW_BOX", "GRADIENT", "ROUND_CORNERS"], flash: true },
   "section-headline-accent": { pair: "style" },
   canvas: { recipe: ["DRAW_BOX", "STAMP"], last: true }
 };
 
 /** Class-based rules for layers without a distinctive data-kind. */
 export const SELECTOR_RULES: [string, SceneRule][] = [
-  [".recognition-year", { recipe: ["DRAW_TEXTBOX", "TYPE", "SLAM"], late: true }]
 ];
 
 /** Jobs for things that are not layers themselves (the marquee's speed handle). */

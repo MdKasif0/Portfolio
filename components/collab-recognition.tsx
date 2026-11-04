@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type CSSProperties } from "react";
-import { motion, useInView } from "framer-motion";
+import { useInView } from "framer-motion";
 import { portfolioContent } from "@/data/content";
 import { SectionHeader } from "@/components/section-header";
 import { CountUp } from "@/components/design-primitives";
@@ -9,24 +9,17 @@ import { CountUp } from "@/components/design-primitives";
 const collaborators = portfolioContent.collaborators;
 const recognition = portfolioContent.recognition;
 
-function LaurelWreath() {
+/** The award seal on the feature card: a slow tick ring around a star, echoing the hero's HUD. */
+function AwardSeal() {
   return (
-    <svg className="laurel-wreath" data-layer="icon" viewBox="0 0 220 220" fill="none" aria-hidden="true">
-      <g stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M56 178C21 145 22 91 61 46" />
-        <path d="M164 178c35-33 34-87-5-132" />
-        <path d="M47 164c-17-1-26-12-28-26 16-1 27 8 28 26Z" />
-        <path d="M37 139c-16-5-23-18-20-32 16 3 25 14 20 32Z" />
-        <path d="M35 111c-14-8-18-22-12-35 15 7 21 20 12 35Z" />
-        <path d="M42 84c-11-12-11-26-2-37 12 11 15 25 2 37Z" />
-        <path d="M54 61c-7-14-3-28 9-36 8 14 7 28-9 36Z" />
-        <path d="M173 164c17-1 26-12 28-26-16-1-27 8-28 26Z" />
-        <path d="M183 139c16-5 23-18 20-32-16 3-25 14-20 32Z" />
-        <path d="M185 111c14-8 18-22 12-35-15 7-21 20-12 35Z" />
-        <path d="M178 84c11-12 11-26 2-37-12 11-15 25-2 37Z" />
-        <path d="M166 61c7-14 3-28-9-36-8 14-7 28 9 36Z" />
-        <path d="M56 178c18 11 34 15 54 15s36-4 54-15" />
+    <svg className="recognition-seal" data-layer="icon" data-kind="recognition-seal" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+      <g className="recognition-seal-ring" stroke="currentColor" strokeLinecap="round">
+        {Array.from({ length: 48 }, (_, tick) => (
+          <path key={tick} d={tick % 4 === 0 ? "M60 3v8" : "M60 3v4"} transform={`rotate(${tick * 7.5} 60 60)`} />
+        ))}
       </g>
+      <circle cx="60" cy="60" r="40" stroke="currentColor" strokeOpacity=".45" />
+      <path d="m60 40 5.9 13.1 14.1 1.6-10.5 9.6 2.9 14-12.4-7.1-12.4 7.1 2.9-14-10.5-9.6 14.1-1.6L60 40Z" fill="currentColor" />
     </svg>
   );
 }
@@ -72,50 +65,59 @@ export function RecognitionSection() {
       <span className="recognition-aurora recognition-aurora-one" aria-hidden="true" />
       <span className="recognition-aurora recognition-aurora-two" aria-hidden="true" />
       <div className="recognition-intro">
-        <SectionHeader
-          label={recognition.eyebrow}
-          titleLines={[`${recognition.titleWhite}.`, `${recognition.titleRed}.`]}
-          accentLastLine
-          id="recognition-heading"
-          titleClassName="recognition-heading"
-        />
-        <div className="recognition-count-wrap">
-          <div className="recognition-count" ref={countRef} data-layer="card" data-kind="recognition-count">
-            <LaurelWreath />
-            <span className="recognition-number" data-layer="text" data-kind="recognition-number"><CountUp value={recognition.count} suffix={recognition.countSuffix} active={countInView} /></span>
-          </div>
-          <span className="recognition-count-label" data-layer="text">{recognition.countLabel}</span>
+        <div className="recognition-intro-head">
+          <SectionHeader
+            label={recognition.eyebrow}
+            titleLines={[`${recognition.titleWhite}.`, `${recognition.titleRed}.`]}
+            accentLastLine
+            id="recognition-heading"
+            titleClassName="recognition-heading"
+          />
+          <p className="recognition-summary" data-layer="text">{recognition.summary}</p>
         </div>
-        <p className="recognition-summary" data-layer="text">{recognition.summary}</p>
-        {recognition.proofHref && <a className="recognition-proof" data-magnetic data-layer="button" href={recognition.proofHref}>{recognition.proofLabel} <span aria-hidden="true">↗</span></a>}
+        <div className="recognition-tally" ref={countRef}>
+          <span className="recognition-number" data-layer="text" data-kind="recognition-number"><CountUp value={recognition.count} suffix={recognition.countSuffix} active={countInView} /></span>
+          <span className="recognition-count-label" data-layer="text" data-kind="recognition-count-label">{recognition.countLabel}</span>
+          <dl className="recognition-breakdown">
+            {recognition.breakdown.map((item) => (
+              <div className="recognition-breakdown-item" data-layer="card" data-kind="recognition-breakdown" key={item.label}>
+                <dd data-layer="text">{item.value}</dd>
+                <dt data-layer="text">{item.label}</dt>
+              </div>
+            ))}
+          </dl>
+        </div>
       </div>
 
       <div className="recognition-list">
         <div className="recognition-list-heading">
           <span data-layer="text">{recognition.listLabel}</span>
-          <span data-layer="text">{recognition.yearColumn}</span>
+          <i data-layer="line" data-kind="recognition-list-rule" aria-hidden="true" />
         </div>
-        <ol>
+        <ol className="recognition-board">
           {recognition.entries.map((entry, index) => (
-            <li className="recognition-row" data-layer="card" data-kind="recognition-row" key={entry.title}>
-              <motion.div className="recognition-row-sweep" aria-hidden="true" />
-              <div className="recognition-row-main">
+            <li className={entry.result ? "recognition-feature" : "recognition-card"} data-layer="card" data-kind={entry.result ? "recognition-feature" : "recognition-card"} key={entry.title}>
+              <div className="recognition-card-top">
                 <span className="recognition-row-index" data-layer="text">{String(index + 1).padStart(2, "0")}</span>
-                <h3 data-layer="text">{entry.title}</h3>
                 <span className="recognition-type" data-layer="text" data-kind="recognition-type">{entry.type}</span>
-                {entry.year && <span className="recognition-year" data-layer="text">{entry.year}</span>}
-                <span className="recognition-row-arrow" aria-hidden="true">↗</span>
+                <span className="recognition-year" data-layer="text">{entry.year}</span>
               </div>
-              <p className="recognition-row-subtitle" data-layer="text">{entry.subtitle}</p>
-              {entry.type === "COLLAB" && (
-                <div className="recognition-avatar-stack" aria-label={`${collaborators.count}${collaborators.countSuffix} brand collaborators`}>
-                  {collaborators.names.map((name, collaboratorIndex) => (
-                    <span data-layer="icon" data-kind="recognition-avatar" title={name} key={name} style={{ "--avatar-index": collaboratorIndex } as CSSProperties}>{name.slice(0, 1)}</span>
-                  ))}
+              {entry.result && <AwardSeal />}
+              {entry.result && <p className="recognition-result" data-layer="text" data-kind="recognition-result">{entry.result}</p>}
+              <h3 data-layer="text">{entry.title}</h3>
+              <p className="recognition-description" data-layer="text">{entry.description}</p>
+              {entry.event && <p className="recognition-event" data-layer="text">{entry.event}</p>}
+              {entry.showPartners && (
+                <ul className="recognition-partners" aria-label={`${collaborators.count}${collaborators.countSuffix} brand collaborators, including`}>
+                  {collaborators.names.map((name) => <li data-layer="text" data-kind="recognition-partner" key={name}>{name}</li>)}
+                </ul>
+              )}
+              {entry.href && (
+                <div className="recognition-links">
+                  <a className={`recognition-link${entry.result ? " is-primary" : ""}`} data-magnetic data-layer="button" data-kind="recognition-link" href={entry.href} target="_blank" rel="noreferrer">{entry.linkLabel} <span aria-hidden="true">↗</span></a>
+                  {entry.projectHref && <a className="recognition-link" data-magnetic data-layer="button" data-kind="recognition-link-secondary" href={entry.projectHref} target="_blank" rel="noreferrer">{entry.projectLabel} <span aria-hidden="true">↗</span></a>}
                 </div>
               )}
-              {entry.href && <a className="recognition-row-link" data-cursor-label="OPEN" href={entry.href} target="_blank" rel="noreferrer">{entry.linkLabel ?? "VIEW PROOF"} <span aria-hidden="true">↗</span></a>}
-              {!entry.href && <span className="recognition-row-note">PARTICIPATION & COLLABORATION</span>}
             </li>
           ))}
         </ol>

@@ -475,24 +475,20 @@ async function rotate(agent: Agent, job: Job, ctx: ActionContext) {
   void height;
 }
 
-/** The red year lands last with a 2px shake. */
+/** The award lands with a 2px shake. */
 async function slam(agent: Agent, job: Job, ctx: ActionContext) {
-  const nodes = job.copy
-    ? Array.from(state(job).copies?.values() ?? []).map((ghost) => ghost.node.querySelector<HTMLElement>(".recognition-year")).filter((node): node is HTMLElement => Boolean(node))
-    : [ghostOf(job).node];
-  agent.verb("slamming year");
-  for (const node of nodes) {
-    const rect = node.getBoundingClientRect();
-    await agent.travel({ el: null, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
-    await agent.click(50, true);
-    await ctx.clock.tween(ms(ctx, D.slam * 2), (raw) => {
-      node.style.scale = String(lerp(1.4, 1, easeOut(raw)));
-      node.style.translate = raw < 1 ? `${(raw * 7) % 2 < 1 ? 2 : -2}px 0` : "";
-    });
-    node.style.scale = "";
-    node.style.translate = "";
-    ctx.overlay.spark({ x: rect.left + rect.width / 2, y: rect.top });
-  }
+  const node = ghostOf(job).node;
+  agent.verb("slamming award");
+  const rect = node.getBoundingClientRect();
+  await agent.travel({ el: null, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+  await agent.click(50, true);
+  await ctx.clock.tween(ms(ctx, D.slam * 2), (raw) => {
+    node.style.scale = String(lerp(1.4, 1, easeOut(raw)));
+    node.style.translate = raw < 1 ? `${(raw * 7) % 2 < 1 ? 2 : -2}px 0` : "";
+  });
+  node.style.scale = "";
+  node.style.translate = "";
+  ctx.overlay.spark({ x: rect.left + rect.width / 2, y: rect.top });
 }
 
 // ---------------------------------------------------------------------------------------------

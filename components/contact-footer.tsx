@@ -18,86 +18,133 @@ export function ContactIcon({ name }: { name: IconName }) {
 
   return <svg viewBox="0 0 16 16" aria-hidden="true">{paths[name]}</svg>;
 }
+const budgets = portfolioContent.contact.budgets;
+type FormStatus = "idle" | "sending" | "sent" | "error";
+
 export function ContactSection() {
   const [reelOpen, setReelOpen] = useState(false);
-  const [copied, setCopied] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [status, setStatus] = useState<FormStatus>("idle");
   const [indiaTime, setIndiaTime] = useState("");
-  const contact = portfolioContent.contact;
+  const { contact, hero } = portfolioContent;
 
   useEffect(() => {
     const update = () => setIndiaTime(new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date()));
     update(); const timer = window.setInterval(update, 30_000); return () => window.clearInterval(timer);
   }, []);
-  const copyHandle = async (value: string) => {
-    try { await navigator.clipboard.writeText(value); setCopied(value); window.setTimeout(() => setCopied(""), 1800); } catch { /* clipboard can be unavailable in embedded previews */ }
+  const copyEmail = async () => {
+    try { await navigator.clipboard.writeText(contact.email); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { /* clipboard can be unavailable in embedded previews */ }
   };
-  const submitProject = (event: FormEvent<HTMLFormElement>) => {
+  /** Netlify Forms picks up the form from the built HTML; this posts to it without leaving the page. */
+  const submitProject = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!event.currentTarget.reportValidity()) return;
-    setSubmitted(true);
+    const form = event.currentTarget;
+    if (!form.reportValidity()) return;
+    setStatus("sending");
+    try {
+      const body = new URLSearchParams(Array.from(new FormData(form), ([key, value]) => [key, String(value)]));
+      const response = await fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() });
+      if (!response.ok) throw new Error(`Form post failed: ${response.status}`);
+      setStatus("sent");
+    } catch {
+      setStatus("error");
+    }
   };
 
   return (
     <>
       <section className="contact-section section-shell container-x" id="contact" data-scene="contact" aria-labelledby="contact-heading">
-        <SectionHeader
-          index={contact.eyebrow.slice(0, 2)}
-          label={contact.eyebrow.slice(5)}
-          titleLines={[`${contact.title}.`]}
-          id="contact-heading"
-          titleClassName="contact-heading"
-        />
+        <div className="contact-top">
+          <SectionHeader
+            index={contact.eyebrow.slice(0, 2)}
+            label={contact.eyebrow.slice(5)}
+            titleLines={[`${contact.title}.`]}
+            id="contact-heading"
+            titleClassName="contact-heading"
+          />
+          <span className="contact-status" data-layer="text" data-kind="contact-status"><i aria-hidden="true" />{hero.availability}</span>
+        </div>
 
         <div className="contact-grid">
           <div className="contact-intro">
-            <p data-layer="text">{contact.introduction}</p>
-            <a className="contact-cta magnetic-cta" data-magnetic data-magnetic-variant="outline" data-layer="button" href={contact.socials[0].href} target="_blank" rel="noreferrer">
-              {contact.cta}<span aria-hidden="true">↗</span>
-            </a>
-          </div>
-
-          <div className="contact-details" role="group" aria-label="Contact details">
-            {contact.email && <div className="contact-row" data-layer="line" id="contact-email">
-              <span className="contact-icon" data-layer="icon"><ContactIcon name="email" /></span>
-              <span className="contact-label" data-layer="text">{contact.emailLabel}</span>
-              <span className="contact-value" data-layer="text">{contact.email}</span>
-            </div>}
-            {contact.socials.map((item) => (
-              <button className={`contact-row${copied === item.value ? " is-copied" : ""}`} data-magnetic data-magnetic-strength=".15" data-layer="line" data-kind="contact-row" type="button" onClick={() => copyHandle(item.value)} key={item.label} aria-label={`Copy ${item.label} handle`}>
-                <span className="contact-icon" data-layer="icon"><ContactIcon name={item.icon} /></span>
-                <span className="contact-label" data-layer="text">{item.label}</span>
-                <span className="contact-value" data-layer="text">{item.value}</span>
-                <span className="contact-arrow" data-layer="icon" aria-hidden="true">{copied === item.value ? "✓" : "↗"}</span>
-              </button>
-            ))}
-            <div className="contact-row">
-              <span className="contact-icon contact-pin" data-layer="icon" aria-hidden="true">⌖</span>
-              <span className="contact-label" data-layer="text">{contact.locationLabel}</span>
-              <span className="contact-value" data-layer="text">{contact.location}</span>
+            <p className="contact-lead" data-layer="text">{contact.introduction}</p>
+            <div className="contact-actions">
+              <a className="contact-cta" data-magnetic data-layer="button" data-kind="contact-cta" href={`mailto:${contact.email}`}>{contact.cta}<span aria-hidden="true">↗</span></a>
+              <button className={`contact-copy${copied ? " is-copied" : ""}`} data-layer="button" data-kind="contact-copy" type="button" onClick={copyEmail}>{copied ? "COPIED ✓" : "COPY EMAIL"}</button>
             </div>
+            <ul className="contact-details" aria-label="Contact details">
+              <li>
+                <a className="contact-row" id="contact-email" data-layer="line" data-kind="contact-row" href={`mailto:${contact.email}`}>
+                  <span className="contact-icon" data-layer="icon"><ContactIcon name="email" /></span>
+                  <span className="contact-label" data-layer="text">{contact.emailLabel}</span>
+                  <span className="contact-value" data-layer="text">{contact.email}</span>
+                  <span className="contact-arrow" data-layer="icon" aria-hidden="true">↗</span>
+                </a>
+              </li>
+              {contact.socials.map((item) => (
+                <li key={item.label}>
+                  <a className="contact-row" data-layer="line" data-kind="contact-row" href={item.href} target="_blank" rel="noreferrer">
+                    <span className="contact-icon" data-layer="icon"><ContactIcon name={item.icon} /></span>
+                    <span className="contact-label" data-layer="text">{item.label}</span>
+                    <span className="contact-value" data-layer="text">{item.value}</span>
+                    <span className="contact-arrow" data-layer="icon" aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <p className="contact-locale" data-layer="text" data-kind="contact-locale">
+              <span>{contact.locationLabel} {contact.location}</span>
+              <span className="india-time">IST · {indiaTime || "--:--"}</span>
+            </p>
           </div>
 
-          <form className={`project-form${submitted ? " is-submitted" : ""}`} name="project-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" onSubmit={submitProject} data-layer="card" data-kind="project-form">
+          <form className="project-form" name="project-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" onSubmit={submitProject} data-layer="card" data-kind="project-form">
             <input type="hidden" name="form-name" value="project-inquiry" />
-            <p className="form-honeypot"><label>Don&apos;t fill this out <input name="bot-field" /></label></p>
-            {submitted ? <div className="form-success" role="status"><b>✓</b><span>MESSAGE READY TO SHIP</span><button type="button" onClick={() => setSubmitted(false)}>SEND ANOTHER</button></div> : <>
-              <div className="form-heading"><span>START A PROJECT</span><span className="india-time">IST · {indiaTime || "--:--"}</span></div>
-              <label>Name<input required name="name" placeholder="Your name" data-layer="button" data-kind="form-field" /></label>
-              <label>Email<input required name="email" type="email" placeholder="you@company.com" data-layer="button" data-kind="form-field" /></label>
-              <label>Budget<select required name="budget" defaultValue="" data-layer="button" data-kind="form-select"><option value="" disabled>Select a range</option><option>Under $1k</option><option>$1k — $3k</option><option>$3k+</option></select></label>
-              <label>Message<textarea required name="message" rows={3} placeholder="What are we building?" data-layer="button" data-kind="form-field" /></label>
-              <button className="form-submit" data-magnetic data-magnetic-variant="outline" type="submit" data-layer="button" data-kind="form-submit">SEND PROJECT <span>↗</span></button>
-            </>}
+            <p className="form-honeypot"><label>Don&apos;t fill this out <input name="bot-field" tabIndex={-1} autoComplete="off" /></label></p>
+            {status === "sent" ? (
+              <div className="form-success" role="status">
+                <b aria-hidden="true">✓</b>
+                <strong>{contact.formSentTitle}</strong>
+                <span>{contact.formSentBody}</span>
+                <button type="button" onClick={() => setStatus("idle")}>{contact.formSendAnother}</button>
+              </div>
+            ) : (
+              <>
+                <div className="form-heading">
+                  <h3 data-layer="text">{contact.formTitle}</h3>
+                  <p data-layer="text">{contact.formSubtitle}</p>
+                </div>
+                <label className="form-control"><span>Name</span><input required name="name" autoComplete="name" placeholder="Your name" data-layer="button" data-kind="form-field" /></label>
+                <label className="form-control"><span>Email</span><input required name="email" type="email" autoComplete="email" placeholder="you@company.com" data-layer="button" data-kind="form-field" /></label>
+                <fieldset className="form-budget">
+                  <legend>Budget</legend>
+                  <div>
+                    {budgets.map((budget) => (
+                      <label className="form-budget-option" data-layer="button" data-kind="form-budget" key={budget}>
+                        <input required type="radio" name="budget" value={budget} />
+                        <span>{budget}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+                <label className="form-control form-control-wide"><span>Message</span><textarea required name="message" rows={4} placeholder="What are we building?" data-layer="button" data-kind="form-field" /></label>
+                <button className="form-submit" data-magnetic type="submit" disabled={status === "sending"} data-layer="button" data-kind="form-submit">{status === "sending" ? contact.formSending : contact.formSubmit} <span aria-hidden="true">↗</span></button>
+                {status === "error" && <p className="form-error" role="alert">{contact.formError} <a href={`mailto:${contact.email}`}>{contact.email}</a></p>}
+              </>
+            )}
           </form>
-
-          <button className="showreel-card" data-cursor-label="PLAY" data-layer="card" type="button" onClick={() => setReelOpen(true)} aria-label={contact.modalLabel}>
-            <span className="showreel-kicker" data-layer="text">{contact.cardKicker}</span>
-            <span className="showreel-title" data-layer="text">{contact.cardTitleWhite}<br /><i>{contact.cardTitleRed}<b>.</b></i></span>
-            <span className="showreel-play" data-layer="icon" aria-hidden="true"><span /></span>
-            <span className="showreel-card-caption" data-layer="text">{contact.modalLabel}<span aria-hidden="true">↗</span></span>
-          </button>
         </div>
+
+        <button className="showreel-card" data-cursor-label="PLAY" data-layer="card" data-kind="showreel-card" type="button" onClick={() => setReelOpen(true)} aria-label={contact.modalLabel}>
+          <span className="showreel-copy">
+            <span className="showreel-kicker" data-layer="text">{contact.cardKicker}</span>
+            <span className="showreel-title" data-layer="text">{contact.cardTitleWhite} <i>{contact.cardTitleRed}<b>.</b></i></span>
+          </span>
+          <span className="showreel-action">
+            <span className="showreel-card-caption" data-layer="text">{contact.modalLabel}</span>
+            <span className="showreel-play" data-layer="icon" aria-hidden="true"><span /></span>
+          </span>
+        </button>
       </section>
       {reelOpen && <ShowreelModal onClose={() => setReelOpen(false)} />}
     </>

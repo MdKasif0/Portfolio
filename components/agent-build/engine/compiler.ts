@@ -348,8 +348,6 @@ export function compilePlan(): BuildPlan {
       const texts = targets.some((target) => subtree(target).some((node) => node.text && node.kind !== "icon"));
       if (texts) job.actions.push("RETYPE");
       if (targets.some((target) => subtree(target).some((node) => node.kind === "image"))) job.actions.push("SWAP_IMAGE");
-      // Award rows: the red years are slammed in after the retype.
-      if (targets.some((target) => target.el.querySelector(".recognition-year"))) job.actions.push("SLAM");
       job.category = "copy";
       job.nodes = targets.flatMap(subtree);
       job.nodes.forEach((node) => { covered.add(node); node.job = job; });

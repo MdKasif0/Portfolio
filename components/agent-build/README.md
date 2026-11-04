@@ -56,7 +56,7 @@ action). `?build=off` shows the finished site straight away.
 - `after: [kinds]` / `last` / `late` — ordering within a section / after everything / after the rest of the window.
 - `hero` (camera push-in when done), `flash` (coral outline flash on completion).
 
-`SELECTOR_RULES` covers layers without a distinctive `data-kind` (the red award years), and
+`SELECTOR_RULES` covers layers without a distinctive `data-kind` (none right now), and
 `EXTRA_JOBS` adds work for things that are not layers (the marquee's speed handle).
 
 To build a new element, give it `data-layer` (`text`, `card`, `image`, `icon`, `button`, `line`)

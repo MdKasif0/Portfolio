@@ -31,11 +31,11 @@ import type { SimpleIcon } from "simple-icons";
 import { portfolioContent } from "@/data/content";
 import { useMotionPreference } from "@/components/motion-shell";
 import { SectionHeader } from "@/components/section-header";
-import { ProductMock } from "@/components/work-section";
 import type { CSSProperties } from "react";
 
 const about = portfolioContent.about;
 const journey = portfolioContent.journey;
+const rawToReal = portfolioContent.rawToReal;
 
 export function RawToRealSection() {
   const [split, setSplit] = useState(50);
@@ -88,20 +88,30 @@ export function RawToRealSection() {
 
   return (
     <section className="raw-real-section section-shell container-x" id="raw-real" data-scene="raw-real" aria-labelledby="raw-real-heading">
-      <SectionHeader
-        className="raw-real-heading"
-        label={portfolioContent.rawToReal.eyebrow}
-        titleLines={[`${portfolioContent.rawToReal.titleBefore}.`, `${portfolioContent.rawToReal.titleAfter}.`]}
-        accentLastLine
-        id="raw-real-heading"
-        titleClassName="raw-real-title"
-      />
-      <div className="raw-real-layout">
-        <p className="raw-real-caption" data-layer="text">{portfolioContent.rawToReal.caption}</p>
+      <div className="raw-real-top">
+        <SectionHeader
+          className="raw-real-heading"
+          label={rawToReal.eyebrow}
+          titleLines={[`${rawToReal.titleBefore}.`, `${rawToReal.titleAfter}.`]}
+          accentLastLine
+          id="raw-real-heading"
+          titleClassName="raw-real-title"
+        />
+        <p className="raw-real-caption" data-layer="text">{rawToReal.caption}</p>
+      </div>
+      <div className="comparison-browser" data-layer="card" data-kind="comparison-browser">
+        <div className="comparison-chrome">
+          <span className="comparison-dots" data-layer="icon" data-kind="comparison-dots" aria-hidden="true"><i /><i /><i /></span>
+          <span className="comparison-url" data-layer="text" data-kind="comparison-url">{rawToReal.url}</span>
+          <a className="comparison-live" data-magnetic data-layer="button" data-kind="comparison-live" href={gitRoasted.liveHref} target="_blank" rel="noreferrer">{rawToReal.liveLabel} <span aria-hidden="true">↗</span></a>
+        </div>
         <div className={`comparison${isDemo ? " is-demo" : ""}`} ref={comparisonRef} data-cursor-label="DRAG" data-layer="card" data-kind="wire-to-real-comparison">
           <div className="comparison-layer comparison-wireframe" data-layer="image" data-kind="wireframe-panel">
-            <ProductMock project={gitRoasted} mode="wire" />
-            <span className="comparison-chip" data-layer="text">{portfolioContent.rawToReal.beforeLabel}</span>
+            <picture>
+              <source media="(max-width: 700px)" srcSet={rawToReal.wireImageMobile} />
+              <Image src={rawToReal.wireImage} alt={rawToReal.wireAlt} width={1440} height={900} />
+            </picture>
+            <span className="comparison-chip" data-layer="text">{rawToReal.beforeLabel}</span>
           </div>
           <motion.div
             className="comparison-layer comparison-final"
@@ -110,8 +120,11 @@ export function RawToRealSection() {
             animate={{ clipPath: `inset(0 0 0 ${split}%)` }}
             transition={isDragging ? { duration: 0 } : { type: "spring", stiffness: 250, damping: 28, mass: 0.5 }}
           >
-            <ProductMock project={gitRoasted} mode="final" />
-            <span className="comparison-chip comparison-chip-right" data-layer="text">{portfolioContent.rawToReal.afterLabel}</span>
+            <picture>
+              <source media="(max-width: 700px)" srcSet={rawToReal.finalImageMobile} />
+              <Image src={rawToReal.finalImage} alt={rawToReal.finalAlt} width={2160} height={1350} />
+            </picture>
+            <span className="comparison-chip comparison-chip-right" data-layer="text">{rawToReal.afterLabel}</span>
           </motion.div>
           <motion.div
             className="comparison-divider"
@@ -147,16 +160,19 @@ export function RawToRealSection() {
               if (event.key === "Home") { event.preventDefault(); setSplit(0); }
               if (event.key === "End") { event.preventDefault(); setSplit(100); }
             }}
-            aria-label={portfolioContent.rawToReal.sliderLabel}
+            aria-label={rawToReal.sliderLabel}
           />
           {showDragHint && <span className="comparison-drag-hint" data-layer="text" data-kind="drag-hint">DRAG <i>↔</i></span>}
         </div>
       </div>
-      <p className="raw-real-meta" data-layer="text">
-        {portfolioContent.rawToReal.project}
-        {portfolioContent.rawToReal.year ? ` / ${portfolioContent.rawToReal.year}` : ""}
-        {" · UI/UX · FRONTEND · SHIPPED"}
-      </p>
+      <dl className="raw-real-facts">
+        {[["PROJECT", rawToReal.project], ["YEAR", rawToReal.year], ["ROLE", gitRoasted.role], ["STACK", gitRoasted.stack.join(" · ")]].map(([label, value]) => (
+          <div className="raw-real-fact" data-layer="card" data-kind="raw-real-fact" key={label}>
+            <dt data-layer="text">{label}</dt>
+            <dd data-layer="text">{value}</dd>
+          </div>
+        ))}
+      </dl>
     </section>
   );
 }
