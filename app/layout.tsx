@@ -7,10 +7,10 @@ import "./globals.css";
 
 const { identity, about, contact, work, siteUrl } = portfolioContent;
 const siteOrigin = siteUrl.replace(/\/$/, "");
-const title = "Md Kasif Uddin (KASIF) — Frontend Developer & UI/UX Designer";
-const description = "Md Kasif Uddin (KASIF) is a freelance frontend developer and UI/UX designer from India building fast, modern web apps, macOS tools and AI projects.";
+const title = "Md Kasif Uddin (KASIF) — AI Software Engineer & Backend Architect";
+const description = "Md Kasif Uddin (KASIF) is a freelance AI software engineer and backend architect from India building AI-powered products, full-stack web apps and macOS tools.";
 const socialDescription = "I turn ideas into interfaces people feel: fast, modern, and built with AI. Explore projects by Md Kasif Uddin.";
-const socialImage = { url: "/og-image.jpg", width: 1200, height: 630, type: "image/jpeg", alt: "KASIF portfolio: Frontend Developer & UI/UX Designer" };
+const socialImage = { url: "/og-image.jpg", width: 1200, height: 630, type: "image/jpeg", alt: "KASIF portfolio: AI Software Engineer & Backend Architect" };
 const skills = about.toolkitGroups.flatMap((group) => group.skills);
 
 export const metadata: Metadata = {
@@ -23,9 +23,9 @@ export const metadata: Metadata = {
   publisher: identity.name,
   category: "technology",
   keywords: [
-    "Md Kasif Uddin", "Kasif", "KASIF portfolio", "frontend developer", "UI/UX designer", "freelance web developer",
-    "frontend developer India", "React developer", "Next.js developer", "TypeScript", "Three.js", "AI projects",
-    "web development", "UI/UX design", "macOS app developer", "tech content creator", "Chandigarh University"
+    "Md Kasif Uddin", "Kasif", "KASIF portfolio", "AI software engineer", "backend architect", "freelance software engineer",
+    "AI engineer India", "backend developer", "Node.js developer", "Next.js developer", "TypeScript", "Python", "AI projects",
+    "AI engineering", "backend architecture", "macOS app developer", "tech content creator", "Chandigarh University"
   ],
   alternates: { canonical: "/" },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
@@ -73,12 +73,12 @@ const structuredData = {
       url: `${siteOrigin}/`,
       image: `${siteOrigin}/hero-cutout.png`,
       email: `mailto:${contact.email}`,
-      jobTitle: "Frontend Developer and UI/UX Designer",
+      jobTitle: "AI Software Engineer and Backend Architect",
       description: about.bioLines.join(" "),
       address: { "@type": "PostalAddress", addressCountry: "IN" },
       alumniOf: { "@type": "CollegeOrUniversity", name: "Chandigarh University" },
       award: "1st Runner-Up, InnoSprint 2.0 hackathon (D4 Community × Google for Developers), 2026",
-      knowsAbout: ["Frontend development", "UI/UX design", "Web development", "AI applications", ...skills],
+      knowsAbout: ["AI engineering", "Backend architecture", "Software engineering", "AI applications", ...skills],
       sameAs: contact.socials.map((social) => social.href)
     },
     {

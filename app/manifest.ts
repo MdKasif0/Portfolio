@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "KASIF — Md Kasif Uddin Portfolio",
     short_name: "KASIF",
-    description: "Frontend developer and UI/UX designer building fast, modern web apps and AI projects.",
+    description: "AI software engineer and backend architect building AI-powered products and full-stack web apps.",
     start_url: "/",
     display: "standalone",
     background_color: "#05050A",

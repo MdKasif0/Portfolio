@@ -23,9 +23,9 @@ const providedHeroStats: Array<{ value: string; label: string }> = hero.stats.fl
 const heroStats = providedHeroStats.length >= 3
   ? providedHeroStats
   : [...providedHeroStats, { value: String(portfolioContent.work.projects.length), label: "PROJECTS" }];
-const marqueeCopy = "FRONTEND · UI/UX · AI PRODUCTS · TECH CONTENT · SHIPPED FAST";
+const marqueeCopy = "AI ENGINEERING · BACKEND SYSTEMS · AI PRODUCTS · TECH CONTENT · SHIPPED FAST";
 const hudTicks = Array.from({ length: 48 }, (_, index) => index);
-const heroChips = ["React", "Next.js", "UI/UX", "AI"];
+const heroChips = ["React", "Next.js", "Backend", "AI"];
 
 function AnimatedStat({
   value,
