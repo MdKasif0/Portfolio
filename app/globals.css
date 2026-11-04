@@ -710,9 +710,9 @@ html[data-motion="ready"] .atmosphere-glow-two { animation: glow-drift-two 38s e
 .reveal-line { display: block; padding-block: .08em; margin-block: -.08em; }
 .section-header { position: relative; display: flex; align-items: end; justify-content: space-between; gap: 24px; }
 .section-header-main { min-width: 0; }
-.section-header-eyebrow { position: relative; display: flex; width: fit-content; align-items: center; gap: .3em; margin: 0 0 20px; color: var(--text-500); }
+.section-header-eyebrow { position: relative; display: flex; width: fit-content; max-width: 100%; align-items: center; gap: .3em; margin: 0 0 20px; color: var(--text-500); white-space: nowrap; }
 .section-header-eyebrow > span:first-child { color: var(--red-400); }
-.section-header-rule { display: inline-block; width: 0; height: 1px; margin-left: 9px; background: var(--red-500); }
+.section-header-rule { display: inline-block; flex: 0 1 auto; min-width: 0; width: 0; height: 1px; margin-left: 9px; background: var(--red-500); }
 html[data-motion="ready"] .section-header-rule { animation: eyebrow-rule 850ms var(--ease-expo-out) 120ms forwards; }
 @keyframes eyebrow-rule { to { width: 48px; } }
 .section-header-title { display: flex; flex-direction: column; font-size: clamp(54px,8.2vw,116px); }

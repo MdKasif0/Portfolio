@@ -4,7 +4,7 @@
  */
 export const buildModeConfig = {
   enabled: true,
-  /** Default playback speed (desktop). The film is tuned to ~40–45s at 1x. */
+  /** Default playback speed (desktop). The film is tuned to ~50s at 1x. */
   speedDefault: 1,
   mobileSpeedDefault: 2,
   /** The opening curtain: the Kasif signature draws while cursors orbit it, then they burst out as the build starts. */
@@ -30,8 +30,8 @@ export const buildModeConfig = {
   },
 
   /** Global multiplier on every action duration (desktop) and the mobile cut. */
-  tempo: 0.62,
-  mobileTempo: 0.3,
+  tempo: 0.34,
+  mobileTempo: 0.24,
 
   /** Per-action base durations (ms at tempo 1). */
   durations: {
@@ -79,8 +79,12 @@ export const buildModeConfig = {
   },
 
   camera: {
-    /** Tasks are scheduled inside viewport ± this many screens. */
-    windowMargin: 0.25,
+    /** Tasks are scheduled inside viewport ± this many screens (small, so the work stays on screen). */
+    windowMargin: 0.02,
+    /** Share of a screen kept clear at the top (under the nav) when the camera moves down. */
+    topClearance: 0.12,
+    /** Share of a screen at the bottom (the control bar) that work must clear before it starts. */
+    bottomClearance: 0.08,
     /** Move to the next window once this share of the current window's tasks is done. */
     advanceAt: 0.85,
     minScrollSeconds: 1.4,

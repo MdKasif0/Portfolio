@@ -79,7 +79,7 @@ export interface EngineOptions {
   mobile: boolean;
   debug: boolean;
   printSoft: number;
-  scrollTo: (target: number, durationSeconds: number, overshoot?: boolean) => void;
+  scrollTo: (target: number, durationSeconds: number) => void;
   /** False once the visitor has taken over the camera. */
   isTouring: () => boolean;
   /** Viewport point agent `agentId` spawns from (an intro cursor, else the control bar's avatar dots). */
@@ -112,6 +112,9 @@ type Runtime = {
   exiting: boolean;
   lead: boolean;
 };
+
+/** The camera ignores moves smaller than this (px). */
+const CAMERA_MIN_MOVE = 40;
 
 export class BuildEngine {
   readonly clock = new Clock();
@@ -220,10 +223,25 @@ export class BuildEngine {
 
   /** In the camera window (viewport ± margin), measured where the camera is heading. */
   private inWindow(job: Job) {
-    if (job.primary.fixed) return true;
+    if (job.primary.fixed || this.finishAnywhere) return true;
     const top = job.primary.doc.y, bottom = top + job.primary.doc.height, vh = this.vh();
     const margin = C.camera.windowMargin * vh;
-    return bottom > this.cameraTop - margin && top < this.cameraTop + vh + margin;
+    // The tour never goes back up, so anything it did leave behind can still be finished from here.
+    if (this.options.isTouring() && bottom <= this.cameraTop - margin) return true;
+    if (bottom <= this.cameraTop - margin) return false;
+    // A job starts only once enough of it clears the fold and the control bar. The page's last
+    // screen is the exception: the camera can't go further, so its bottom edge has to be built there.
+    if (this.cameraTop >= this.scrollEnd() - CAMERA_MIN_MOVE) return true;
+    return top + Math.min(job.primary.doc.height, vh * 0.25) <= this.cameraTop + vh * (1 - C.camera.bottomClearance);
+  }
+
+  /** Furthest the page can scroll (re-read a few times a second: it's a layout read). */
+  private scrollEnd() {
+    if (this.clock.realTime - this.scrollEndReadAt > 250) {
+      this.scrollEndReadAt = this.clock.realTime;
+      this.scrollEndCache = document.documentElement.scrollHeight - this.vh();
+    }
+    return this.scrollEndCache;
   }
 
   private inViewport(job: Job) {
@@ -258,12 +276,35 @@ export class BuildEngine {
     return total ? doneTasks / total : 1;
   }
 
-  /** Move to the next window once enough of this one is built (or nothing here is left to claim). */
-  private lastDrift = 0;
+  private scrollEndCache = 0;
+  private scrollEndReadAt = -1e9;
+  /** When the current camera scroll lands (real time). A new move never interrupts one, which would hitch. */
+  private scrollLandsAt = 0;
+  /** The visitor took over and nothing in view is left to build: finish the rest out of sight. */
+  private finishAnywhere = false;
 
-  /** Between window moves the camera eases toward the centroid of the active tasks. */
-  private drift() {
-    if (this.clock.realTime - this.lastDrift < 650) return false;
+  /**
+   * The tour only travels down, so it must not leave work behind: the furthest the camera may
+   * go while keeping every unfinished job in view (below the nav). Jobs waiting on something
+   * further down don't count, or the camera could never reach what they are waiting for.
+   */
+  private cameraLimit(pending: Job[]) {
+    const vh = this.vh();
+    let limit = Infinity;
+    for (const job of pending) {
+      if (job.status === "blocked" && Array.from(job.deps).some((dep) => dep.status !== "done" && dep.primary.doc.y > job.primary.doc.y + vh)) continue;
+      limit = Math.min(limit, job.primary.doc.y + Math.max(0, job.primary.doc.height - vh * 0.7) - vh * C.camera.topClearance);
+    }
+    return limit;
+  }
+
+  /** Is anything being built or ready to build where the camera is now? */
+  private workHere() {
+    return this.options.plan.jobs.some((job) => !job.instant && !job.primary.fixed && (job.status === "ready" || job.status === "active" || job.status === "claimed") && this.inViewport(job));
+  }
+
+  /** Between window moves the camera eases down toward the centroid of the active tasks. */
+  private drift(limit: number) {
     const vh = this.vh();
     const active = Array.from(this.runtimes)
       .map((runtime) => runtime.current?.job)
@@ -274,55 +315,52 @@ export class BuildEngine {
     const topActive = Math.min(...active.map((job) => job.primary.doc.y));
     const maxScroll = document.documentElement.scrollHeight - vh;
     let desired = Math.min(centroid - vh / 2, topActive - vh * 0.04);
-    desired = clamp(desired, Math.max(0, this.cameraTop - vh * 0.35), Math.min(maxScroll, this.cameraTop + vh * 0.35));
-    if (Math.abs(desired - window.scrollY) < vh * 0.12) return false;
-    this.lastDrift = this.clock.realTime;
+    desired = Math.min(desired, limit, maxScroll, this.cameraTop + vh * 0.35);
+    if (desired - Math.max(this.cameraTop, window.scrollY) < vh * 0.12) return false;
+    const seconds = 1.1 / Math.max(1, this.clock.speed);
+    this.scrollLandsAt = this.clock.realTime + seconds * 1000;
     this.cameraTop = desired;
-    this.options.scrollTo(desired, 1.1 / Math.max(1, this.clock.speed));
+    this.options.scrollTo(desired, seconds);
     return true;
   }
 
   private camera() {
     if (!this.options.isTouring()) {
       this.cameraTop = window.scrollY;
+      this.finishAnywhere = false;
+      this.finishAnywhere = !this.options.plan.jobs.some((job) => job.status === "ready" && !job.instant && this.inWindow(job));
       return;
     }
-    if (this.clock.time < this.cameraMovingUntil || this.clock.realTime - this.lastCameraCheck < 150) return;
+    if (this.clock.realTime < this.scrollLandsAt || this.clock.realTime - this.lastCameraCheck < 150) return;
     this.lastCameraCheck = this.clock.realTime;
     const vh = this.vh();
     const pending = this.options.plan.jobs.filter((job) => job.status !== "done" && !job.instant && !job.primary.fixed);
     if (!pending.length) return;
     const claimableHere = pending.some((job) => job.status === "ready" && this.inWindow(job));
+    const limit = this.cameraLimit(pending);
     if (this.windowProgress() < C.camera.advanceAt && claimableHere) {
-      this.drift();
+      this.drift(limit);
       return;
     }
     const maxScroll = document.documentElement.scrollHeight - vh;
     const waiting = pending.filter((job) => job.status === "ready" || job.status === "blocked");
     const ahead = waiting.filter((job) => job.primary.doc.y > this.cameraTop + vh * 0.3).sort((a, b) => a.primary.doc.y - b.primary.doc.y);
-    let next: number;
-    if (ahead.length) {
-      // Next window: around the centroid of the next batch of unstarted work, keeping its top in view,
-      // and never so far that work still waiting above drops out of the window margin.
-      const batch = ahead.slice(0, 24);
-      const centroid = batch.reduce((sum, job) => sum + job.primary.doc.y + Math.min(job.primary.doc.height, vh) / 2, 0) / batch.length;
-      const topWaiting = Math.min(...waiting.map((job) => job.primary.doc.y));
-      next = Math.min(centroid - vh / 2, ahead[0].primary.doc.y - vh * 0.08, topWaiting + vh * (C.camera.windowMargin - 0.05));
-    } else {
-      // Leftovers: work that became ready after the camera passed it. Go back for it.
-      const leftovers = waiting.filter((job) => job.status === "ready" && !this.inWindow(job));
-      if (!leftovers.length || claimableHere) return;
-      next = Math.min(...leftovers.map((job) => job.primary.doc.y)) - vh * 0.2;
-    }
-    next = clamp(next, 0, maxScroll);
-    if (Math.abs(next - this.cameraTop) < 40) return;
+    if (!ahead.length) return;
+    // Next window: around the centroid of the next batch of unstarted work, keeping its top in view,
+    // and held back by anything still unfinished above. Only if nothing at all is left to do here
+    // does the camera move on regardless, so a stuck job can never stop the tour.
+    const batch = ahead.slice(0, 24);
+    const centroid = batch.reduce((sum, job) => sum + job.primary.doc.y + Math.min(job.primary.doc.height, vh) / 2, 0) / batch.length;
+    const wanted = Math.min(centroid - vh / 2, ahead[0].primary.doc.y - vh * C.camera.topClearance);
+    const next = Math.min(this.workHere() ? Math.min(wanted, limit) : wanted, maxScroll);
+    if (next - this.cameraTop < CAMERA_MIN_MOVE) return;
     // The mobile cut scrolls proportionally faster.
-    const seconds = clamp(C.camera.minScrollSeconds + (Math.abs(next - this.cameraTop) / vh) * 0.35, C.camera.minScrollSeconds, C.camera.maxScrollSeconds) * (this.options.mobile ? 0.65 : 1);
-    const heroMoment = this.windows.length === 1;
+    const seconds = clamp(C.camera.minScrollSeconds + ((next - this.cameraTop) / vh) * 0.35, C.camera.minScrollSeconds, C.camera.maxScrollSeconds) * (this.options.mobile ? 0.65 : 1);
     this.cameraTop = next;
     // The camera counts as moving for most of the scroll (build time).
     this.cameraMovingUntil = this.clock.time + seconds * 1000 * 0.8;
-    this.options.scrollTo(next, seconds / Math.max(1, this.clock.speed), heroMoment);
+    this.scrollLandsAt = this.clock.realTime + (seconds / Math.max(1, this.clock.speed)) * 1000;
+    this.options.scrollTo(next, seconds / Math.max(1, this.clock.speed));
     this.options.onCamera(true);
     this.openWindow(next);
   }

@@ -26,16 +26,16 @@ action). `?build=off` shows the finished site straight away.
 
 | Setting | What it does |
 | --- | --- |
-| `speedDefault`, `mobileSpeedDefault` | Starting playback speed (the bar cycles 1x → 2x → 4x). The film is tuned to ~40–45 s at 1x. |
+| `speedDefault`, `mobileSpeedDefault` | Starting playback speed (the bar cycles 1x → 2x → 4x). The film is tuned to ~50 s at 1x. |
 | `seed` | Every random choice derives from it: the same seed plays the same film. |
 | `agents.maxVisible` / `mobileMaxVisible` | Cursors on screen at once (14 / 8). |
 | `agents.rosterStart` / `rosterSize` | The crew counter ramps 18 → 30 as agents join from the avatar dots. |
-| `tempo` / `mobileTempo` | Global multiplier on every action duration (desktop film / ~20 s mobile cut). Lower = faster. |
+| `tempo` / `mobileTempo` | Global multiplier on every action duration (desktop film / ~30 s mobile cut). Lower = faster. |
 | `durations.*` | Base duration of each action (ms at tempo 1): travel, hesitation, box drawing, typing per character, resize, image drop, stamp, … |
 | `realism.typoRate` | Chance a typed character is a typo (caught and backspaced). |
 | `realism.mistakeRate` | Chance an action starts with a slip (wrong click → ⌘Z → redo). Sloppy agents double it, precise ones cut it. |
 | `realism.nudgeRate`, `reselectRate` | Arrow-key 1–2 px corrections, re-selecting a word to fix it. |
-| `camera.windowMargin` | Tasks are scheduled within viewport ± this many screens (0.25 keeps work on screen). |
+| `camera.windowMargin` | Tasks are scheduled within viewport ± this many screens (0.02 keeps work on screen). The tour only travels down: it never passes unfinished work (`topClearance` is the space kept under the nav, `bottomClearance` what work must clear above the control bar before it starts). |
 | `camera.advanceAt` | The camera moves to the next window when this share of the current one is built (0.85). |
 | `camera.min/maxScrollSeconds` | Cinematic scroll length; `staggerMin/MaxMs` delays new-window tasks after a move; `pushIn` is the hero zoom. |
 | `hud.layersPanelRows` | Rows in the left-edge layers panel. |

@@ -38,7 +38,7 @@ export function useAgentBuild() {
 type BuildProviderProps = {
   children: ReactNode;
   motionEnabled: boolean;
-  scrollTo: (target: number, duration: number, overshoot?: boolean) => void;
+  scrollTo: (target: number, duration: number) => void;
   cancelScroll: () => void;
 };
 
@@ -193,7 +193,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         mobile: isMobile(),
         debug: new URLSearchParams(window.location.search).get("buildDebug") === "1",
         printSoft: HWF_PRINT_SOFT,
-        scrollTo: (target, duration, overshoot) => scrollToRef.current(target, duration, overshoot),
+        scrollTo: (target, duration) => scrollToRef.current(target, duration),
         isTouring: () => touringRef.current,
         spawnOrigin: (agentId) => handoffRef.current?.take(agentId) ?? trayPoint(),
         onProgress: (done) => {
@@ -316,6 +316,8 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     const takeOver = (event: Event) => {
       if (!event.isTrusted) return;
       if (event.target instanceof Element && event.target.closest(".agent-control-bar")) return;
+      // Stop the tour once; cancelling on every wheel tick would also cancel the visitor's own scroll.
+      if (takeoverRef.current) return;
       takeoverRef.current = true;
       touringRef.current = false;
       setTouring(false);
