@@ -53,7 +53,6 @@ export const portfolioContent = {
     projectPrompt: "Tell your project",
     socialLinks: [
       { label: "X", href: "https://x.com/md_kasif_uddin", icon: "x" },
-      { label: "Instagram", href: "https://instagram.com/M_Kasif_Uddin", icon: "instagram" },
       { label: "GitHub", href: "https://github.com/MdKasif0", icon: "github" },
       { label: "Email", href: "mailto:mdkasifuddin123@gmail.com", icon: "email" }
     ]
@@ -287,9 +286,7 @@ export const portfolioContent = {
     emailLabel: "EMAIL",
     socials: [
       { label: "X", value: "@md_kasif_uddin", href: "https://x.com/md_kasif_uddin", icon: "x" },
-      { label: "INSTAGRAM", value: "@M_Kasif_Uddin", href: "https://instagram.com/M_Kasif_Uddin", icon: "instagram" },
-      { label: "GITHUB", value: "MdKasif0", href: "https://github.com/MdKasif0", icon: "github" },
-      { label: "SUPPORT", value: "buymeacoffee.com/mdkasif", href: "https://buymeacoffee.com/mdkasif", icon: "coffee" }
+      { label: "GITHUB", value: "MdKasif0", href: "https://github.com/MdKasif0", icon: "github" }
     ],
     locationLabel: "BASED IN",
     location: "India",

@@ -37,6 +37,8 @@ export interface HalftoneWordmarkFooterProps {
   meta?: string;
   /** Anything else for the brand column (status, socials). */
   brandExtra?: ReactNode;
+  /** Shown beside the label. */
+  logo?: ReactNode;
   /** Link columns along the top. */
   columns: FooterColumn[];
   /** Left side of the hairline rule. */
@@ -123,7 +125,7 @@ const clamp = (n: number, a = 0, b = 1) => Math.max(a, Math.min(b, n));
 const smooth = (n: number) => n * n * (3 - 2 * n);
 
 export default function HalftoneWordmarkFooter({
-  wordmark, label, meta, brandExtra, columns, ruleStart, backToTop = true, palette,
+  wordmark, logo, label, meta, brandExtra, columns, ruleStart, backToTop = true, palette,
   dotGap = 6, radius = 80, crop = 0.2, grain = 0.5, interactive = true, animate = true, reveal = 1,
   fontFamily, fontWeight = 400, monoFamily = "system-ui, sans-serif"
 }: HalftoneWordmarkFooterProps) {
@@ -391,7 +393,10 @@ export default function HalftoneWordmarkFooter({
       <div className="hwf-inner">
         <div className="hwf-top">
           <div className="hwf-brand">
-            <strong data-layer="text" data-kind="footer-label">{label}</strong>
+            <div className="hwf-identity">
+              {logo}
+              <strong data-layer="text" data-kind="footer-label">{label}</strong>
+            </div>
             {meta && <span className="hwf-meta" data-layer="text" data-kind="footer-meta">{meta}</span>}
             {brandExtra}
           </div>

@@ -102,6 +102,9 @@ export const KIND_RULES: Record<string, SceneRule> = {
   "form-submit": { late: true },
   "showreel-card": { recipe: ["DRAW_BOX", "GRADIENT", "ROUND_CORNERS"], flash: true },
   "section-headline-accent": { pair: "style" },
+  // Footer: logo dropped in, name and roles typed, link lists copy-paste, then the wordmark is stamped last.
+  "footer-logo": { recipe: ["DRAW_BOX", "DROP_IMAGE"] },
+  "footer-label": { noGroup: true },
   canvas: { recipe: ["DRAW_BOX", "STAMP"], last: true }
 };
 
