@@ -1453,28 +1453,39 @@ html[data-motion="ready"] .hero-v2-animate .hero-v2-stats { animation: hero-v2-c
   .hero-v2-word-stroke text { transform: translateY(-31px); }
 }
 @media (max-width: 700px) {
+  /* Phones stack copy, stats and reel in normal flow so longer copy pushes the rest down.
+     The artwork behind them stays absolute, anchored in px so it no longer tracks hero height. */
   .hero-stage.hero-v2 {
-    height: max(100svh, 900px);
-    min-height: max(100svh, 900px);
-    max-height: 980px;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: min(100svh, 980px);
+    max-height: none;
   }
-  .hero-v2-container { width: calc(100% - 40px); }
+  .hero-v2-container {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    width: calc(100% - 40px);
+    height: auto;
+    padding-bottom: 24px;
+  }
   .hero-v2-topline { top: 84px; align-items: flex-start; gap: 8px; }
   .hero-v2-eyebrow { gap: 8px; max-width: 56%; font-size: 7px; letter-spacing: .12em; }
   .hero-eyebrow-rule { width: 15px; flex-basis: 15px; }
   .hero-v2-availability { min-height: 25px; gap: 6px; padding-inline: 8px; font-size: 6px; letter-spacing: .07em; text-align: right; }
   .hero-v2-availability > span { width: 6px; height: 6px; flex-basis: 6px; }
   .hero-v2-word-scroll,
-  .hero-v2-word-outline-scroll { top: 15.8%; }
+  .hero-v2-word-outline-scroll { top: 142px; }
   .hero-v2-word-back,
   .hero-v2-word-stroke { height: 128px; }
   .hero-v2-word-back text,
   .hero-v2-word-stroke text { font-size: 390px; transform: translateY(32px); }
-  .hero-v2-hud { top: 19%; left: 50%; width: 82vw; transform: translateX(-50%); opacity: .68; }
-  .hero-v2-avatar-scroll { top: 17.4%; right: auto; bottom: auto; left: 50%; width: min(87vw,380px); height: 310px; transform: translateX(-50%); }
+  .hero-v2-hud { top: 171px; left: 50%; width: 82vw; transform: translateX(-50%); opacity: .68; }
+  .hero-v2-avatar-scroll { top: 157px; right: auto; bottom: auto; left: 50%; width: min(87vw,380px); height: 310px; transform: translateX(-50%); }
   .hero-v2-avatar { width: 100%; height: 100%; }
   .hero-v2-chips { display: none; }
-  .hero-v2-copy { top: 46%; left: 0; width: 100%; }
+  .hero-v2-copy { position: relative; top: auto; left: auto; width: 100%; margin-top: 414px; }
   .hero-v2-script { margin: 0 0 2px 4px; font-size: 33px; }
   .hero-v2-script svg { bottom: -8px; height: 17px; }
   .hero-v2-name { font-size: clamp(76px, 22vw, 104px); line-height: .8; }
@@ -1484,7 +1495,7 @@ html[data-motion="ready"] .hero-v2-animate .hero-v2-stats { animation: hero-v2-c
   .hero-v2-cta { min-height: 44px; gap: 13px; padding-inline: 15px; border-radius: 7px; font-size: 12px; }
   .hero-v2-location { gap: 7px; font-size: 9px; }
   .hero-v2-location svg { width: 14px; }
-  .hero-v2-aside { right: 0; bottom: 115px; left: 0; }
+  .hero-v2-aside { position: relative; top: auto; right: auto; bottom: auto; left: auto; width: 100%; margin-top: 16px; }
   .hero-v2-aside-note { display: none; }
   .hero-v2-stats { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; padding: 10px 12px; border-radius: 11px; }
   .hero-stat { gap: 2px; }
@@ -1492,7 +1503,7 @@ html[data-motion="ready"] .hero-v2-animate .hero-v2-stats { animation: hero-v2-c
   .hero-stat-label { font-size: 8px; letter-spacing: .12em; }
   .hero-v2-cv { grid-column: 1 / -1; margin-top: 2px; font-size: 8px; }
   .hero-v2-marquee { right: -12vw; bottom: 18%; left: -12vw; font-size: 33px; opacity: .065; }
-  .hero-v2-reel { bottom: 43px; left: 0; }
+  .hero-v2-reel { position: relative; bottom: auto; left: auto; margin-top: auto; padding-top: 16px; }
   .hero-v2-reel-circle { width: 37px; height: 37px; }
   .hero-v2-reel-trigger { gap: 8px; }
   .hero-v2-reel-label { font-size: 8px; }
@@ -1504,10 +1515,9 @@ html[data-motion="ready"] .hero-v2-animate .hero-v2-stats { animation: hero-v2-c
 }
 @media (max-width: 390px) {
   .hero-v2-container { width: calc(100% - 32px); }
-  .hero-v2-copy { top: 45.5%; }
+  .hero-v2-copy { margin-top: 410px; }
   .hero-v2-name { font-size: clamp(72px, 21vw, 88px); }
   .hero-v2-introduction { font-size: 12px; }
-  .hero-v2-aside { bottom: 108px; }
   .hero-v2-reel-meta { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
