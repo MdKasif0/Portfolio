@@ -6,7 +6,6 @@
  * the tour scroll and with fixed elements like the nav.
  */
 
-import { buildModeConfig } from "@/components/agent-build/buildMode.config";
 import type { Clock } from "@/components/agent-build/engine/clock";
 
 export type Anchor = { el: Element | null; x: number; y: number };
@@ -55,14 +54,7 @@ export class Overlay {
     return { x: rect.left + anchor.x, y: rect.top + anchor.y };
   }
 
-  /** Chrome switched off in `hud`. It still runs (actions rely on it) but is never drawn. */
-  private hiddenByHud(decoration: Decoration) {
-    const hud: { layersPanel: boolean; colorPopovers: boolean; guides: boolean } = buildModeConfig.hud;
-    return (!hud.layersPanel && decoration instanceof LayersPanel) || (!hud.colorPopovers && decoration instanceof ColorPopover) || (!hud.guides && (decoration instanceof GuideLine || decoration instanceof BatonArc));
-  }
-
   add<T extends Decoration>(decoration: T): T {
-    if (this.hiddenByHud(decoration)) decoration.node.style.display = "none";
     this.decorations.add(decoration);
     this.root.appendChild(decoration.node);
     decoration.update(this);
@@ -77,8 +69,7 @@ export class Overlay {
 
   /** A pooled "+" spark at a point (skipped under the quality governor). */
   spark(point: { x: number; y: number }) {
-    const sparks: boolean = buildModeConfig.hud.sparks;
-    if (this.lowQuality || !sparks) return;
+    if (this.lowQuality) return;
     const node = this.sparkPool.pop() ?? h("span", "ab-sparkle");
     node.style.transform = `translate3d(${point.x}px, ${point.y}px, 0)`;
     node.style.animation = "none";
@@ -90,9 +81,7 @@ export class Overlay {
 
   /** Show a decoration for `ms` of build time without blocking the caller. */
   flash(decoration: Decoration, ms: number) {
-    const hud: { toolRows: boolean; statusChips: boolean } = buildModeConfig.hud;
-    if ((this.lowQuality || !hud.toolRows) && decoration instanceof ToolRow) return decoration;
-    if (!hud.statusChips && decoration instanceof Chip) return decoration;
+    if (this.lowQuality && decoration instanceof ToolRow) return decoration;
     this.add(decoration);
     this.clock.wait(ms).then(() => this.fadeOut(decoration), () => this.remove(decoration));
     return decoration;

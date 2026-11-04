@@ -181,7 +181,7 @@ async function drawBox(agent: Agent, job: Job, ctx: ActionContext) {
   await agent.travel(at(el, inset.x, inset.y));
   await agent.maybeSlip(el);
   ctx.overlay.flash(new ToolRow(agent.anchor, el, job.primary.kind === "image" ? "I" : "R"), 700);
-  const frame = new SelectionFrame(el, { left: 0, top: 0, width: 0, height: 0 }, { size: true });
+  const frame = new SelectionFrame(el, { left: 0, top: 0, width: 0, height: 0 }, { grid: true, size: true });
   ctx.overlay.add(frame);
   keep(job, frame);
   state(job).frame = frame;
@@ -521,7 +521,7 @@ async function develop(ctx: ActionContext, node: HTMLElement, el: Element) {
   if (sweep) sweep.node.className = "ab-sweep";
   await ctx.clock.tween(ms(ctx, D.dropImage * 0.5), (raw) => {
     const t = easeOut(raw);
-    node.style.filter = `blur(${(1 - t) * 6}px)`;
+    node.style.filter = `blur(${(1 - t) * 10}px) brightness(${1 + (1 - t) * 0.5})`;
     node.style.opacity = String(0.3 + 0.7 * t);
     sweep?.node.style.setProperty("--sweep", `${raw * 140 - 20}%`);
   });

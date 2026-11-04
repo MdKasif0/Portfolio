@@ -2030,13 +2030,13 @@ html[data-motion="ready"] .hwf-status i::after, html[data-motion="ready"] .hwf-c
 .ab-cursor.is-violation svg { outline: 2px solid #ef4444; outline-offset: 2px; border-radius: 3px; }
 .ab-tag { position: absolute; top: 15px; left: 11px; display: flex; overflow: hidden; border: 1px solid var(--agent); border-radius: 2px 4px 4px 4px; background: rgba(8,8,13,.88); white-space: nowrap; }
 .ab-tag b { padding: 2px 5px; background: var(--agent); color: #09090d; font-size: 7px; font-weight: 700; letter-spacing: .02em; }
-.ab-tag em { display: none; }
-.ab-frame { z-index: 2; border: 1px solid rgba(96,150,246,.6); }
-.ab-frame.is-dashed { border-style: dashed; border-color: rgba(96,150,246,.38); }
+.ab-tag em { padding: 2px 5px; color: var(--agent); font-size: 7px; font-style: normal; font-weight: 600; }
+.ab-frame { z-index: 2; border: 1px solid #3b82f6; box-shadow: 0 0 0 1px rgba(59,130,246,.14); }
+.ab-frame.is-dashed { border-style: dashed; box-shadow: none; }
 .ab-frame.is-red { border-color: #ef4444; }
 .ab-frame.has-grid { background-image: linear-gradient(rgba(59,130,246,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,.12) 1px, transparent 1px); background-size: 8px 8px; }
-.ab-frame.is-placeholder { background: rgba(255,255,255,.035); }
-.ab-frame.is-text-selection { border: 0; background: rgba(59,130,246,.14); }
+.ab-frame.is-placeholder { background: rgba(90,95,108,.34); }
+.ab-frame.is-text-selection { border: 0; background: rgba(59,130,246,.35); box-shadow: none; }
 .ab-ph-icon { position: absolute; top: 0; left: 0; display: grid; width: 22px; height: 22px; place-items: center; border: 1px solid rgba(255,255,255,.35); border-radius: 4px; color: rgba(255,255,255,.7); }
 .ab-ph-icon svg { width: 13px; height: 13px; stroke: currentColor; stroke-width: 1; }
 .ab-handle { position: absolute; top: 0; left: 0; width: 6px; height: 6px; border: 1px solid #3b82f6; background: #fff; }
@@ -2071,7 +2071,7 @@ html[data-motion="ready"] .hwf-status i::after, html[data-motion="ready"] .hwf-c
 .ab-sparkle { z-index: 4; width: 10px; height: 10px; margin: -5px 0 0 -5px; animation: ab-sparkle .5s ease-out both; }
 .ab-sparkle::before, .ab-sparkle::after { content: ""; position: absolute; top: 4.5px; left: 0; width: 10px; height: 1px; background: #fff; box-shadow: 0 0 6px #fff; }
 .ab-sparkle::after { transform: rotate(90deg); }
-.ab-sweep { z-index: 3; overflow: hidden; background: linear-gradient(100deg, transparent calc(var(--sweep, 0%) - 18%), rgba(255,255,255,.08) var(--sweep, 0%), transparent calc(var(--sweep, 0%) + 18%)); }
+.ab-sweep { z-index: 3; overflow: hidden; background: linear-gradient(100deg, transparent calc(var(--sweep, 0%) - 18%), rgba(255,255,255,.28) var(--sweep, 0%), transparent calc(var(--sweep, 0%) + 18%)); }
 /* The caret lives in the overlay, placed at the end of the typed text. */
 .ab-caret { z-index: 3; width: 1.5px; margin-left: 1px; background: #3b82f6; box-shadow: 0 0 4px rgba(59,130,246,.8); animation: ab-blink .9s steps(1) infinite; }
 .ab-rest { visibility: hidden; }
@@ -2089,7 +2089,7 @@ html[data-motion="ready"] .hwf-status i::after, html[data-motion="ready"] .hwf-c
 @keyframes ab-sparkle { 0% { opacity: 0; scale: .2; rotate: 0deg; } 30% { opacity: 1; scale: 1.2; } 100% { opacity: 0; scale: .6; rotate: 90deg; } }
 @keyframes ab-blink { 50% { opacity: 0; } }
 @keyframes ab-roll { from { opacity: .2; transform: translateY(55%); } }
-@media (max-width: 700px) { .ab-tray { display: none; } }
+@media (max-width: 700px) { .ab-tag em { display: none; } .ab-tray { display: none; } }
 /* Fixed-width counters so the control bar never resizes (and shifts) as numbers change. */
 .agent-count > span:last-child { min-width: 58px; font-variant-numeric: tabular-nums; }
 .agent-progress-label { min-width: 104px; font-variant-numeric: tabular-nums; }
@@ -2099,7 +2099,7 @@ html[data-motion="ready"] .hwf-status i::after, html[data-motion="ready"] .hwf-c
 .ab-baton { z-index: 3; inset: 0; width: 100vw; height: 100vh; animation: ab-fade-out .52s ease-out forwards; }
 .ab-baton svg { overflow: visible; }
 .ab-line.is-gradient { background: linear-gradient(#ff8a5c, #e5322d); width: 2px !important; }
-.ab-scanline { z-index: 3; background: linear-gradient(90deg, transparent, rgba(255,255,255,.7) 18%, rgba(255,255,255,.7) 82%, transparent); }
+.ab-scanline { z-index: 3; background: linear-gradient(90deg, transparent, #fff 18%, #fff 82%, transparent); box-shadow: 0 0 14px 3px rgba(255,255,255,.75); }
 .ab-rotate-handle { z-index: 3; width: 10px; height: 10px; margin: -5px 0 0 -5px; border: 1.5px solid #3b82f6; border-radius: 50%; background: #fff; }
 .ab-tick { z-index: 4; display: grid; width: 20px; height: 20px; margin: -10px 0 0 -10px; place-items: center; border-radius: 50%; background: #16a34a; color: #fff; font-size: 11px; font-weight: 800; box-shadow: 0 0 0 4px rgba(22,163,74,.25); animation: ab-pop .2s cubic-bezier(.2,.8,.2,1.4) both; }
 .ab-layers { z-index: 1; top: 26vh !important; left: 8px !important; width: 66px; padding: 6px 0 6px 6px; border-left: 1px solid rgba(255,255,255,.12); background: linear-gradient(90deg, rgba(8,8,13,.55), transparent); transform: none !important; transition: opacity .5s ease !important; }
@@ -2113,7 +2113,7 @@ html[data-motion="ready"] .hwf-status i::after, html[data-motion="ready"] .hwf-c
 @media (max-width: 1279px) { .ab-layers { display: none; } }
 .ab-shockwave { z-index: 6; width: 24px; height: 24px; margin: -12px 0 0 -12px; border: 2px solid #e5322d; border-radius: 50%; animation: ab-shock .9s cubic-bezier(.15,.7,.2,1) forwards; }
 @keyframes ab-shock { from { opacity: .95; scale: .4; } to { opacity: 0; scale: 70; border-width: .2px; } }
-.ab-lights { position: fixed; z-index: 112; inset: 0; background: rgba(255,255,255,.08); mix-blend-mode: screen; pointer-events: none; animation: ab-lights .7s ease-out forwards; }
+.ab-lights { position: fixed; z-index: 112; inset: 0; background: rgba(255,255,255,.22); mix-blend-mode: screen; pointer-events: none; animation: ab-lights .7s ease-out forwards; }
 @keyframes ab-lights { 0% { opacity: 0; } 18% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes ab-fade-out { 0%, 60% { opacity: 1; } 100% { opacity: 0; } }
 .agent-go-live { animation: ab-pop .25s ease-out both; }

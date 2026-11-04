@@ -196,7 +196,7 @@ function recipeFor(node: BuildNode): ActionName[] {
   if (kind === "canvas") return ["DRAW_BOX", "STAMP"];
   if (kind === "frame") return style.radius > 1 ? ["DRAW_BOX", "FILL", "ROUND_CORNERS"] : ["DRAW_BOX", "FILL"];
   if (kind === "image") return el.querySelector("img") || el instanceof HTMLImageElement ? ["DRAW_BOX", "DROP_IMAGE", "CROP"] : ["DRAW_BOX", "DROP_IMAGE"];
-  if (kind === "icon") return ["DROP", "SCALE", "RECOLOR"];
+  if (kind === "icon") return ["OPEN_PICKER", "PICK_SYMBOL", "DROP", "SCALE", "RECOLOR"];
   if (kind === "line") return ["DRAW_LINE", "FILL"];
   if (kind === "button") {
     const recipe: ActionName[] = ["DRAW_BOX", "FILL"];
