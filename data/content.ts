@@ -218,8 +218,10 @@ export const portfolioContent = {
       "Building in public as a tech creator on X, @md_kasif_uddin."
     ],
     educationLabel: "EDUCATION",
-    education: "B.Tech CSE — Chandigarh University, Mohali",
-    educationYear: "1ST YEAR · 2026 –",
+    educationDegree: "B.Tech CSE",
+    educationSchool: "Chandigarh University, Mohali",
+    educationStatus: "CURRENTLY STUDYING",
+    educationYear: "1ST YEAR · 2026 — NOW",
     toolkitLabel: "CREATIVE TOOLKIT",
     toolkitGroups: [
       { label: "Languages", skills: ["TypeScript", "JavaScript", "Python", "Swift"] },
@@ -243,10 +245,15 @@ export const portfolioContent = {
   journey: {
     eyebrow: "03 / THE JOURNEY",
     title: "KEEP MOVING. KEEP BUILDING",
+    nowLabel: "NOW",
     activeRole: "Freelance AI Software Engineer & Backend Architect",
     activePeriod: "2025 — NOW",
     activeSubtitle: "Freelance · AI software & backend systems",
-    activeDescription: "Designing and building AI-powered software from first idea to production.\nPairing applied AI with solid backend architecture.\nTurning rough concepts into products that feel alive.",
+    activePoints: [
+      "Designing and building AI-powered software from first idea to production.",
+      "Pairing applied AI with solid backend architecture.",
+      "Turning rough concepts into products that feel alive."
+    ],
     roles: [
       { title: "Tech Content Creator on X", period: "2026", subtitle: "@md_kasif_uddin · AI, dev tools and building in public" },
       { title: "Brand collaborations", period: "2026", subtitle: "20+ collaborations with AI and tech brands" },
@@ -256,10 +263,10 @@ export const portfolioContent = {
     milestonesTitleWhite: "LITTLE WINS",
     milestonesTitleRed: "BIG MEANING",
     milestones: [
-      { title: "Launched GitRoasted", year: "2025" },
-      { title: "Shipped GigSense", year: "2026" },
-      { title: "20+ brand collaborations", year: "2026" },
-      { title: "1st Runner-Up, InnoSprint 2.0", year: "2026" }
+      { title: "Launched GitRoasted", year: "2025", href: "https://gitroasted.netlify.app/" },
+      { title: "Shipped GigSense", year: "2026", href: "https://gigsense-v1.netlify.app/" },
+      { title: "20+ brand collaborations", year: "2026", href: "#recognition" },
+      { title: "1st Runner-Up, InnoSprint 2.0", year: "2026", href: "/certificates/innosprint-2-0.pdf" }
     ]
   },
   contact: {

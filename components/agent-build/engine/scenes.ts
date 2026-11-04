@@ -81,11 +81,21 @@ export const KIND_RULES: Record<string, SceneRule> = {
   "comparison-slider": { container: true },
 
   // 6. About
+  // Panels first; the toolkit chips and process steps then copy-paste, and the line runs through the nodes.
+  "education-card": { recipe: ["DRAW_BOX", "GRADIENT", "ROUND_CORNERS"] },
+  "toolkit-panel": { recipe: ["DRAW_BOX", "FILL", "ROUND_CORNERS"] },
+  "process-card": { recipe: ["DRAW_BOX", "FILL", "ROUND_CORNERS"], flash: true },
+  "education-degree": { recipe: ["DRAW_TEXTBOX", "TYPE", "RESIZE_TEXT"], resizeFrom: 18 },
+  "process-line": { after: ["process-step"] },
   "process-node": { noGroup: true },
   "about-quote": { recipe: ["DRAW_BOX", "FILL", "ROUND_CORNERS"] },
   "quote-signature": { recipe: ["STROKE"] },
 
   // 7. Journey, contact, footer
+  // Journey: the current-role card and milestones panel come first; the smaller rows copy-paste.
+  "journey-current": { recipe: ["DRAW_BOX", "GRADIENT", "ROUND_CORNERS"], flash: true },
+  "milestones-panel": { recipe: ["DRAW_BOX", "FILL", "ROUND_CORNERS"] },
+  "journey-rail": { after: ["journey-current"] },
   "contact-row": { noGroup: true },
   // The form card first, then its fields; the budget options copy-paste; the send button goes last.
   "project-form": { recipe: ["DRAW_BOX", "GRADIENT", "ROUND_CORNERS"], flash: true },

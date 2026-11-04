@@ -250,62 +250,49 @@ function AboutQuote() {
 export function AboutSection() {
   const processRef = useRef<HTMLDivElement>(null);
   const [processVisible, setProcessVisible] = useState(false);
-  const [activeProcess, setActiveProcess] = useState(0);
   const { motionEnabled } = useMotionPreference();
+  const [lead, ...bio] = about.bioLines;
 
   useEffect(() => {
     const process = processRef.current;
     if (!process) return;
-
-    const processObserver = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setProcessVisible(true);
-      }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setProcessVisible(true);
     }, { threshold: 0.3 });
-
-    processObserver.observe(process);
-    const stepObserver = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          const index = Array.from(process.querySelectorAll(".process-step")).indexOf(entry.target as HTMLElement);
-          if (index >= 0) setActiveProcess(index);
-        }
-      }
-    }, { rootMargin: "-46% 0px -46% 0px", threshold: 0 });
-    process.querySelectorAll(".process-step").forEach((step) => stepObserver.observe(step));
-    return () => {
-      processObserver.disconnect();
-      stepObserver.disconnect();
-    };
+    observer.observe(process);
+    return () => observer.disconnect();
   }, []);
 
   return (
     <section className="about-section section-shell container-x" id="about" data-scene="about" aria-labelledby="about-heading">
-      <div className="about-heading-row">
-        <div className="about-heading-main">
-          <SectionHeader
-            className="about-section-header"
-            index={about.eyebrow.slice(0, 2)}
-            label={about.eyebrow.slice(5)}
-            titleLines={[`${about.titleBefore}.`, `${about.titleAfter}.`]}
-            accentLastLine
-            id="about-heading"
-            titleClassName="about-heading"
-          />
-          <p className="about-bio" data-layer="text">
-            {about.bioLines.map((line) => <span data-layer="text" key={line}>{line}</span>)}
-          </p>
-        </div>
-      </div>
+      <SectionHeader
+        className="about-section-header"
+        index={about.eyebrow.slice(0, 2)}
+        label={about.eyebrow.slice(5)}
+        titleLines={[`${about.titleBefore}.`, `${about.titleAfter}.`]}
+        accentLastLine
+        id="about-heading"
+        titleClassName="about-heading"
+      />
 
-      <div className="about-columns">
-        <div className="about-education">
-          <h3 className="micro-heading" data-layer="text">{about.educationLabel}</h3>
-          <div className="education-row" data-layer="line">
-            <div><p data-layer="text">{about.education}</p><span className="education-status" data-layer="text">CURRENTLY STUDYING</span></div>
-            {about.educationYear && <span data-layer="text">{about.educationYear}</span>}
+      <div className="about-grid">
+        <div className="about-bio">
+          <p className="about-lead" data-layer="text" data-kind="about-lead">{lead}</p>
+          {bio.map((line) => <p data-layer="text" data-kind="about-bio-line" key={line}>{line}</p>)}
+        </div>
+
+        <div className="about-education about-panel" data-layer="card" data-kind="education-card">
+          <div className="about-panel-top">
+            <h3 className="micro-heading" data-layer="text">{about.educationLabel}</h3>
+            <span className="education-status" data-layer="text" data-kind="education-status"><i aria-hidden="true" />{about.educationStatus}</span>
           </div>
-          <h3 className="micro-heading toolkit-heading" data-layer="text">{about.toolkitLabel}</h3>
+          <p className="education-degree" data-layer="text" data-kind="education-degree">{about.educationDegree}</p>
+          <p className="education-school" data-layer="text">{about.educationSchool}</p>
+          <p className="education-year" data-layer="text">{about.educationYear}</p>
+        </div>
+
+        <div className="about-toolkit about-panel" data-layer="card" data-kind="toolkit-panel">
+          <h3 className="micro-heading" data-layer="text">{about.toolkitLabel}</h3>
           <div className="toolkit-groups">
             {about.toolkitGroups.map((group) => (
               <div className="toolkit-group" key={group.label}>
@@ -322,38 +309,34 @@ export function AboutSection() {
           </div>
         </div>
 
-        <div className="about-process" ref={processRef} data-layer="card" data-kind="process-card">
+        <AboutQuote />
+
+        <div className="about-process about-panel" ref={processRef} data-layer="card" data-kind="process-card">
           <h3 className="micro-heading" data-layer="text">{about.processLabel}</h3>
-          <div className="process-list">
+          <ol className="process-list">
             <span
               className={`process-line${processVisible ? " is-visible" : ""}${motionEnabled ? "" : " is-static"}`}
               data-layer="line"
+              data-kind="process-line"
               aria-hidden="true"
             />
             {about.process.map((step, index) => (
-              <div className={`process-step${activeProcess === index ? " is-active" : ""}`} data-layer="line" data-kind="process-step" key={step.title}>
+              <li className="process-step" data-layer="line" data-kind="process-step" key={step.title}>
                 <span className="process-node" data-layer="icon" data-kind="process-node"><ProcessGlyph index={index} /></span>
                 <div>
                   <h4 data-layer="text">{step.title}</h4>
                   <p data-layer="text">{step.description}</p>
                 </div>
-              </div>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
-
-        <AboutQuote />
       </div>
     </section>
   );
 }
 
 export function JourneySection() {
-  const [openRole, setOpenRole] = useState(0);
-  const allRoles = [
-    { title: journey.activeRole, subtitle: journey.activeSubtitle, description: journey.activeDescription, period: journey.activePeriod, now: true },
-    ...journey.roles.map((role) => ({ ...role, description: role.subtitle, now: false }))
-  ];
   return (
     <section className="journey-section section-shell container-x" id="journey" data-scene="journey" aria-labelledby="journey-heading">
       <SectionHeader
@@ -367,39 +350,51 @@ export function JourneySection() {
       />
 
       <div className="journey-layout">
-        <div className="journey-roles" data-layer="line" data-kind="journey-timeline">
-          {allRoles.map((role, index) => {
-            const expanded = openRole === index;
-            return <article className={`journey-role${role.now ? " journey-role-active" : ""}${expanded ? " is-open" : ""}`} data-layer="card" data-kind="journey-role" key={role.title}>
-              {role.period && <p className="journey-period" data-layer="text">{role.now ? "NOW" : role.period}</p>}
-              <button className="journey-role-toggle" type="button" onClick={() => setOpenRole(expanded ? -1 : index)} aria-expanded={expanded}>
-                <span className="journey-role-copy">
+        <div className="journey-timeline">
+          <i className="journey-rail" data-layer="line" data-kind="journey-rail" aria-hidden="true" />
+          <article className="journey-current" data-layer="card" data-kind="journey-current">
+            <div className="journey-current-top">
+              <span className="journey-now" data-layer="text" data-kind="journey-now"><i aria-hidden="true" />{journey.nowLabel}</span>
+              <span className="journey-period" data-layer="text">{journey.activePeriod}</span>
+            </div>
+            <h3 data-layer="text">{journey.activeRole}</h3>
+            <p className="journey-subtitle" data-layer="text">{journey.activeSubtitle}</p>
+            <ul className="journey-points">
+              {journey.activePoints.map((point) => <li data-layer="text" data-kind="journey-point" key={point}>{point}</li>)}
+            </ul>
+          </article>
+          <ol className="journey-roles">
+            {journey.roles.map((role) => (
+              <li className="journey-role" data-layer="card" data-kind="journey-role" key={role.title}>
+                <span className="journey-period" data-layer="text">{role.period}</span>
+                <div>
                   <h3 data-layer="text">{role.title}</h3>
                   <p className="journey-subtitle" data-layer="text">{role.subtitle}</p>
-                </span>
-                <span className="journey-expand" aria-hidden="true">{expanded ? "−" : "+"}</span>
-              </button>
-              {expanded && <p className="journey-description" data-layer="text">{role.description}</p>}
-            </article>;
-          })}
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
 
-        <aside className="milestones">
+        <aside className="milestones" data-layer="card" data-kind="milestones-panel">
           <p className="micro-heading" data-layer="text">{journey.milestonesLabel}</p>
-          <h3 className="display-title milestones-heading" data-layer="text">
-            <span>{journey.milestonesTitleWhite}<i className="title-period white-period">.</i></span>
+          <h3 className="display-title milestones-heading" data-layer="text" data-kind="milestones-heading">
+            <span>{journey.milestonesTitleWhite}<i className="title-period">.</i></span>
             <span>{journey.milestonesTitleRed}<i className="title-period">.</i></span>
           </h3>
           <ol>
-            {journey.milestones.map((milestone, index) => (
-              <li className="milestone-row" data-cursor-label="VIEW" data-layer="line" data-kind="milestone-row" key={milestone.title}>
-                <span className="milestone-index" data-layer="text">{String(index + 1).padStart(2, "0")}</span>
-                <span className="milestone-title" data-layer="text">{milestone.title}</span>
-                {milestone.year && <span className="milestone-year" data-layer="text">{milestone.year}</span>}
-                <span className="milestone-arrow" data-layer="icon" aria-hidden="true">↗</span>
-                <span className="milestone-preview" aria-hidden="true"><b>{String(index + 1).padStart(2, "0")}</b><i /></span>
-              </li>
-            ))}
+            {journey.milestones.map((milestone) => {
+              const internal = milestone.href.startsWith("#");
+              return (
+                <li key={milestone.title}>
+                  <a className="milestone-row" data-layer="line" data-kind="milestone-row" href={milestone.href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })}>
+                    <span className="milestone-year" data-layer="text">{milestone.year}</span>
+                    <span className="milestone-title" data-layer="text">{milestone.title}</span>
+                    <span className="milestone-arrow" data-layer="icon" aria-hidden="true">{internal ? "↓" : "↗"}</span>
+                  </a>
+                </li>
+              );
+            })}
           </ol>
         </aside>
       </div>
