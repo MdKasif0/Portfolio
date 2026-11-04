@@ -59,10 +59,15 @@ export function SiteNav() {
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") setMenuOpen(false);
     };
+    // Rotating a phone can remove the menu button; without this the page would stay scroll-locked.
+    const menuBreakpoint = window.matchMedia("(max-width: 640px)");
+    const closeOnLayoutChange = () => { if (!menuBreakpoint.matches) setMenuOpen(false); };
     document.addEventListener("keydown", closeOnEscape);
+    menuBreakpoint.addEventListener("change", closeOnLayoutChange);
     document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", closeOnEscape);
+      menuBreakpoint.removeEventListener("change", closeOnLayoutChange);
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
@@ -78,7 +83,7 @@ export function SiteNav() {
             <Image className="nav-logo-mark" src="/logo-mark.png" alt="" width={128} height={128} priority />
             <span>KASIF<span className="logo-dot">.</span></span>
           </a>
-          <nav id="primary-navigation" className={`nav-links${menuOpen ? " is-open" : ""}`} aria-label="Main navigation">
+          <nav id="primary-navigation" className={`nav-links${menuOpen ? " is-open" : ""}`} aria-label="Main navigation" data-lenis-prevent>
             {portfolioContent.navigation.map((item) => (
               <a className={activeSection === item.href.slice(1) ? "is-active" : ""} data-magnetic data-layer="text" data-kind="nav-link" href={item.href} key={item.href} onClick={() => setMenuOpen(false)}>
                 {item.label}{activeSection === item.href.slice(1) && <motion.i className="nav-active-underline" layoutId="nav-active-underline" />}

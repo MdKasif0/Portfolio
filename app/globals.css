@@ -2362,3 +2362,116 @@ html[data-motion="ready"] .hwf-status i::after { background: #4ade80; }
 @media (prefers-reduced-motion: reduce) {
   .hwf-col a, .hwf-up, .hwf-replay, .hwf-link-label, .hwf-ext { transition: none; }
 }
+
+/* ==========================================================================
+   Responsive pass: phones, tablets and touch screens.
+   Kept last so it overrides the section rules above without changing desktop.
+   ========================================================================== */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+a, button, label, input, textarea, select, summary, [role="slider"], [role="switch"] { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+
+/* The menu is a full-screen panel. .site-nav's backdrop filter makes it the containing block, so the
+   panel is positioned against the nav pill (8px from the top, 12px from each side) to reach the edges. */
+@media (max-width: 640px) {
+  .nav-links { position: fixed; inset: 60px -13px auto; justify-self: stretch; width: auto; height: calc(100dvh - 68px); overflow-y: auto; align-items: stretch; justify-content: flex-start; gap: 0; padding: clamp(16px, 5vh, 40px) clamp(24px, 7vw, 48px) max(24px, env(safe-area-inset-bottom)); border-radius: 0; background: #05050a; -webkit-backdrop-filter: none; backdrop-filter: none; overscroll-behavior: contain; }
+  .nav-links a { display: flex; width: 100%; min-height: 56px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--hairline); color: rgba(245,245,245,.82); font-family: var(--font-display), Impact, sans-serif; font-size: clamp(28px, min(10vw, 9vh), 46px); line-height: 1.1; letter-spacing: .005em; }
+  .nav-links a.is-active { color: #f2503e; }
+  .nav-links .nav-active-underline { display: none; }
+}
+
+/* Hero: the small line above PORTFOLIO stays readable, and decorative frame labels step aside. */
+@media (max-width: 1279px) {
+  .hero-hud-label { display: none; }
+}
+@media (min-width: 701px) and (max-width: 1279px) {
+  .hero-v2-eyebrow { gap: 0; letter-spacing: .14em; }
+  .hero-v2-eyebrow .hero-eyebrow-rule { display: none; }
+  .hero-v2-eyebrow > span:last-child { padding: 7px 13px; border: 1px solid rgba(255,255,255,.1); border-radius: 999px; background: rgba(8,8,14,.62); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+}
+@media (max-width: 700px) {
+  .hero-v2-topline { top: 78px; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .hero-v2-eyebrow { gap: 7px; max-width: 100%; font-size: 10px; letter-spacing: .07em; }
+  .hero-v2-availability { min-height: 25px; gap: 7px; padding-inline: 10px; font-size: 10px; letter-spacing: .06em; white-space: nowrap; }
+  /* The marquee gets its own row between the stats and the reel, instead of hiding behind the stats. */
+  .hero-v2-marquee { position: relative; right: auto; bottom: auto; left: -12vw; flex: none; width: 124vw; margin-top: 16px; font-size: 30px; opacity: .3; }
+  .hero-v2-reel { margin-top: 0; padding-top: 12px; }
+  .recognition-tally { min-width: 0; width: 100%; }
+  .recognition-breakdown-item { min-width: 0; }
+  .recognition-breakdown dt { letter-spacing: .08em; }
+  .work-search, .work-search:focus-within { width: 100%; }
+  /* Positioned so Build Mode's absolute ghosts of the filters scroll inside this row, not past the page edge. */
+  .work-filters { position: relative; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .work-filters::-webkit-scrollbar { display: none; }
+  .work-filter { flex: none; }
+}
+/* Between the phone and tablet layouts the nav is still the taller desktop pill. */
+@media (min-width: 641px) and (max-width: 700px) {
+  .hero-v2-topline { top: 90px; }
+  .hero-v2-word-scroll, .hero-v2-word-outline-scroll { top: 150px; }
+}
+@media (max-width: 359px) {
+  .hero-v2-eyebrow .hero-eyebrow-rule { display: none; }
+  .hero-v2-eyebrow { letter-spacing: .03em; }
+  .talk-link span { display: none; }
+  .recognition-breakdown-item + .recognition-breakdown-item { padding-left: 12px; }
+}
+
+/* Readable type: labels that carry meaning are never under 11px on phones, tablets or touch screens.
+   Tiny text inside the decorative product mockups stays as artwork. */
+@media (max-width: 1279px), (pointer: coarse) {
+  .hero-stat-label, .hero-v2-cv, .hero-v2-reel-label, .hero-v2-reel-meta, .hero-v2-location, .hero-v2-aside-note em,
+  .work-all-link, .work-view-all, .work-view-all span, .project-tag, .project-meta, .work-filter, .work-filter small,
+  .collab-strip-label, .collab-strip-label span, .collab-strip-label strong, .collab-count, .collab-count b, .collab-wordmark,
+  .recognition-type, .recognition-row-index, .recognition-year, .recognition-count-label, .recognition-partners li, .recognition-breakdown dt, .recognition-link,
+  .comparison-chip, .comparison-drag-hint, .comparison-live, .comparison-url, .raw-real-fact dt,
+  .education-status, .education-year, .micro-heading, .quote-footer, .toolkit-group h4, .journey-now,
+  .showreel-kicker, .showreel-card-caption, .contact-label, .contact-status, .contact-locale span, .india-time, .contact-cta, .contact-copy, .form-control > span, .form-budget legend,
+  .hwf-col h3, .hwf-status, .talk-link, .motion-toggle-label { font-size: 11px; }
+  .project-subtitle { font-size: 12px; }
+  .hero-stat-label, .work-filter, .hero-v2-cv, .project-tag, .project-meta, .recognition-type, .comparison-chip, .contact-label, .contact-status, .education-status, .form-control > span { letter-spacing: .06em; }
+}
+
+/* Touch targets and iPhone focus zoom. Phones are always included, whatever pointer they report. */
+@media (pointer: coarse), (max-width: 700px) {
+  input:not([type="radio"]):not([type="checkbox"]):not([type="range"]), textarea, select,
+  .project-form .form-control input, .project-form .form-control textarea { font-size: 16px; }
+  .work-search { height: 48px; }
+  .work-search input { height: 100%; font-size: 16px; }
+  .work-search input::placeholder { font-size: 14px; }
+  .work-search kbd { display: none; }
+  .nav-logo { min-height: 44px; }
+  .nav-links a { min-height: 44px; }
+  .menu-toggle { position: relative; width: 40px; height: 40px; }
+  .menu-toggle::before { position: absolute; inset: -4px; content: ""; }
+  .motion-toggle { min-height: 44px; padding-block: 0; }
+  .talk-link { min-height: 40px; }
+  .hero-v2-cv { display: inline-flex; min-height: 44px; align-items: center; margin-top: 0; }
+  .hero-v2-reel-trigger, .hero-v2-scroll, .work-all-link, .work-view-all, .recognition-link, .hwf-replay, .hwf-up { display: inline-flex; min-height: 44px; align-items: center; }
+  .work-filter { min-height: 44px; }
+  .work-carousel-footer button[data-kind="carousel-prev"], .work-carousel-footer button[data-kind="carousel-next"] { width: 44px; height: 44px; }
+  .comparison-live { display: inline-flex; min-height: 40px; align-items: center; }
+  .hwf-col a { display: inline-flex; min-height: 44px; align-items: center; }
+  .rp-btn { width: 40px; height: 40px; }
+  .rp-chapter { min-height: 44px; }
+  .rp-switch { min-height: 40px; }
+}
+@media (min-width: 701px) and (pointer: coarse) {
+  .nav-links a { display: inline-flex; align-items: center; }
+}
+
+/* Bright page content must not ghost through the reel on small screens. */
+@media (max-width: 900px) {
+  .reel-backdrop { background: #05050a; -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+/* A tap leaves :hover stuck on touch screens, so the loudest hover states only apply with a real pointer. */
+@media (hover: none) {
+  .talk-link:hover { border-color: rgba(255,255,255,.18); background: transparent; color: var(--text-100); }
+  .talk-link:hover span { color: var(--accent); transform: none; }
+  .reel-close:hover { border-color: rgba(255,255,255,.16); background: rgba(255,255,255,.04); transform: none; }
+  .rp-btn:hover { background: transparent; }
+  .rp-card:hover { border-color: transparent; background: rgba(255,255,255,.035); }
+  .rp-card:hover .rp-card-thumb img { transform: none; }
+  .rp-card:hover .rp-card-play { opacity: 0; }
+  .showreel-card:hover { border-color: rgba(255,255,255,.12); transform: none; }
+}
