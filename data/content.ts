@@ -7,19 +7,19 @@ export const portfolioContent = {
   identity: {
     name: "Md Kasif Uddin",
     displayName: "KASIF",
-    roles: ["Freelance Frontend Developer", "UI/UX Designer", "Tech Content Creator"]
+    roles: ["AI Software Engineer", "Backend Architect", "Tech Content Creator"]
   },
   hero: {
     backgroundWord: "PORTFOLIO",
-    eyebrow: ["FRONTEND DEV / UI-UX / TECH CREATOR", "VISUAL STORYTELLER"],
+    eyebrow: ["AI ENGINEER / BACKEND ARCHITECT / TECH CREATOR", "VISUAL STORYTELLER"],
     availability: "AVAILABLE FOR COLLABORATION",
     greeting: "Hello, I'm",
-    disciplines: ["FRONTEND DEV &", "UI/UX DESIGNER"],
+    disciplines: ["AI SOFTWARE ENGINEER &", "BACKEND ARCHITECT"],
     introduction: "I turn ideas into interfaces people feel. From the first wireframe to the last pixel, shipped fast, built with AI.",
     workCta: "See my work",
     location: "INDIA",
     reelLabel: "PLAY REEL",
-    reelMetadata: "UI / UX · WEB",
+    reelMetadata: "AI · BACKEND",
     reelEmbedUrl: undefined,
     reelModalKicker: "KASIF / SHOWREEL",
     reelModalTitle: "A little more in motion",
@@ -235,10 +235,10 @@ export const portfolioContent = {
   journey: {
     eyebrow: "03 / THE JOURNEY",
     title: "KEEP MOVING. KEEP BUILDING",
-    activeRole: "Freelance Frontend Dev & UI/UX Designer",
+    activeRole: "Freelance AI Software Engineer & Backend Architect",
     activePeriod: "2025 — NOW",
-    activeSubtitle: "Freelance · Frontend development & product design",
-    activeDescription: "Designing and building interfaces from first idea to final detail.\nCombining frontend craft with a thoughtful user experience.\nTurning rough concepts into products that feel alive.",
+    activeSubtitle: "Freelance · AI software & backend systems",
+    activeDescription: "Designing and building AI-powered software from first idea to production.\nPairing applied AI with solid backend architecture.\nTurning rough concepts into products that feel alive.",
     roles: [
       { title: "Tech Content Creator on X", period: "2026", subtitle: "@md_kasif_uddin · AI, dev tools and building in public" },
       { title: "Brand collaborations", period: "2026", subtitle: "20+ collaborations with AI and tech brands" },

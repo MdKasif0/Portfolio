@@ -20,8 +20,8 @@ export const buildModeConfig = {
 
   agents: {
     /** Cursors rendered at once (an agent only renders while it has a task). */
-    maxVisible: 14,
-    mobileMaxVisible: 8,
+    maxVisible: 8,
+    mobileMaxVisible: 5,
     /** The control bar's crew counter ramps from `rosterStart` to `rosterSize` as agents spawn. */
     rosterStart: 18,
     rosterSize: 30,
@@ -30,8 +30,8 @@ export const buildModeConfig = {
   },
 
   /** Global multiplier on every action duration (desktop) and the mobile cut. */
-  tempo: 0.62,
-  mobileTempo: 0.3,
+  tempo: 0.34,
+  mobileTempo: 0.24,
 
   /** Per-action base durations (ms at tempo 1). */
   durations: {
@@ -69,18 +69,20 @@ export const buildModeConfig = {
 
   realism: {
     /** Chance a typed character is a typo (caught and backspaced). */
-    typoRate: 1 / 40,
+    typoRate: 0,
     /** Chance an action starts with a slip (wrong click → ⌘Z → redo). Scaled per agent style. */
-    mistakeRate: 1 / 25,
+    mistakeRate: 0,
     /** Chance of a 1–2px arrow-key nudge after placing a box. */
-    nudgeRate: 0.18,
+    nudgeRate: 0,
     /** Chance of re-selecting a typed word to fix it. */
-    reselectRate: 0.08
+    reselectRate: 0
   },
 
   camera: {
-    /** Tasks are scheduled inside viewport ± this many screens. */
-    windowMargin: 0.25,
+    /** Tasks are scheduled inside viewport ± this many screens (small, so the work stays on screen). */
+    windowMargin: 0.02,
+    /** Share of a screen kept clear at the top (under the nav) when the camera moves down. */
+    topClearance: 0.12,
     /** Move to the next window once this share of the current window's tasks is done. */
     advanceAt: 0.85,
     minScrollSeconds: 1.4,
@@ -88,13 +90,22 @@ export const buildModeConfig = {
     /** New-window tasks start staggered after the scroll begins. */
     staggerMinMs: 60,
     staggerMaxMs: 120,
-    /** Subtle push-in on hero moments. */
-    pushIn: 1.02
+    /** Push-in on hero moments (1 = off, keeps the page steady while it is built). */
+    pushIn: 1
   },
 
   hud: {
     /** Left-edge layers panel: how many recent layers it lists. */
-    layersPanelRows: 9
+    layersPanelRows: 9,
+    /** Optional tool chrome. Off keeps the page itself readable while it is being built. */
+    layersPanel: false,
+    inspector: false,
+    toolRows: false,
+    statusChips: false,
+    colorPopovers: false,
+    guides: false,
+    sparks: false,
+    cardFlash: false
   },
 
   performance: {
