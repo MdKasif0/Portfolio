@@ -9,7 +9,7 @@ import { buildModeConfig } from "@/components/agent-build/buildMode.config";
 import { clamp, easeInOut, easeOut, easeOutBack, lerp, type Clock } from "@/components/agent-build/engine/clock";
 import type { ActionName, BuildNode, Job } from "@/components/agent-build/engine/compiler";
 import type { Agent } from "@/components/agent-build/engine/agent";
-import { createGhost, ghostChild, imageSourceOf, keepStyle, Typewriter, type Ghost } from "@/components/agent-build/engine/ghost";
+import { alignGhost, createGhost, ghostChild, imageSourceOf, keepStyle, Typewriter, type Ghost } from "@/components/agent-build/engine/ghost";
 import { Caret, Chip, ColorPopover, Floater, GuideLine, h, LineDraw, SelectionFrame, SymbolPicker, ToolRow, type Anchor, type AssetTray, type Decoration, type Overlay } from "@/components/agent-build/engine/overlay";
 
 const D = buildModeConfig.durations;
@@ -880,7 +880,15 @@ async function retype(agent: Agent, job: Job, ctx: ActionContext) {
       await ctx.clock.wait(ms(ctx, 110));
       // Select-all, then type the new text over the old.
       slot.innerHTML = fresh.innerHTML;
-      if (slot === ghost.node && node.el instanceof HTMLInputElement) slot.setAttribute("placeholder", node.el.placeholder);
+      if (slot === ghost.node) {
+        // The copy can come from a differently styled sibling (a nowrap date pasted over a
+        // paragraph); the new text takes the real element's styles, so it wraps as it will end up.
+        fresh.classList.remove("bm-hidden");
+        slot.className = fresh.className;
+        slot.style.animation = "none";
+        alignGhost(slot, real);
+        if (node.el instanceof HTMLInputElement) slot.setAttribute("placeholder", node.el.placeholder);
+      }
       const typewriter = new Typewriter(slot);
       ctx.overlay.remove(highlight);
       await typeInto(agent, ctx, typewriter, node.el, typewriter.total, true);

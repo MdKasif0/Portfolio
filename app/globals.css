@@ -1541,6 +1541,8 @@ html[data-motion="ready"] .hero-v2-animate .hero-v2-stats { animation: hero-v2-c
 .work-search:focus-within kbd { opacity: 0; }
 .work-carousel { min-width: 0; }
 .work-grid.work-carousel-track {
+  /* Positioned so Build Mode's absolute ghosts of its cards are clipped and scrolled with it. */
+  position: relative;
   display: flex; min-height: 0; gap: 24px; margin: 0; overflow-x: auto; overflow-y: hidden;
   padding: 8px 3px 34px; overscroll-behavior-x: contain; scroll-behavior: smooth;
   scroll-padding-inline: 3px; scroll-snap-type: x mandatory; scrollbar-width: none;
@@ -1881,6 +1883,8 @@ html[data-motion="ready"] .quote-signature path { animation: signature-draw 1.8s
   .about-heading { font-size: clamp(43px,10.8vw,68px); }
   /* Flex items otherwise retain the unbroken headline width and cause a tiny horizontal scroll. */
   .about-heading > .reveal-line { min-width: 0; overflow-wrap: anywhere; }
+  /* Outranks `.about-heading > .reveal-line`, so it has to be undone by name. */
+  .about-heading > span:last-child { white-space: normal; }
   .about-bio { max-width: 44ch; margin-top: 22px; font-size: 13px; }
   .about-columns { grid-template-columns: 1fr; gap: 36px; margin-top: 38px; }
   .about-quote { grid-column: auto; grid-row: auto; min-height: 340px; }

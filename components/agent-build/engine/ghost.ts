@@ -98,17 +98,21 @@ export function createGhost(original: Element, options: GhostOptions = {}): Ghos
     }
   }
 
-  // One read/write correction lands the clone exactly on the original (transforms included).
-  const target = original.getBoundingClientRect();
-  const placed = clone.getBoundingClientRect();
-  clone.style.left = `${target.left - placed.left}px`;
-  clone.style.top = `${target.top - placed.top}px`;
+  alignGhost(clone, original);
 
   return {
     node: clone,
     original,
     remove: () => clone.remove()
   };
+}
+
+/** One read/write correction lands the ghost exactly on the original (transforms included). */
+export function alignGhost(node: HTMLElement, original: Element) {
+  const target = original.getBoundingClientRect();
+  const placed = node.getBoundingClientRect();
+  node.style.left = `${parseFloat(node.style.left) + target.left - placed.left}px`;
+  node.style.top = `${parseFloat(node.style.top) + target.top - placed.top}px`;
 }
 
 let detachedLayer: HTMLElement | null = null;
@@ -208,6 +212,29 @@ export function reveal(elements: Element[], inertBefore: Map<Element, boolean>) 
   });
 }
 
+/** The typewriter's own nodes use a tag no page rule can match (`.work-all-link span` would restyle a span). */
+const TEXT_TAG = "ab-text";
+
+const isTextRunPart = (node: Node | null): node is ChildNode => node instanceof Text || node instanceof Comment;
+
+/**
+ * In a flex or grid parent a run of text is one anonymous item, but every element is an item of
+ * its own, with its own gap. Wrapping the run keeps it one item however it gets split for typing.
+ * Returns false for a run of collapsible whitespace, which is no item at all and must stay that way.
+ */
+function holdRunTogether(text: Text) {
+  const parent = text.parentElement;
+  if (!parent || !/flex|grid/.test(getComputedStyle(parent).display)) return true;
+  const run: ChildNode[] = [text];
+  for (let node = text.previousSibling; isTextRunPart(node); node = node.previousSibling) run.unshift(node);
+  for (let node = text.nextSibling; isTextRunPart(node); node = node.nextSibling) run.push(node);
+  if (!run.some((node) => node instanceof Text && node.data.trim())) return false;
+  const wrapper = document.createElement(TEXT_TAG);
+  run[0].before(wrapper);
+  wrapper.append(...run);
+  return true;
+}
+
 /**
  * Types into the ghost's own text nodes, so nested styling (red period, italic word)
  * survives. The untyped rest of each text node stays in the layout inside an invisible
@@ -215,7 +242,7 @@ export function reveal(elements: Element[], inertBefore: Map<Element, boolean>) 
  * Text inside hidden child layers is left alone.
  */
 export class Typewriter {
-  private nodes: { node: Text; full: string; rest: HTMLSpanElement }[] = [];
+  private nodes: { node: Text; full: string; rest: HTMLElement }[] = [];
   private placeholder: { el: HTMLInputElement | HTMLTextAreaElement; full: string } | null = null;
   readonly total: number;
   shown = 0;
@@ -231,11 +258,14 @@ export class Typewriter {
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
         acceptNode: (node) => node.parentElement?.closest("[data-ab-skip], script, style, svg") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
       });
+      const texts: Text[] = [];
       let node: Node | null;
       while ((node = walker.nextNode())) {
-        const text = node as Text;
-        if (!text.data.length) continue;
-        const rest = document.createElement("span");
+        if ((node as Text).data.length) texts.push(node as Text);
+      }
+      for (const text of texts) {
+        if (!holdRunTogether(text)) continue;
+        const rest = document.createElement(TEXT_TAG);
         rest.className = "ab-rest";
         this.nodes.push({ node: text, full: text.data, rest });
       }

@@ -594,7 +594,13 @@ export class BuildEngine {
     const main = document.querySelector<HTMLElement>("main");
     if (!main || this.options.mobile) return;
     if (this.restoreMain) return;
-    this.restoreMain = keepStyle(main);
+    const restoreStyle = keepStyle(main);
+    // The scaled page reaches past the viewport edge, which would make the document scroll
+    // sideways. Clip creates no scroll container, so scrolling and sticky are untouched.
+    const shell = main.parentElement;
+    const restoreShell = shell && keepStyle(shell);
+    if (shell) shell.style.overflowX = "clip";
+    this.restoreMain = () => { restoreStyle(); restoreShell?.(); };
     main.style.transformOrigin = `50% ${window.scrollY + window.innerHeight / 2}px`;
     main.style.transition = "transform 700ms cubic-bezier(.2,.7,.2,1)";
     main.style.transform = `scale(${C.camera.pushIn})`;
