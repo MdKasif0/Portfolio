@@ -101,6 +101,10 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   const scrollToRef = useRef(scrollTo);
   const cancelScrollRef = useRef(cancelScroll);
   const mutedRef = useRef(muted);
+  // The build freezes and stays silent while the showreel is open, then carries on when it closes.
+  const reelOpenRef = useRef(false);
+  const speedRef = useRef(speed);
+  speedRef.current = speed;
   const soundRef = useRef<AudioContext | null>(null);
   const lastSoundRef = useRef(0);
   const lastUiRef = useRef(0);
@@ -144,7 +148,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   }, [cleanup]);
 
   const playSound = useCallback(() => {
-    if (mutedRef.current) return;
+    if (mutedRef.current || reelOpenRef.current) return;
     const now = performance.now();
     if (now - lastSoundRef.current < 70) return;
     lastSoundRef.current = now;
@@ -226,7 +230,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
           skipBuild();
         }
       });
-      engine.setSpeed(isMobile() ? buildModeConfig.mobileSpeedDefault : buildModeConfig.speedDefault);
+      engine.setSpeed(reelOpenRef.current ? 0 : isMobile() ? buildModeConfig.mobileSpeedDefault : buildModeConfig.speedDefault);
       engineRef.current = engine;
       engine.start();
     } catch (error) {
@@ -271,11 +275,21 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     const rect = event?.currentTarget.getBoundingClientRect();
     engine.goLive(rect ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } : { x: window.innerWidth / 2, y: window.innerHeight - 40 });
   }, []);
+  useEffect(() => {
+    const onReel = (event: Event) => {
+      const open = (event as CustomEvent<{ open: boolean }>).detail.open;
+      reelOpenRef.current = open;
+      engineRef.current?.setSpeed(open ? 0 : speedRef.current);
+    };
+    window.addEventListener("kasif:reel", onReel);
+    return () => window.removeEventListener("kasif:reel", onReel);
+  }, []);
+
   const cycleSpeed = useCallback(() => setSpeed((current) => current === 1 ? 2 : current === 2 ? 4 : 1), []);
   const toggleSound = useCallback(() => setMuted((current) => !current), []);
 
   useEffect(() => {
-    engineRef.current?.setSpeed(speed);
+    engineRef.current?.setSpeed(reelOpenRef.current ? 0 : speed);
   }, [speed]);
 
   useEffect(() => {

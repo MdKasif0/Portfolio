@@ -20,11 +20,116 @@ export const portfolioContent = {
     location: "INDIA",
     reelLabel: "PLAY REEL",
     reelMetadata: "AI · BACKEND",
-    reelEmbedUrl: undefined,
-    reelModalKicker: "KASIF / SHOWREEL",
-    reelModalTitle: "A little more in motion",
-    reelPlaceholderLabel: "SHOWREEL PREVIEW",
-    reelPlaceholderInstruction: "The showreel link will appear here when available.",
+    reels: [
+      {
+        id: "kasif",
+        title: "KASIF",
+        tagline: "Every idea can ship",
+        description: "A 30-second launch film. Every idea is an unfinished sentence until a red full stop lands on it, moving through GitRoasted, Cookie, Shadow of the Crimson Gate, AI Checkers Arena, Object Detection and the Kerr black hole, then the site building itself.",
+        duration: 30,
+        poster: "/reel/kasif-reel-poster.jpg",
+        thumb: "/reel/kasif-reel-thumb.jpg",
+        sources: [
+          { height: 2160, label: "4K", src: "/reel/kasif-reel-2160.mp4" },
+          { height: 1080, label: "1080p", src: "/reel/kasif-reel-1080.mp4" },
+          { height: 720, label: "720p", src: "/reel/kasif-reel-720.mp4" }
+        ],
+        previews: { src: "/reel/kasif-reel-previews.jpg", columns: 10, rows: 6, interval: 0.5 },
+        chapters: [
+          { title: "Every idea", start: 0 },
+          { title: "The developer", start: 3.086 },
+          { title: "GitRoasted", start: 5.658 },
+          { title: "Cookie", start: 11.831 },
+          { title: "Crimson Gate", start: 15.946 },
+          { title: "The range", start: 19.032 },
+          { title: "The build", start: 22.119 },
+          { title: "Your idea", start: 26.234 }
+        ],
+        credit: {
+          track: "“Electron Wake [techno]”",
+          artist: "Hardcore Scm",
+          license: "CC BY 3.0",
+          href: "https://www.jamendo.com/track/1196244",
+          licenseHref: "https://creativecommons.org/licenses/by/3.0/"
+        }
+      },
+      {
+        id: "cookie",
+        title: "Cookie",
+        tagline: "A tiny cat that lives on your desktop",
+        description: "The launch film for Cookie, a tiny desktop companion for Windows and macOS: she rests beside your work, follows your cursor, plays with treats and toys, stays fully offline and uses almost no idle CPU.",
+        duration: 21.633,
+        poster: "/reel/cookie-poster.jpg",
+        thumb: "/reel/cookie-thumb.jpg",
+        sources: [
+          { height: 1080, label: "1080p", src: "/reel/cookie-1080.mp4" },
+          { height: 720, label: "720p", src: "/reel/cookie-720.mp4" }
+        ],
+        previews: { src: "/reel/cookie-previews.jpg", columns: 10, rows: 5, interval: 0.5 },
+        chapters: [
+          { title: "Meet Cookie", start: 0 },
+          { title: "Always there", start: 2.9 },
+          { title: "Curious", start: 4.23 },
+          { title: "Pick her up", start: 6.8 },
+          { title: "Treats & toys", start: 8.6 },
+          { title: "Make her yours", start: 10 },
+          { title: "Quiet by design", start: 14.7 },
+          { title: "Say hello", start: 17.63 }
+        ]
+      },
+      {
+        id: "shiftkit",
+        title: "ShiftKit",
+        tagline: "Every file. One gesture.",
+        description: "The launch film for ShiftKit, a native macOS utility: hold Shift while dragging a file and a radial ring of actions opens under your cursor to convert, crop, compress, trim and merge, with every file staying on your Mac.",
+        duration: 86.3,
+        poster: "/reel/shiftkit-poster.jpg",
+        thumb: "/reel/shiftkit-thumb.jpg",
+        sources: [
+          { height: 1080, label: "1080p", src: "/reel/shiftkit-1080.mp4" },
+          { height: 720, label: "720p", src: "/reel/shiftkit-720.mp4" }
+        ],
+        previews: { src: "/reel/shiftkit-previews.jpg", columns: 10, rows: 9, interval: 1 },
+        chapters: [
+          { title: "Every file", start: 0 },
+          { title: "How it works", start: 12 },
+          { title: "Crop", start: 24 },
+          { title: "Compress & trim", start: 30 },
+          { title: "Merge & clean", start: 38 },
+          { title: "On your Mac", start: 48 },
+          { title: "Every format", start: 54 },
+          { title: "One queue", start: 62 },
+          { title: "Native & open", start: 70 },
+          { title: "Get ShiftKit", start: 78 }
+        ]
+      },
+      {
+        id: "gitroasted",
+        title: "GitRoasted",
+        tagline: "Analyze. Roast. Improve.",
+        description: "The launch film for GitRoasted: your GitHub profile quietly documents everything you build, so it scores your commits, roasts them, puts you on the Hall of Flame leaderboard and hands you the fixes.",
+        duration: 46.059,
+        poster: "/reel/gitroasted-poster.jpg",
+        thumb: "/reel/gitroasted-thumb.jpg",
+        sources: [
+          { height: 1080, label: "1080p", src: "/reel/gitroasted-1080.mp4" },
+          { height: 720, label: "720p", src: "/reel/gitroasted-720.mp4" }
+        ],
+        previews: { src: "/reel/gitroasted-previews.jpg", columns: 10, rows: 5, interval: 1 },
+        chapters: [
+          { title: "The recruiter", start: 0 },
+          { title: "Your profile", start: 7.5 },
+          { title: "Every commit", start: 13 },
+          { title: "The product", start: 17 },
+          { title: "Analyze. Roast.", start: 24 },
+          { title: "Hall of Flame", start: 29 },
+          { title: "The roast", start: 33 },
+          { title: "The fixes", start: 35 },
+          { title: "Try it", start: 42 }
+        ]
+      }
+    ],
+    reelContactLabel: "Let's talk",
     cutoutAlt: "Portrait of Md Kasif Uddin",
     cutoutPlaceholder: "ADD CUTOUT · /public/hero-cutout.webp",
     stats: [
@@ -294,10 +399,7 @@ export const portfolioContent = {
     cardTitleWhite: "MAKE IT",
     cardTitleRed: "FEEL REAL",
     modalLabel: "OPEN SHOWREEL",
-    reelModalKicker: "KASIF / SHOWREEL",
-    reelModalTitle: "A little more in motion",
-    reelPlaceholderLabel: "SHOWREEL PREVIEW",
-    reelPlaceholderInstruction: "The showreel link will appear here when available."
+    reelModalKicker: "KASIF / SHOWREEL"
   },
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || process.env.URL || "https://kasif-portfolio.netlify.app",
   sections: []
