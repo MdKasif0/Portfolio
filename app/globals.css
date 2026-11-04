@@ -2124,6 +2124,16 @@ html[data-motion="ready"] .hwf-status i::after, html[data-motion="ready"] .hwf-c
 @media (max-width: 700px) {
   .site-nav .nav-inner, .site-nav.is-compressed .nav-inner { padding-inline: 18px 12px; }
 }
+/* Smallest phones: the bar is 296px at a 320px viewport, about 20px short of what the logo and
+   actions need at their usual size, so tighten each one slightly. 360px and up already fit. */
+@media (max-width: 359px) {
+  .site-nav .nav-inner, .site-nav.is-compressed .nav-inner { padding-inline: 14px 12px; }
+  .nav-logo { gap: 7px; font-size: 22px; white-space: nowrap; }
+  .nav-logo-mark { width: 30px; height: 30px; }
+  .nav-actions { gap: 6px; }
+  .motion-toggle { padding: 8px 4px; }
+  .talk-link { gap: 5px; padding: 8px; }
+}
 /* The reel sits on the hero's bottom rule, and the rule starts just after it (it used to run
    through the PLAY REEL label). Desktop and tablet only; mobile has no rule. */
 @media (min-width: 701px) {
