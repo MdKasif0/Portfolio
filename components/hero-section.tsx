@@ -271,14 +271,16 @@ export function HeroSection({ cvAvailable = false }: { cvAvailable?: boolean }) 
             </motion.div>
           </div>
 
-          <motion.div className="hero-v2-chips" data-layer="icon" data-kind="glass-chip-cluster" style={{ x: chipsX, y: chipsY }} aria-hidden="true">
-            {heroChips.map((chip, index) => (
-              <span className={`hero-v2-chip hero-v2-chip-${index + 1}`} data-layer="card" data-kind="glass-chip" key={chip}>
-                <i aria-hidden="true" />
-                {chip}
-              </span>
-            ))}
-          </motion.div>
+          <div className="hero-v2-chips-anchor">
+            <motion.div className="hero-v2-chips" data-layer="icon" data-kind="glass-chip-cluster" style={{ x: chipsX, y: chipsY }} aria-hidden="true">
+              {heroChips.map((chip, index) => (
+                <span className={`hero-v2-chip hero-v2-chip-${index + 1}`} data-layer="card" data-kind="glass-chip" key={chip}>
+                  <i aria-hidden="true" />
+                  {chip}
+                </span>
+              ))}
+            </motion.div>
+          </div>
 
           <div className="hero-v2-copy">
             <p className="hero-v2-script" data-layer="text" data-kind="handwritten">

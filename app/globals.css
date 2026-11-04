@@ -1000,7 +1000,8 @@ html[data-motion="ready"] .section-header-rule { animation: eyebrow-rule 850ms v
 }
 .hero-hud-label-top { top: -19px; left: 0; }
 .hero-hud-label-bottom { right: 0; bottom: -19px; }
-.hero-v2-avatar-scroll {
+.hero-v2-avatar-scroll,
+.hero-v2-chips-anchor {
   position: absolute;
   z-index: 3;
   right: 15%;
@@ -1079,10 +1080,17 @@ html[data-motion="ready"] .section-header-rule { animation: eyebrow-rule 850ms v
   font-size: 8px;
   letter-spacing: .12em;
 }
+/* The chips share the portrait's box, and .hero-v2-chips is the square the artwork is drawn in
+   (contain, centre bottom), so their percentages always land on the same spot around the head. */
+.hero-v2-chips-anchor { z-index: 4; container-type: size; }
 .hero-v2-chips {
   position: absolute;
-  z-index: 4;
-  inset: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: min(100cqw, 100cqh);
+  aspect-ratio: 1;
+  margin-inline: auto;
   pointer-events: none;
 }
 .hero-v2-chip {
@@ -1104,10 +1112,10 @@ html[data-motion="ready"] .section-header-rule { animation: eyebrow-rule 850ms v
   animation: hero-chip-drift 6s ease-in-out infinite;
 }
 .hero-v2-chip i { width: 5px; height: 5px; border-radius: 50%; background: var(--red-400); box-shadow: 0 0 10px var(--red-glow); }
-.hero-v2-chip-1 { top: 38%; left: 55%; }
-.hero-v2-chip-2 { top: 30%; right: 17%; animation-delay: -1.6s; }
-.hero-v2-chip-3 { top: 60%; right: 13%; animation-delay: -3.2s; }
-.hero-v2-chip-4 { top: 67%; left: 53%; animation-delay: -4.4s; }
+.hero-v2-chip-1 { top: 11%; left: 14%; }
+.hero-v2-chip-2 { top: 18%; left: 86%; animation-delay: -1.6s; }
+.hero-v2-chip-3 { top: 50%; left: 84%; animation-delay: -3.2s; }
+.hero-v2-chip-4 { top: 67%; left: 77%; animation-delay: -4.4s; }
 @keyframes hero-chip-drift {
   50% { translate: 0 -8px; }
 }
@@ -1320,7 +1328,7 @@ html[data-motion="ready"] .section-header-rule { animation: eyebrow-rule 850ms v
   font-family: var(--font-display), Impact, sans-serif;
   font-size: clamp(27px, 4.5vw, 66px);
   line-height: .98;
-  opacity: .09;
+  opacity: .24;
   pointer-events: none;
   -webkit-text-stroke: 1px rgba(242,80,62,.78);
   mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
@@ -1439,12 +1447,11 @@ html[data-motion="ready"] .hero-v2-animate .hero-v2-stats { animation: hero-v2-c
   .hero-v2-stats { display: grid; grid-template-columns: repeat(auto-fit,minmax(110px,1fr)); gap: 12px; padding: 12px 14px; }
   .hero-stat-value { font-size: 34px; }
   .hero-v2-cv { padding-top: 0; border-top: 0; }
-  .hero-v2-avatar-scroll { right: 3%; width: 58%; height: 78%; }
+  .hero-v2-avatar-scroll,
+  .hero-v2-chips-anchor { right: 3%; width: 58%; height: 78%; }
   .hero-v2-word-back text,
   .hero-v2-word-stroke text { transform: translateY(-32px); }
   .hero-v2-hud { left: 43%; width: min(48vw, 490px); }
-  .hero-v2-chip-2 { right: 8%; }
-  .hero-v2-chip-3 { right: 4%; }
 }
 @media (min-width: 1600px) {
   .hero-v2-copy { top: 30.5%; }
@@ -1484,7 +1491,7 @@ html[data-motion="ready"] .hero-v2-animate .hero-v2-stats { animation: hero-v2-c
   .hero-v2-hud { top: 171px; left: 50%; width: 82vw; transform: translateX(-50%); opacity: .68; }
   .hero-v2-avatar-scroll { top: 157px; right: auto; bottom: auto; left: 50%; width: min(87vw,380px); height: 310px; transform: translateX(-50%); }
   .hero-v2-avatar { width: 100%; height: 100%; }
-  .hero-v2-chips { display: none; }
+  .hero-v2-chips-anchor { display: none; }
   .hero-v2-copy { position: relative; top: auto; left: auto; width: 100%; margin-top: 414px; }
   .hero-v2-script { margin: 0 0 2px 4px; font-size: 33px; }
   .hero-v2-script svg { bottom: -8px; height: 17px; }
@@ -1502,7 +1509,7 @@ html[data-motion="ready"] .hero-v2-animate .hero-v2-stats { animation: hero-v2-c
   .hero-stat-value { font-size: 27px; }
   .hero-stat-label { font-size: 8px; letter-spacing: .12em; }
   .hero-v2-cv { grid-column: 1 / -1; margin-top: 2px; font-size: 8px; }
-  .hero-v2-marquee { right: -12vw; bottom: 18%; left: -12vw; font-size: 33px; opacity: .065; }
+  .hero-v2-marquee { right: -12vw; bottom: 18%; left: -12vw; font-size: 33px; opacity: .2; }
   .hero-v2-reel { position: relative; bottom: auto; left: auto; margin-top: auto; padding-top: 16px; }
   .hero-v2-reel-circle { width: 37px; height: 37px; }
   .hero-v2-reel-trigger { gap: 8px; }
@@ -2161,9 +2168,26 @@ html[data-motion="ready"] .hwf-status i::after, html[data-motion="ready"] .hwf-c
 }
 /* Symbol stats (∞): Anton draws it small, so it is scaled to sit with the numerals. */
 .stat-symbol { display: inline-block; font-size: 1.25em; line-height: .74; }
-/* Floating skill chips never tuck under the stats rail. */
-@media (min-width: 1280px) and (max-width: 1439px) { .hero-v2-chip-3 { right: 15%; } }
 @media (min-width: 701px) and (max-width: 1279px) {
-  .hero-v2-chip-4 { left: 49%; }
   .hero-hud-label-bottom { opacity: 0; }
+}
+/* Tablets: the stats never cover the face. Landscape has room under the chin for a one-row strip. */
+@media (min-width: 701px) and (max-width: 1279px) and (min-aspect-ratio: 1/1) {
+  .hero-v2-aside { bottom: 78px; left: 50%; }
+  .hero-v2-aside-note { display: none; }
+  .hero-v2-stats { grid-template-columns: repeat(3,minmax(0,1fr)) auto; align-items: center; gap: 10px; padding: 10px 14px; }
+  .hero-stat { gap: 2px; }
+  .hero-stat-value { font-size: 28px; }
+  .hero-stat-label { font-size: 8px; line-height: 1.25; }
+  .hero-v2-chip-3 { top: 42%; }
+  .hero-v2-chip-4 { top: 59%; left: 80%; }
+}
+/* Small landscape tablets: the portrait is too small to fit AI beside it above the strip. */
+@media (min-width: 701px) and (max-width: 899px) and (min-aspect-ratio: 1/1) {
+  .hero-v2-chip-4 { top: -4%; left: 46%; }
+}
+/* Portrait has a tall gap under PORTFOLIO, so the portrait moves up into it, above the stats. */
+@media (min-width: 701px) and (max-width: 1279px) and (max-aspect-ratio: 1/1) {
+  .hero-v2-avatar-scroll,
+  .hero-v2-chips-anchor { bottom: 268px; width: 66%; height: 58vw; }
 }
