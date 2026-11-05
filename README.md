@@ -105,3 +105,7 @@ No unprovided email address, award, year, or project statistic is fabricated. Le
 - The mobile navigation expands into a full-screen menu and closes on selection or Escape.
 - The project filter tabs, showreel dialog, and Raw-to-Real range slider support keyboard interaction.
 - Next Image is used for the hero portrait; add any future raster images with `next/image`.
+
+## Machine drawings
+
+The machines in "A look under the surface" are built with the MIT-licensed [Anatomy](https://github.com/wheresryan22/anatomy) kit, kept in `tools/figures/kit`. Edit a machine in `tools/figures/*.mjs`, then run `node tools/figures/build.mjs` to regenerate `public/figures/*.json`. Their steps and wording live in `data/systems.ts`, and their motion in `components/machines/drivers.ts`.

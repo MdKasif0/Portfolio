@@ -2,10 +2,10 @@
 
 import { useRef, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
+import { MachineFigure } from "@/components/machines/machine-figure";
+import { SectionHeader } from "@/components/section-header";
 import { portfolioContent } from "@/data/content";
 import { systems } from "@/data/systems";
-import { ArchitectureDiagram, SystemFacts } from "@/components/architecture-diagram";
-import { SectionHeader } from "@/components/section-header";
 import { track } from "@/lib/analytics";
 
 const copy = portfolioContent.architecture;
@@ -67,20 +67,31 @@ export function ArchitectureSection() {
 
       <div className="arch-panel" id="arch-panel" role="tabpanel" aria-labelledby={`arch-tab-${system.id}`} key={system.id}>
         <p className="arch-summary" data-layer="text">{system.summary}</p>
-        <ArchitectureDiagram diagram={system.diagram} label={`${system.name} request path`} />
-        <SystemFacts facts={system.facts} />
+        <MachineFigure system={system} number={active + 1} />
+
+        <dl className="arch-numbers">
+          {system.facts.map((fact) => (
+            <div key={fact.label} data-layer="card" data-kind="arch-fact">
+              <dd data-layer="text">{fact.value}</dd>
+              <dt data-layer="text">{fact.label}</dt>
+              <span className={fact.source === "Measured" ? "is-measured" : undefined} data-layer="text">{fact.source}</span>
+            </div>
+          ))}
+        </dl>
 
         <h3 className="arch-subhead" data-layer="text">{copy.tradeOffsLabel}</h3>
-        <ul className="arch-tradeoffs">
+        <ol className="arch-calls">
           {system.tradeOffs.map((item) => (
-            <li className="arch-tradeoff" key={item.chose} data-layer="card" data-kind="arch-tradeoff">
-              <strong data-layer="text">{item.chose}</strong>
-              <span className="arch-over" data-layer="text">over {item.over.charAt(0).toLowerCase() + item.over.slice(1)}</span>
+            <li key={item.chose} data-layer="card" data-kind="arch-tradeoff">
+              <div>
+                <h4 data-layer="text">{item.chose}</h4>
+                <p data-layer="text">Instead of {item.over.charAt(0).toLowerCase() + item.over.slice(1)}</p>
+              </div>
               <p data-layer="text">{item.why}</p>
-              <p className="arch-cost" data-layer="text"><b>The cost</b> {item.cost}</p>
+              <p className="arch-cost" data-layer="text"><span>Trade-off</span> {item.cost}</p>
             </li>
           ))}
-        </ul>
+        </ol>
 
         <div className="arch-actions">
           {system.caseStudy && (

@@ -60,6 +60,7 @@ export const KIND_RULES: Record<string, SceneRule> = {
 
   // 3. Collab strip — logos placed from the tray, then a motion agent starts the marquee.
   "logo-plate": { recipe: ["DRAW_BOX", "DROP_IMAGE"], absorb: true, noGroup: true },
+  "machine-frame": { recipe: ["DRAW_BOX", "DROP_IMAGE"], absorb: true, noGroup: true },
 
   // 4. Recognition: panel, tally, then the feature card's award; the two smaller cards copy-paste.
   "recognition-panel": { recipe: ["DRAW_BOX", "GRADIENT", "ROUND_CORNERS"], hero: true },

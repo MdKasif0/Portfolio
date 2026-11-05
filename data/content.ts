@@ -315,10 +315,10 @@ export const portfolioContent = {
   },
   architecture: {
     eyebrow: "A LOOK UNDER THE SURFACE",
-    titleLines: ["BEHIND THE INTERFACE.", "THE ARCHITECTURE."],
-    caption: "Three real systems, read straight from their code: what runs where, what I traded away, and the numbers behind it.",
+    titleLines: ["EVERY BACKEND", "IS A MACHINE."],
+    caption: "Three real backends, each built as a working machine you can watch run. Every step maps to real code. Click any part to see what it does.",
     tabsLabel: "Choose a system",
-    tradeOffsLabel: "THE TRADE-OFFS",
+    tradeOffsLabel: "The calls behind it",
     caseStudyLabel: "Read the full case study",
     sourceLabel: "Read the source"
   },

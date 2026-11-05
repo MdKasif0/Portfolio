@@ -11,12 +11,16 @@ export type Diagram = { columns: DiagramNode[][] };
 export type SystemFact = { value: string; label: string; source: "Measured" | "From the code" | "GitHub" };
 export type TradeOff = { chose: string; over: string; why: string; cost: string };
 
+/** One step of a request, played on the machine. `parts` are what light up; `object` says what they are in the machine. */
+export type MachineStation = { title: string; object: string; note: string; parts: string[]; seconds: number };
+export type Machine = { figure: "roaster" | "referee" | "fieldcase"; object: string; stations: MachineStation[] };
+
 export type System = {
   id: string;
   name: string;
   kicker: string;
   summary: string;
-  diagram: Diagram;
+  machine: Machine;
   facts: SystemFact[];
   tradeOffs: TradeOff[];
   /** The case study page, when there is one. */
@@ -77,7 +81,19 @@ export const systems: System[] = [
     name: "GitRoasted",
     kicker: "AI pipeline",
     summary: "One request crosses GitHub, a scoring engine, an LLM and a database. The number comes from code and the words come from AI, so the score stays repeatable while the roast stays personal.",
-    diagram: gitRoastedDiagram,
+    machine: {
+      figure: "roaster",
+      object: "A bench coffee roaster",
+      stations: [
+        { title: "Server action", object: "the gate", note: "One username comes in and is validated with Zod. The whole roast then runs inside this single request.", parts: ["gate"], seconds: 1.8 },
+        { title: "GitHub REST API", object: "the hopper", note: "Profile, up to 1,000 repos and the last 100 events, with responses cached for 5 minutes.", parts: ["hopper"], seconds: 2.2 },
+        { title: "Scoring engine", object: "eight sieve drawers and a gauge", note: "Plain code across eight dimensions, out of 1,000. There's no flame near this step: no AI touches the number. The gauge shows my own 531.", parts: ["scale", "probe"], seconds: 4 },
+        { title: "Prompt limit", object: "the belt", note: "Only the first lines of at most 20 commit messages go forward, which keeps the prompt small and predictable.", parts: ["belt", "gate"], seconds: 3.4 },
+        { title: "Groq LLM", object: "the burner and drum", note: "The model gets the score and the commits, and returns JSON. Two gas bottles, because there are two candidate models: if one fails, the other takes over.", parts: ["drum", "burner", "gas", "bottle-a", "bottle-b"], seconds: 3.8 },
+        { title: "Parse the reply", object: "the chute and cooling tray", note: "The JSON object is pulled out even if the model wraps it in markdown, and anything else fails with a clear error.", parts: ["chute", "tray"], seconds: 2 },
+        { title: "Firestore", object: "the card rack", note: "One leaderboard entry per username, upserted from the server. Clients can read it but can't write to it.", parts: ["rack"], seconds: 2.2 }
+      ]
+    },
     facts: [
       { value: "~2.1s", label: "Median live roast, 5 runs, range 1.8–5.6 s", source: "Measured" },
       { value: "1,000", label: "Point score from code, not the model", source: "From the code" },
@@ -112,13 +128,16 @@ export const systems: System[] = [
     name: "AI Checkers Arena",
     kicker: "Server-authoritative",
     summary: "LLMs hallucinate moves, so the model never decides what is legal. The server owns the rules, offers the model only legal moves, and checks the answer before anything is saved.",
-    diagram: {
-      columns: [
-        [{ kind: "client", title: "Spectator UI", note: "Requests one turn at a time and renders the result." }],
-        [{ kind: "code", title: "Turn API", note: "Replays the stored moves to rebuild the board on every turn." }],
-        [{ kind: "code", title: "Rules engine", note: "International Checkers in TypeScript, with its own test suite." }],
-        [{ kind: "ai", title: "OpenRouter model", note: "Picks from the legal moves. 60 s timeout, up to 3 attempts." }],
-        [{ kind: "store", title: "Supabase Postgres", note: "Every move, with its reasoning, latency and tokens." }]
+    machine: {
+      figure: "referee",
+      object: "A tournament referee rig",
+      stations: [
+        { title: "Replay the log", object: "the punched tape", note: "Each turn, the stored moves are replayed from Postgres to rebuild the board, so there's one source of truth.", parts: ["log"], seconds: 2.6 },
+        { title: "Rules engine", object: "the board", note: "International Checkers in TypeScript works out the legal moves first. With only one legal move, the model is skipped entirely.", parts: ["board", "rules"], seconds: 1.8 },
+        { title: "Ask the model", object: "the sealed booth", note: "An OpenRouter model picks from the legal list, under a 60 s timeout per call. In this run its first answer is illegal, so the comb rejects it.", parts: ["model", "rules"], seconds: 3.2 },
+        { title: "Retry", object: "the attempt lamps", note: "Up to 3 attempts, with temperature rising each time. If all three fail, a random legal move keeps the match alive, and the failure is recorded.", parts: ["model", "rules"], seconds: 3 },
+        { title: "Apply the move", object: "the gantry", note: "The server applies the move. The model never touches the board directly.", parts: ["gantry", "board"], seconds: 3.4 },
+        { title: "Save it", object: "a new row on the tape", note: "Every move is stored with its reasoning, latency and tokens, so any match can be audited move by move.", parts: ["log"], seconds: 2 }
       ]
     },
     facts: [
@@ -154,13 +173,15 @@ export const systems: System[] = [
     name: "GigSense",
     kicker: "Local-first",
     summary: "Couriers often work with no signal, and their evidence is sensitive. So the profit maths and all stored data live on the device, and AI only ever interprets, never calculates.",
-    diagram: {
-      columns: [
-        [{ kind: "client", title: "Installable PWA", note: "A service worker keeps the app shell working offline." }],
-        [{ kind: "code", title: "Deterministic core", note: "Vehicle costs and net pay per hour, calculated on the device." }],
-        [{ kind: "store", title: "IndexedDB", note: "Deliveries, incidents and evidence files, stored on the device." }],
-        [{ kind: "code", title: "AI API routes", note: "Receive text only and reject anything that fails validation." }],
-        [{ kind: "ai", title: "LLM", note: "Returns structured JSON that is parsed before it reaches the UI." }]
+    machine: {
+      figure: "fieldcase",
+      object: "A sealed field case",
+      stations: [
+        { title: "No signal", object: "the radio and battery pack", note: "Couriers often work with no signal. A service worker keeps the app shell running offline.", parts: ["radio", "shell"], seconds: 2.4 },
+        { title: "Deterministic core", object: "the calculator", note: "Vehicle costs and net pay per hour are calculated on the device. Money figures are exact, repeatable and don't need a network.", parts: ["calc"], seconds: 3.4 },
+        { title: "IndexedDB", object: "three steel trays", note: "Deliveries, incidents and evidence files go into three local stores. The trays have no way out.", parts: ["trays"], seconds: 2.8 },
+        { title: "AI, text only", object: "the slot and radio", note: "When there's signal, only text goes out: at most 20 evidence descriptions per request. The files themselves never leave the device.", parts: ["slot", "radio"], seconds: 4 },
+        { title: "Check the reply", object: "the reply tray", note: "The model returns structured JSON, and it's parsed and validated before it reaches the screen. AI only interprets; it never calculates.", parts: ["reply", "radio"], seconds: 2.8 }
       ]
     },
     facts: [
