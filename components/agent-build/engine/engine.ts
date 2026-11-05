@@ -8,7 +8,7 @@
  *    it finishes what it holds and EXITS to the nearest viewport edge.
  * 2. A cursor is drawn only while its agent holds a task; the rest of the crew waits in
  *    the tray (counted in the control bar, never drawn). A new agent spawns only when
- *    there are unclaimed ready tasks for it in the camera window (≥ 2).
+ *    there are unclaimed ready tasks for it in the camera window (≥ 2, or ≥ 1 if no agent is left).
  * 3. Jobs are claimed only when their dependencies are done, so a claimed task is never
  *    blocked. When an element would block, the agent gets another ready job, or a real
  *    assist (pairing type + resize, or type + style), or it exits.
@@ -746,9 +746,11 @@ export class BuildEngine {
         this.options.onComplete();
       }
     } else {
-      // Invariant 2: spawn only when there are unclaimed ready tasks for the newcomer.
+      // Invariant 2: spawn only when there are unclaimed ready tasks for the newcomer. With nobody
+      // left on the floor, one is enough: the camera holds for claimable work, so a lone
+      // single-action job (the marquee) would otherwise wait forever.
       const ready = this.readyTasks();
-      if (this.runtimes.size < this.maxAgents && ready >= 2 && this.clock.time - this.lastSpawn > C.agents.spawnIntervalMs) {
+      if (this.runtimes.size < this.maxAgents && ready >= (this.runtimes.size ? 2 : 1) && this.clock.time - this.lastSpawn > C.agents.spawnIntervalMs) {
         this.lastSpawn = this.clock.time;
         this.spawn();
       }
