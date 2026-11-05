@@ -277,7 +277,7 @@ export const portfolioContent = {
     countSuffix: "+",
     countLabel: "brand collaborations",
     /** Split in two for the rows. Logos are captured from each brand's own site, with neutral ink turned white for the dark background. */
-    rowSplit: 8,
+    rowSplit: 7,
     brands: [
       { name: "HellYeah.ai", href: "https://www.hellyeahai.com/", logo: "/brands/hellyeah.png", width: 129, height: 24 },
       { name: "Moonshot AI", href: "https://www.moonshot.ai/", logo: "/brands/moonshot.png", width: 153, height: 25 },
@@ -291,10 +291,7 @@ export const portfolioContent = {
       { name: "AgentID", href: "https://www.agentid.com/", logo: "/brands/agentid.png", width: 123, height: 28 },
       { name: "Shift", href: "https://www.shiftapp.nyc/", logo: "/brands/shift.png", width: 86, height: 24 },
       { name: "Blackbox AI", href: "https://www.blackbox.ai/", logo: "/brands/blackbox.png", width: 130, height: 20 },
-      { name: "Kimi", href: "https://www.kimi.com/", logo: "/brands/kimi.png", width: 30, height: 30, label: "Kimi" },
-      /* No verified official logo for these two yet, so they stay as text. Add `logo`, `width` and `height` when you have them. */
-      { name: "Glass Editor" },
-      { name: "startblock.shop" }
+      { name: "Kimi", href: "https://www.kimi.com/", logo: "/brands/kimi.png", width: 30, height: 30, label: "Kimi" }
     ] as Brand[]
   },
   recognition: {
