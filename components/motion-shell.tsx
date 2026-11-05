@@ -5,6 +5,7 @@ import Lenis from "lenis";
 import { usePathname } from "next/navigation";
 import { BuildProvider } from "@/components/agent-build/BuildProvider";
 import { portfolioContent } from "@/data/content";
+import { routeCommitted } from "@/lib/view-transition";
 
 const MotionPreferenceContext = createContext<{
   motionEnabled: boolean;
@@ -84,6 +85,7 @@ export function MotionShell({ children }: { children: ReactNode }) {
   useIsomorphicLayoutEffect(() => {
     if (previousPath.current === pathname) return;
     previousPath.current = pathname;
+    routeCommitted();
     const keepPosition = historyMove.current || Boolean(window.location.hash);
     historyMove.current = false;
     // Back, forward and #anchors choose their own position, so those only stop the glide.

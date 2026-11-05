@@ -3,9 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CaseStudyMedia } from "@/components/case-study-media";
+import { LeadStage } from "@/components/lead-stage";
 import { MachineFigure } from "@/components/machines/machine-figure";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
+import { TransitionLink } from "@/components/transition-link";
 import { caseStudies, caseStudyFor, type Media } from "@/data/case-studies";
 import { portfolioContent } from "@/data/content";
 
@@ -18,12 +20,13 @@ export function generateMetadata({ params }: Props): Metadata {
   const study = caseStudyFor(params.slug);
   if (!study) return {};
   const title = `${study.title}: case study`;
+  const image = { url: `/og/${study.slug}.jpg`, width: 1200, height: 630, alt: `${study.title}: case study by Kasif` };
   return {
     title,
     description: study.description,
     alternates: { canonical: `/work/${study.slug}` },
-    openGraph: { type: "article", url: `/work/${study.slug}`, siteName: "KASIF", title, description: study.description, images: [{ url: study.cover, alt: study.coverAlt }] },
-    twitter: { card: "summary_large_image", site: "@md_kasif_uddin", creator: "@md_kasif_uddin", title, description: study.description, images: [{ url: study.cover, alt: study.coverAlt }] }
+    openGraph: { type: "article", url: `/work/${study.slug}`, siteName: "KASIF", title, description: study.description, images: [image] },
+    twitter: { card: "summary_large_image", site: "@md_kasif_uddin", creator: "@md_kasif_uddin", title, description: study.description, images: [image] }
   };
 }
 
@@ -65,7 +68,7 @@ export default function CaseStudyPage({ params }: Props) {
     "@type": "Article",
     headline: `${study.title}: case study`,
     description: study.description,
-    image: `${origin}${study.cover}`,
+    image: `${origin}/og/${study.slug}.jpg`,
     mainEntityOfPage: `${origin}/work/${study.slug}`,
     author: { "@type": "Person", "@id": `${origin}/#person`, name: portfolioContent.identity.name, url: `${origin}/` },
     about: { "@type": "SoftwareSourceCode", name: study.project, codeRepository: study.github, url: study.live }
@@ -75,6 +78,7 @@ export default function CaseStudyPage({ params }: Props) {
     <>
       <SiteNav base="/" />
       <main className="cs" data-theme={study.theme} id="top">
+        <div className="cs-hero-art" aria-hidden="true"><Image src={study.cover} alt="" fill priority sizes="(max-width: 860px) 70vw, 54vw" /></div>
         <header className="cs-hero cs-wrap">
           <div className="cs-hero-top">
             <Link className="cs-back" href="/#work"><span aria-hidden="true">←</span> All work</Link>
@@ -90,6 +94,7 @@ export default function CaseStudyPage({ params }: Props) {
             <div>
               <p className="cs-deck">{study.deck}</p>
               <p className="cs-links">
+                {study.demo && <a className={study.demo.needsKeyboard ? "needs-keyboard" : undefined} href="#try">{study.demo.label} <span aria-hidden="true">↓</span></a>}
                 <a href={study.live} target="_blank" rel="noreferrer">See it live <span aria-hidden="true">↗</span></a>
                 <a href={study.github} target="_blank" rel="noreferrer">Read the source <span aria-hidden="true">↗</span></a>
               </p>
@@ -97,16 +102,16 @@ export default function CaseStudyPage({ params }: Props) {
           </div>
         </header>
 
-        <div className="cs-lead"><Figure media={study.lead} priority /></div>
+        <div className="cs-lead" id="try"><LeadStage media={<CaseStudyMedia media={study.lead} priority />} caption={study.lead.caption} demo={study.demo} live={study.live} project={study.title} /></div>
 
         <div className="cs-wrap">
           <section className="cs-numbers" aria-label="Key numbers">
             <dl>
               {study.facts.map((fact) => (
                 <div key={fact.label}>
-                  <dd>{fact.value}</dd>
                   <dt>{fact.label}</dt>
-                  <span>{fact.source}</span>
+                  <dd className="cs-number">{fact.value}</dd>
+                  <dd className="cs-source">{fact.source}</dd>
                 </div>
               ))}
             </dl>
@@ -184,18 +189,18 @@ export default function CaseStudyPage({ params }: Props) {
         </div>
 
         <nav className="cs-end" data-next={next.theme} aria-label="More case studies">
-          <Link className="cs-next-link" href={`/work/${next.slug}`} aria-label={`Next case study: ${next.title}`}>
+          <TransitionLink className="cs-next-link" href={`/work/${next.slug}`} aria-label={`Next case study: ${next.title}`}>
             <span className="cs-next-inner cs-wrap">
               <span className="cs-next-copy">
                 <span className="cs-next-meta cs-label">
                   <span>Next case study</span>
                   <span>{String(caseStudies.indexOf(next) + 1).padStart(2, "0")} / {String(caseStudies.length).padStart(2, "0")}</span>
                 </span>
-                <strong className={next.title.length > 14 ? "is-long" : undefined}>{next.title}</strong>
+                <strong className={next.title.length > 14 ? "is-long" : undefined} data-vt-title>{next.title}</strong>
                 <span className="cs-next-role">{next.role}</span>
               </span>
               <span className="cs-next-art">
-                <span className="cs-next-frame"><Image src={next.cover} alt="" fill sizes="(max-width: 860px) 100vw, 44vw" /></span>
+                <span className="cs-next-frame"><Image src={next.cover} alt="" fill sizes="(max-width: 860px) 90vw, 38vw" data-vt-art /></span>
                 <span className="cs-next-go" aria-hidden="true">
                   <span className="cs-next-arrows">
                     <svg viewBox="0 0 24 24"><path d="M3 12h17M13.5 5.5 20 12l-6.5 6.5" /></svg>
@@ -204,7 +209,7 @@ export default function CaseStudyPage({ params }: Props) {
                 </span>
               </span>
             </span>
-          </Link>
+          </TransitionLink>
           <p className="cs-end-note cs-wrap">Have something similar to build? <Link href="/#contact">Let&apos;s talk <span aria-hidden="true">→</span></Link></p>
         </nav>
       </main>

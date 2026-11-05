@@ -12,6 +12,8 @@ export type Media = { kind: "image" | "video"; src: string; poster?: string; wid
 export type Excerpt = { file: string; href: string; lang: string; code: string; note: string };
 /** Every page is dark, tinted for its project: ember on black, the site's own red and black, moonlit teal. */
 export type CaseStudyTheme = "ember" | "brand" | "moon";
+/** The real product, loaded in place of the lead picture when a visitor asks for it. */
+export type Demo = { label: string; note: string; touchNote: string; needsKeyboard: boolean };
 
 export type CaseStudy = {
   slug: string;
@@ -29,6 +31,7 @@ export type CaseStudy = {
   live: string;
   github: string;
   lead: Media;
+  demo?: Demo;
   facts: SystemFact[];
   factsNote: string;
   problemHeadline: string;
@@ -69,6 +72,12 @@ export const caseStudies: CaseStudy[] = [
       height: 900,
       alt: "A username is typed into GitRoasted and the loader steps through fetching, scoring and roasting",
       caption: "The live site, roasting my own profile."
+    },
+    demo: {
+      label: "Try it here",
+      note: "This is the real site, in a frame. Type any GitHub username and it runs a live roast.",
+      touchNote: "Works on a phone too, or open it in a new tab.",
+      needsKeyboard: false
     },
     facts: [
       { value: "~2.1s", label: "Median live roast, 5 runs, range 1.8–5.6 s", source: "Measured" },
@@ -146,8 +155,8 @@ export const caseStudies: CaseStudy[] = [
       {
         date: "Oct 2026",
         title: "A dead model ID took roasts down",
-        what: "The configured model started returning 404 from Groq. The fallback list contained the same ID, so it couldn't help.",
-        fix: "I replaced the model, and later added a genuinely different one as the fallback."
+        what: "The configured model started returning 404 from Groq, and with only one model configured, every roast failed.",
+        fix: "I replaced the model and added a fallback list. A month later I found that list held the same ID twice, so a genuinely different model went in."
       },
       {
         date: "Aug 2026",
@@ -332,6 +341,12 @@ if let engine = behaviorEngine {
       alt: "The title screen: a crimson temple gate between snow-covered trees under a teal sky",
       caption: "The title screen, running in the browser."
     },
+    demo: {
+      label: "Play it here",
+      note: "This is the real game, in a frame. Click inside to control it. Starting a new game loads about 11 MB of audio.",
+      touchNote: "The game needs a keyboard and mouse, so try this one on a computer.",
+      needsKeyboard: true
+    },
     facts: [
       { value: "59.9", label: "FPS during gameplay at 1080p on an Apple M5", source: "Measured" },
       { value: "191 KB", label: "Compressed JavaScript at first load", source: "Measured" },
@@ -404,8 +419,8 @@ this.renderCallback();`,
       {
         date: "Aug 2026",
         title: "Too many lanterns for the shader",
-        what: "Placing many real lights in the arena and world ran into shader light limits.",
-        fix: "I reduced the lantern counts in the arena and world generators."
+        what: "Giving every lantern a real point light ran into shader light limits, so I cut the world's 20 lanterns to 2 and the arena's 8 to none.",
+        fix: "That emptied the world, so I restored them 15 minutes later. It runs well on a fast laptop, but a proper fix is still owed."
       },
       {
         date: "Aug 2026",
@@ -415,9 +430,9 @@ this.renderCallback();`,
       },
       {
         date: "Aug 2026",
-        title: "NaN enemies",
-        what: "When an enemy stood exactly on its target, a zero-length direction vector produced NaN movement.",
-        fix: "Direction vectors are now flattened and checked for zero length before use."
+        title: "Enemies with no direction",
+        what: "Enemy AI steered along the raw vector to the player, height included, and had no real direction to face when an enemy stood exactly on the player.",
+        fix: "The vector is now flattened to the ground, with a fixed fallback direction at zero distance."
       },
       {
         date: "Aug 2026",

@@ -13,7 +13,7 @@ export const portfolioContent = {
   },
   hero: {
     backgroundWord: "PORTFOLIO",
-    eyebrow: ["AI ENGINEER / BACKEND ARCHITECT / TECH CREATOR", "VISUAL STORYTELLER"],
+    eyebrow: ["AI ENGINEER / BACKEND ARCHITECT / TECH CREATOR"],
     availability: "OPEN TO WORK",
     /** Change this one line when you get booked, for example "NEXT AVAILABLE: JAN 2027". */
     nextAvailability: "AVAILABLE NOW",
@@ -146,14 +146,14 @@ export const portfolioContent = {
     asideNote: "Fast to ship. Built to hold.",
     scrollLabel: "SCROLL TO DISCOVER +",
     footerLabel: "SELECTED WORK · 2025–2026",
-    cutoutPath: "/hero-cutout.webp",
-    cutoutMobilePath: "/hero-cutout-mobile.webp"
+    cutoutPath: "/hero-cutout.webp"
   },
   navigation: [
     { label: "Work", href: "#work" },
     { label: "Recognition", href: "#recognition" },
     { label: "About", href: "#about" },
     { label: "Journey", href: "#journey" },
+    { label: "Services", href: "#services" },
     { label: "Contact", href: "#contact" }
   ] satisfies NavItem[],
   navigationCta: { label: "Let's talk", href: "#contact" },
@@ -190,7 +190,8 @@ export const portfolioContent = {
         role: "Product design · Full-stack development",
         stack: ["Next.js", "TypeScript", "Groq", "Firebase", "PWA"],
         art: "gitroasted",
-        cover: "gitroasted"
+        cover: "gitroasted",
+        clip: "/work/clips/gitroasted.mp4"
       },
       {
         title: "Cookie",
@@ -205,7 +206,8 @@ export const portfolioContent = {
         role: "Native macOS app · Design & engineering",
         stack: ["Swift", "SwiftUI", "SpriteKit", "Sparkle"],
         art: "cookie",
-        cover: "cookie"
+        cover: "cookie",
+        clip: "/work/clips/cookie.mp4"
       },
       {
         title: "Shadow of the Crimson Gate",
@@ -220,7 +222,8 @@ export const portfolioContent = {
         role: "Game design · Engine & graphics programming",
         stack: ["Three.js", "TypeScript", "WebGL", "Web Audio API"],
         art: "crimson",
-        cover: "shadow-of-the-crimson-gate"
+        cover: "shadow-of-the-crimson-gate",
+        clip: "/work/clips/crimson.mp4"
       },
       {
         title: "Kerr Black Hole",
@@ -235,7 +238,8 @@ export const portfolioContent = {
         role: "3D simulation · Technical art",
         stack: ["Blender", "Python", "Geometry Nodes", "Cycles"],
         art: "blackhole",
-        cover: "kerr-black-hole"
+        cover: "kerr-black-hole",
+        clip: "/work/clips/kerr-black-hole.mp4"
       },
       {
         title: "AI Checkers Arena",
@@ -250,7 +254,8 @@ export const portfolioContent = {
         role: "Product design · Full-stack development",
         stack: ["Next.js", "TypeScript", "OpenRouter", "Supabase", "Framer Motion"],
         art: "checkers",
-        cover: "ai-checkers-arena"
+        cover: "ai-checkers-arena",
+        clip: undefined
       },
       {
         title: "Object Detection Suite",
@@ -265,7 +270,8 @@ export const portfolioContent = {
         role: "Machine learning · Tooling",
         stack: ["Python", "YOLOv8", "OpenCV", "Supervision", "Plotly"],
         art: "vision",
-        cover: "object-detection-suite"
+        cover: "object-detection-suite",
+        clip: "/work/clips/object-detection.mp4"
       }
     ],
     githubProfile: "https://github.com/MdKasif0"
@@ -300,17 +306,15 @@ export const portfolioContent = {
     titleRed: "THE RECOGNITION",
     count: 22,
     countSuffix: "+",
-    countLabel: "HACKATHONS & COLLABS",
+    countLabel: "Hackathons and collaborations",
     breakdown: [
-      { value: "2", label: "HACKATHONS" },
-      { value: "20+", label: "BRAND COLLABS" }
+      { value: "2", label: "Hackathons" },
+      { value: "20+", label: "Brand collaborations" }
     ],
-    summary: "Hackathon podiums and brand collaborations, built in public.",
-    listLabel: "SELECTED RECOGNITION",
     entries: [
-      { title: "GigSense", result: "1ST RUNNER-UP", type: "SOLO HACKATHON", year: "2026", event: "InnoSprint 2.0 · D4 Community × Google for Developers · Chandigarh University", description: "A financial intelligence and evidence ledger for gig couriers.", href: "/certificates/innosprint-2-0.pdf", linkLabel: "VIEW CERTIFICATE", projectHref: "https://gigsense-v1.netlify.app/", projectLabel: "VIEW PROJECT", showPartners: false },
-      { title: "TrustLayer", result: undefined, type: "HACKATHON", year: "2026", event: "Hackverse · Terrabyte Society, Chandigarh University", description: "Multi-layer media verification.", href: "https://trustlayer-v1.netlify.app/", linkLabel: "VIEW PROJECT", projectHref: undefined, projectLabel: undefined, showPartners: false },
-      { title: "Brand collaborations", result: undefined, type: "COLLAB", year: "2026", event: undefined, description: "20+ creative collaborations with AI and tech brands.", href: undefined, linkLabel: undefined, projectHref: undefined, projectLabel: undefined, showPartners: true }
+      { title: "GigSense", result: "1ST RUNNER-UP", type: "Solo hackathon", year: "2026", event: "InnoSprint 2.0 · D4 Community × Google for Developers · Chandigarh University", description: "A financial intelligence and evidence ledger for gig couriers.", href: "/certificates/innosprint-2-0.pdf", linkLabel: "View certificate", projectHref: "https://gigsense-v1.netlify.app/", projectLabel: "View project", showPartners: false },
+      { title: "TrustLayer", result: undefined, type: "Hackathon", year: "2026", event: "Hackverse · Terrabyte Society, Chandigarh University", description: "Multi-layer media verification.", href: "https://trustlayer-v1.netlify.app/", linkLabel: "View project", projectHref: undefined, projectLabel: undefined, showPartners: false },
+      { title: "Brand collaborations", result: undefined, type: "Collaborations", year: "2026", event: undefined, description: "20+ creative collaborations with AI and tech brands.", href: undefined, linkLabel: undefined, projectHref: undefined, projectLabel: undefined, showPartners: true }
     ]
   },
   architecture: {
@@ -324,32 +328,102 @@ export const portfolioContent = {
   },
   writing: {
     eyebrow: "BUILDING IN PUBLIC",
-    titleLines: ["WRITTEN IN THE OPEN."],
+    titleLines: ["BUILT IN THE OPEN."],
     handle: "@md_kasif_uddin",
     profileHref: "https://x.com/md_kasif_uddin",
     followers: "6,500+",
-    followersLabel: "FOLLOWERS ON X",
+    followersLabel: "followers on X",
     intro: "Notes on AI, Python and shipping things, written while they're being built.",
     cta: "Follow along on X",
     readLabel: "Read on X",
-    /** Add real posts here and they appear as cards: { date: "Oct 2026", text: "…", href: "https://x.com/md_kasif_uddin/status/…" } */
-    posts: [] as { date: string; text: string; href: string }[]
+    githubLabel: "On GitHub",
+    githubCta: "See the code",
+    postsLabel: "On X",
+    notesLabel: "Engineering notes",
+    notesCta: "All notes",
+    /** Real posts, with counts as of November 2026. Images load from X's own CDN, and a card drops its image if one ever goes missing. */
+    posts: [
+      {
+        date: "Jan 2026",
+        text: "Built this real time hand tracking physics engine entirely using Gemini 3 Pro in @arena. The accuracy is insane.",
+        href: "https://x.com/md_kasif_uddin/status/2009594268332241062",
+        image: "https://pbs.twimg.com/ext_tw_video_thumb/2009594041277788160/pu/img/Ygf_FZH1_U_aVe42.jpg?name=small",
+        likes: 45,
+        replies: 9
+      },
+      {
+        date: "Mar 2026",
+        text: "Just made a quick edit on OpenAI’s AI tools. What do you think? 👀 (Note: Clips used in this video are from OpenAI’s official channels)",
+        href: "https://x.com/md_kasif_uddin/status/2036752264057270381",
+        image: "https://pbs.twimg.com/ext_tw_video_thumb/2036752093596602369/pu/img/UK-veG2j-IHSfBSW.jpg?name=small",
+        likes: 160,
+        replies: 39
+      },
+      {
+        date: "Jan 2026",
+        text: "Just built a few landing page designs using Stitch. Which one’s the best? 👀",
+        href: "https://x.com/md_kasif_uddin/status/2008492252705030491",
+        image: "https://pbs.twimg.com/media/G9-ZB6EbYAAbwpv.jpg?format=jpg&name=small",
+        likes: 111,
+        replies: 60
+      }
+    ]
+  },
+  services: {
+    eyebrow: "04 / WHAT I BUILD",
+    titleLines: ["WHAT I BUILD."],
+    intro: "Three ways to work together. You talk to the person writing the code, from the first call to the launch.",
+    note: "Timelines are typical. I'll confirm yours after a first look at the scope.",
+    timelineLabel: "Typical timeline",
+    startLabel: "Start this project",
+    proofLabel: "See one",
+    /** Set NEXT_PUBLIC_CAL_LINK on Netlify to your Cal.com link and the booking button appears here and in Contact. */
+    bookLabel: "Book a 15-minute call",
+    bookHref: process.env.NEXT_PUBLIC_CAL_LINK || "",
+    offers: [
+      {
+        id: "ai-mvp",
+        title: "AI product MVP",
+        timeline: "2–4 weeks",
+        summary: "From an idea to a live product people can actually use.",
+        includes: ["LLM pipeline and prompts", "APIs and data model", "A working interface", "Deployed, with real error handling"],
+        proof: "GitRoasted",
+        proofHref: "/work/gitroasted"
+      },
+      {
+        id: "backend-api",
+        title: "Backend and API build",
+        timeline: "1–3 weeks",
+        summary: "The services behind a product, built to hold up under real use.",
+        includes: ["API design and data modelling", "Auth, storage and integrations", "Limits, caching and failure paths", "Deployment and handover notes"],
+        proof: "AI Checkers Arena",
+        proofHref: "https://github.com/MdKasif0/AI-Checkers-Arena"
+      },
+      {
+        id: "ai-features",
+        title: "AI features for your product",
+        timeline: "1–2 weeks",
+        summary: "AI added to an app you already run, without breaking what works.",
+        includes: ["Chat, search, summaries or scoring", "Model choice and fallbacks", "Cost and prompt limits", "Validated output before users see it"],
+        proof: "GigSense",
+        proofHref: "https://gigsense-v1.netlify.app/"
+      }
+    ]
   },
   about: {
-    eyebrow: "02 / BEHIND THE SCREEN",
-    titleBefore: "NOT JUST CODE",
-    titleAfter: "A WAY OF TELLING STORIES",
+    eyebrow: "02 / HOW I BUILD",
+    titleBefore: "FAST TO SHIP",
+    titleAfter: "BUILT TO HOLD",
     bioLines: [
       "A developer fueled by audacity: convinced every idea is shippable, then actually shipping it.",
       "AI software engineer and backend architect, building LLM-powered products, APIs and data systems, plus native desktop apps, from the first sketch to production.",
       "Building in public as a tech creator on X, @md_kasif_uddin."
     ],
-    educationLabel: "EDUCATION",
+    educationLabel: "Education",
     educationDegree: "B.Tech CSE",
     educationSchool: "Chandigarh University, Mohali",
-    educationStatus: "CURRENTLY STUDYING",
-    educationYear: "1ST YEAR · 2026 — NOW",
-    toolkitLabel: "CREATIVE TOOLKIT",
+    educationStatus: "1st year, 2026 — now",
+    toolkitLabel: "The stack",
     toolkitGroups: [
       { label: "Languages", skills: ["TypeScript", "JavaScript", "Python", "Swift"] },
       { label: "Backend & Data", skills: ["Node.js", "Supabase", "Firebase", "PostgreSQL"] },
@@ -357,17 +431,17 @@ export const portfolioContent = {
       { label: "Frontend", skills: ["React", "Next.js", "Tailwind CSS", "Three.js"] },
       { label: "Tools", skills: ["Git", "Figma", "Docker", "n8n", "Netlify"] }
     ],
-    processLabel: "FROM IDEA TO FINAL SHIP",
+    processLabel: "From idea to final ship",
     process: [
-      { title: "THE IDEA", description: "Start with a need, question or rough sketch worth exploring." },
-      { title: "THE PLAN", description: "Map the data model, services and failure paths before building features." },
-      { title: "THE CRAFT", description: "Build the services and the interface together, as one working system." },
-      { title: "THE POLISH", description: "Harden error handling and performance, then refine the details." },
-      { title: "THE LAUNCH", description: "Check the final experience and prepare it to ship." }
+      { title: "The idea", description: "Start with a need, question or rough sketch worth exploring." },
+      { title: "The plan", description: "Map the data model, services and failure paths before building features." },
+      { title: "The build", description: "Build the services and the interface together, as one working system." },
+      { title: "The hardening", description: "Harden error handling and performance, then refine the details." },
+      { title: "The launch", description: "Check the final experience and prepare it to ship." }
     ],
-    quote: "From concept to code, to a product that feels alive.",
+    quote: "From first idea to production, built to hold up.",
     signature: "Kasif",
-    quoteFooter: "LET'S MAKE THE NEXT BUILD COUNT"
+    quoteFooter: "Let's make the next build count."
   },
   journey: {
     eyebrow: "03 / THE JOURNEY",
@@ -379,16 +453,15 @@ export const portfolioContent = {
     activePoints: [
       "Designing and building AI-powered software from first idea to production.",
       "Pairing applied AI with solid backend architecture.",
-      "Turning rough concepts into products that feel alive."
+      "Taking rough ideas all the way to production."
     ],
     roles: [
       { title: "Tech Content Creator on X", period: "2026", subtitle: "@md_kasif_uddin · AI, dev tools and building in public" },
       { title: "Brand collaborations", period: "2026", subtitle: "20+ collaborations with AI and tech brands" },
       { title: "B.Tech CSE student", period: "2026", subtitle: "Chandigarh University, Mohali · First year" }
     ],
-    milestonesLabel: "A FEW MILESTONES",
-    milestonesTitleWhite: "LITTLE WINS",
-    milestonesTitleRed: "BIG MEANING",
+    experienceLabel: "Experience",
+    milestonesLabel: "A few milestones",
     milestones: [
       { title: "Launched GitRoasted", year: "2025", href: "https://gitroasted.netlify.app/" },
       { title: "Shipped GigSense", year: "2026", href: "https://gigsense-v1.netlify.app/" },
@@ -397,31 +470,32 @@ export const portfolioContent = {
     ]
   },
   contact: {
-    eyebrow: "04 / YOUR NEXT STORY",
+    eyebrow: "05 / YOUR NEXT BUILD",
     title: "LET'S WORK TOGETHER",
     introduction: "Got a product idea? Let's build something worth shipping.",
-    formTitle: "START A PROJECT",
+    formTitle: "Start a project",
     formSubtitle: "Tell me what you're building.",
     budgets: ["Under $1k", "$1k — $3k", "$3k+"],
-    formSubmit: "SEND PROJECT",
-    formSending: "SENDING…",
-    formSentTitle: "MESSAGE SENT",
+    formSubmit: "Send project",
+    formSending: "Sending…",
+    formSentTitle: "Message sent",
     formSentBody: "Thanks. I'll reply by email.",
-    formSendAnother: "SEND ANOTHER",
+    formSendAnother: "Send another",
     formError: "That didn't send. Please email me instead:",
-    cta: "START THE CONVERSATION",
     email: "mdkasifuddin123@gmail.com",
-    emailLabel: "EMAIL",
+    emailLabel: "Email",
     socials: [
       { label: "X", value: "@md_kasif_uddin", href: "https://x.com/md_kasif_uddin", icon: "x" },
-      { label: "GITHUB", value: "MdKasif0", href: "https://github.com/MdKasif0", icon: "github" }
+      { label: "GitHub", value: "MdKasif0", href: "https://github.com/MdKasif0", icon: "github" }
     ],
-    locationLabel: "BASED IN",
+    locationLabel: "Based in",
     location: "India",
-    cardKicker: "KASIF / VISUAL STORIES",
-    cardTitleWhite: "MAKE IT",
-    cardTitleRed: "FEEL REAL",
-    modalLabel: "OPEN SHOWREEL",
+    offerLabel: "About",
+    offerClear: "Clear",
+    reelKicker: "The reel",
+    reelTitle: "WATCH IT RUN.",
+    reelMeta: "Four launch films, from 21 seconds to 86",
+    modalLabel: "Play the reel",
     reelModalKicker: "KASIF / SHOWREEL"
   },
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || process.env.URL || "https://kasif-portfolio.netlify.app",

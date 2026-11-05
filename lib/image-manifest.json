@@ -1,0 +1,285 @@
+{
+"/brands/agentid.png": {
+"name": "brands-agentid",
+"widths": [
+96,
+256,
+384
+]
+},
+"/brands/agentmail.png": {
+"name": "brands-agentmail",
+"widths": [
+96,
+256,
+384,
+640
+]
+},
+"/brands/blackbox.png": {
+"name": "brands-blackbox",
+"widths": [
+96,
+256,
+384,
+640
+]
+},
+"/brands/contextdev.png": {
+"name": "brands-contextdev",
+"widths": [
+96,
+256,
+384,
+640
+]
+},
+"/brands/dailydev.png": {
+"name": "brands-dailydev",
+"widths": [
+96,
+256,
+384
+]
+},
+"/brands/hellyeah.png": {
+"name": "brands-hellyeah",
+"widths": [
+96,
+256,
+384
+]
+},
+"/brands/kimi.png": {
+"name": "brands-kimi",
+"widths": [
+96
+]
+},
+"/brands/moonshot.png": {
+"name": "brands-moonshot",
+"widths": [
+96,
+256,
+384,
+640,
+828
+]
+},
+"/brands/shift.png": {
+"name": "brands-shift",
+"widths": [
+96,
+256
+]
+},
+"/brands/superapp.png": {
+"name": "brands-superapp",
+"widths": [
+96,
+256,
+384
+]
+},
+"/brands/tavus.png": {
+"name": "brands-tavus",
+"widths": [
+96,
+256,
+384
+]
+},
+"/brands/tinyfish.png": {
+"name": "brands-tinyfish",
+"widths": [
+96,
+256,
+384
+]
+},
+"/brands/yapper.png": {
+"name": "brands-yapper",
+"widths": [
+96,
+256,
+384
+]
+},
+"/case-studies/cookie/drag.jpg": {
+"name": "case-studies-cookie-drag",
+"widths": [
+96,
+256,
+384,
+640,
+828
+]
+},
+"/case-studies/cookie/hero.jpg": {
+"name": "case-studies-cookie-hero",
+"widths": [
+96,
+256,
+384,
+640,
+828,
+1080,
+1440
+]
+},
+"/case-studies/cookie/play.jpg": {
+"name": "case-studies-cookie-play",
+"widths": [
+96,
+256,
+384,
+640,
+828
+]
+},
+"/case-studies/crimson/gate.jpg": {
+"name": "case-studies-crimson-gate",
+"widths": [
+96,
+256,
+384,
+640,
+828,
+1080,
+1440
+]
+},
+"/case-studies/crimson/menu.jpg": {
+"name": "case-studies-crimson-menu",
+"widths": [
+96,
+256,
+384,
+640,
+828,
+1080,
+1440
+]
+},
+"/case-studies/gitroasted/roast-flow.jpg": {
+"name": "case-studies-gitroasted-roast-flow",
+"widths": [
+96,
+256,
+384,
+640,
+828,
+1080,
+1440
+]
+},
+"/case-studies/gitroasted/roast-result.jpg": {
+"name": "case-studies-gitroasted-roast-result",
+"widths": [
+96,
+256,
+384,
+640,
+828,
+1080,
+1440
+]
+},
+"/hero-cutout.webp": {
+"name": "hero-cutout",
+"widths": [
+96,
+256,
+384,
+640,
+828,
+1080
+]
+},
+"/logo-mark.png": {
+"name": "logo-mark",
+"widths": [
+96
+]
+},
+"/projects/ai-checkers-arena.webp": {
+"name": "projects-ai-checkers-arena",
+"widths": [
+96,
+256,
+384,
+640,
+828,
+1080,
+1440
+]
+},
+"/projects/cookie.webp": {
+"name": "projects-cookie",
+"widths": [
+96,
+256,
+384,
+640,
+828,
+1080,
+1440
+]
+},
+"/projects/gitroasted.webp": {
+"name": "projects-gitroasted",
+"widths": [
+96,
+256,
+384,
+640,
+828,
+1080,
+1440
+]
+},
+"/projects/kerr-black-hole.webp": {
+"name": "projects-kerr-black-hole",
+"widths": [
+96,
+256,
+384,
+640,
+828,
+1080,
+1440
+]
+},
+"/projects/object-detection-suite.webp": {
+"name": "projects-object-detection-suite",
+"widths": [
+96,
+256,
+384,
+640,
+828,
+1080,
+1440
+]
+},
+"/projects/shadow-of-the-crimson-gate.webp": {
+"name": "projects-shadow-of-the-crimson-gate",
+"widths": [
+96,
+256,
+384,
+640,
+828,
+1080,
+1440
+]
+},
+"/reel/kasif-reel-thumb.jpg": {
+"name": "reel-kasif-reel-thumb",
+"widths": [
+96,
+256,
+384
+]
+}
+}

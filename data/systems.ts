@@ -88,7 +88,7 @@ export const systems: System[] = [
         chose: "A direct Groq API call",
         over: "The Genkit framework I started with",
         why: "One HTTP call with JSON mode, and the model name lives in an environment variable.",
-        cost: "Model changes are my problem. A retired ID once returned 404s."
+        cost: "Model changes are my problem. An invalid ID once returned 404s."
       },
       {
         chose: "Hard caps on input",

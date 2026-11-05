@@ -482,8 +482,15 @@ async function slam(agent: Agent, job: Job, ctx: ActionContext) {
   const rect = node.getBoundingClientRect();
   await agent.travel({ el: null, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
   await agent.click(50, true);
+  // The award line nearly fills the page, so it only grows as wide as the screen allows (past that the page would scroll sideways). The height carries the rest of the slam.
+  const center = rect.left + rect.width / 2;
+  const text = document.createRange();
+  text.selectNodeContents(node);
+  const reach = Math.max(rect.right, text.getBoundingClientRect().right) - center;
+  const wide = clamp((document.documentElement.clientWidth - center - 2) / reach, 1, 1.4);
   await ctx.clock.tween(ms(ctx, D.slam * 2), (raw) => {
-    node.style.scale = String(lerp(1.4, 1, easeOut(raw)));
+    const eased = easeOut(raw);
+    node.style.scale = `${lerp(wide, 1, eased).toFixed(4)} ${lerp(1.4, 1, eased).toFixed(4)}`;
     node.style.translate = raw < 1 ? `${(raw * 7) % 2 < 1 ? 2 : -2}px 0` : "";
   });
   node.style.scale = "";
@@ -804,6 +811,8 @@ async function paste(agent: Agent, job: Job, ctx: ActionContext) {
     agent.key(agent.style === "showy" && !simple ? "⌥ drag" : "⌘V", el, simple ? 300 : 520);
     const ghost = createGhost(el, { source: source.el, hideChildLayers: false });
     copies.set(node, ghost);
+    // Longer text pasted into a short slot at the screen's edge would make the page scroll sideways until it's retyped.
+    if (ghost.node.getBoundingClientRect().left + ghost.node.scrollWidth > document.documentElement.clientWidth) ghost.node.style.overflow = "clip";
     // Pasted next to where it was copied from — or, when that is far away, just beside the slot.
     const far = Math.hypot(sourceRect.left - targetRect.left, sourceRect.top - targetRect.top) > window.innerHeight * 0.8;
     const offset = far ? { x: 18, y: 18 } : { x: sourceRect.left - targetRect.left + 14, y: sourceRect.top - targetRect.top + 14 };

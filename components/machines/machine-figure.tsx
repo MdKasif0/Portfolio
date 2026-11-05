@@ -177,7 +177,7 @@ export function MachineFigure({ machine, name, label }: { machine: Machine; name
       </div>
 
       <div className="machine-now" key={current.title}>
-        <h4>{current.title}</h4>
+        <h3>{current.title}</h3>
         <p className="machine-maps">In the machine: {current.object}</p>
         <p>{current.note}</p>
       </div>

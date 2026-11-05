@@ -43,6 +43,8 @@ export function createGhost(original: Element, options: GhostOptions = {}): Ghos
   }
   from.querySelectorAll("[data-layer]").forEach((child, index) => child.setAttribute("data-ab-i", String(index)));
   const clone = from.cloneNode(true) as HTMLElement;
+  // A copied layer can still have a child mid-build, with that child's ghost beside it. Only the real layers get copied.
+  clone.querySelectorAll("[data-ab-ghost]").forEach((ghost) => ghost.remove());
   marked.forEach((child) => child.removeAttribute("data-ab-skip"));
   from.querySelectorAll("[data-ab-i]").forEach((child) => child.removeAttribute("data-ab-i"));
 
@@ -122,7 +124,7 @@ let detachedLayer: HTMLElement | null = null;
  * styles inline (so it no longer depends on selectors), placed in a layer at the document origin.
  */
 function detachedGhost(original: Element, clone: HTMLElement, fixed: boolean, box: { width: number; height: number }): Ghost {
-  const sources = [original, ...Array.from(original.querySelectorAll("*"))];
+  const sources = [original, ...Array.from(original.querySelectorAll("*")).filter((node) => !node.closest("[data-ab-ghost]"))];
   const copies = [clone, ...Array.from(clone.querySelectorAll("*"))];
   const skip = new Set(["position", "left", "top", "right", "bottom", "margin", "margin-top", "margin-left", "margin-right", "margin-bottom", "opacity", "visibility", "transition", "animation", "pointer-events", "z-index"]);
   copies.forEach((copy, index) => {

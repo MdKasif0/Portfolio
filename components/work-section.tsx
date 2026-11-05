@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import {
   AnimatePresence,
   motion,
@@ -20,6 +19,7 @@ import { caseStudyForProject } from "@/data/case-studies";
 import { track } from "@/lib/analytics";
 import { useMotionPreference } from "@/components/motion-shell";
 import { SectionHeader } from "@/components/section-header";
+import { TransitionLink } from "@/components/transition-link";
 
 const work = portfolioContent.work;
 type Project = (typeof work.projects)[number];
@@ -95,7 +95,13 @@ function ProjectCard({
   imagePath?: string;
   onOpen: (project: Project) => void;
 }) {
+  const { motionEnabled } = useMotionPreference();
   const [imageFailed, setImageFailed] = useState(false);
+  const [clipMounted, setClipMounted] = useState(false);
+  const [clipWanted, setClipWanted] = useState(false);
+  const [clipPlaying, setClipPlaying] = useState(false);
+  const clip = useRef<HTMLVideoElement>(null);
+  const study = caseStudyForProject(project.title);
   const tiltX = useMotionValue(0);
   const tiltY = useMotionValue(0);
 
@@ -111,6 +117,71 @@ function ProjectCard({
     event.currentTarget.style.setProperty("--cursor-y", `${event.clientY - bounds.top}px`);
   };
 
+  // The clip only loads on the first hover, and only for a real mouse.
+  useEffect(() => {
+    const video = clip.current;
+    if (!video) return;
+    if (clipWanted) {
+      video.currentTime = 0;
+      void video.play().catch(() => undefined);
+    } else {
+      video.pause();
+      setClipPlaying(false);
+    }
+  }, [clipMounted, clipWanted]);
+
+  const inner = (
+    <>
+      <div className={`project-thumbnail art-${project.art}${imagePath && !imageFailed ? " has-project-image" : ""}`} data-layer="image" data-kind="project-thumbnail">
+        <ProductMock project={project} />
+        {imagePath && !imageFailed && (
+          <Image
+            className="project-real-image"
+            src={imagePath}
+            alt={`${project.title} cover`}
+            fill
+            draggable={false}
+            sizes="(max-width: 700px) 75vw, (max-width: 1640px) 28vw, 460px"
+            data-vt-art
+            onError={() => setImageFailed(true)}
+          />
+        )}
+        {clipMounted && project.clip && (
+          <video
+            ref={clip}
+            className={`project-clip${clipPlaying ? " is-playing" : ""}`}
+            src={project.clip}
+            muted
+            loop
+            playsInline
+            preload="auto"
+            aria-hidden="true"
+            tabIndex={-1}
+            onPlaying={() => setClipPlaying(true)}
+          />
+        )}
+        {project.tag && <span className="project-tag" data-layer="text" data-kind="project-tag">{project.tag}</span>}
+        <span className="project-index" data-layer="text" data-kind="project-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+        <span className="project-view-cursor" aria-hidden="true">VIEW <i>↗</i></span>
+        <div className="project-stack-chips" aria-hidden="true">
+          {project.stack.map((item) => <span data-layer="text" data-kind="project-stack-chip" key={item}>{item}</span>)}
+        </div>
+      </div>
+      <div className="project-card-copy" data-layer="card" data-kind="project-card-copy">
+        <div className="project-card-title">
+          <div>
+            <h3 data-layer="text" data-kind="project-title" data-vt-title>{project.title}</h3>
+            <p className="project-subtitle" data-layer="text" data-kind="project-description">{project.subtitle}</p>
+          </div>
+          <span className="project-arrow" data-layer="icon" data-kind="project-arrow" aria-hidden="true">↗</span>
+        </div>
+        <p className="project-meta" data-layer="text" data-kind="project-meta">
+          {[project.categories[0]?.toUpperCase(), project.year].filter(Boolean).join(" / ")}
+        </p>
+      </div>
+    </>
+  );
+
   return (
     <motion.article
       className="project-card"
@@ -125,58 +196,46 @@ function ProjectCard({
       exit={{ opacity: 0, scale: 0.97, y: 12 }}
       transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
       onPointerMove={moveCard}
+      onPointerEnter={(event) => {
+        if (event.pointerType !== "mouse" || !motionEnabled || !project.clip) return;
+        setClipMounted(true);
+        setClipWanted(true);
+      }}
       onPointerLeave={(event) => {
+        setClipWanted(false);
         tiltX.set(0);
         tiltY.set(0);
         event.currentTarget.style.removeProperty("--glare-x");
         event.currentTarget.style.removeProperty("--glare-y");
       }}
     >
-      <button
-        className="project-link"
-        data-layer="button"
-        data-kind="project-open"
-        type="button"
-        onClick={() => { track("project-opened", { project: project.title }); onOpen(project); }}
-        aria-label={`View case study: ${project.title}`}
-      >
-        <div className={`project-thumbnail art-${project.art}${imagePath && !imageFailed ? " has-project-image" : ""}`} data-layer="image" data-kind="project-thumbnail">
-          <ProductMock project={project} />
-          {imagePath && !imageFailed && (
-            <Image
-              className="project-real-image"
-              src={imagePath}
-              alt={`${project.title} cover`}
-              fill
-              sizes="(max-width: 700px) 90vw, (max-width: 1100px) 45vw, 30vw"
-              onError={() => setImageFailed(true)}
-            />
-          )}
-          {project.tag && <span className="project-tag" data-layer="text" data-kind="project-tag">{project.tag}</span>}
-          <span className="project-index" data-layer="text" data-kind="project-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-          <span className="project-view-cursor" aria-hidden="true">VIEW <i>↗</i></span>
-          <div className="project-stack-chips" aria-hidden="true">
-            {project.stack.map((item) => <span data-layer="text" data-kind="project-stack-chip" key={item}>{item}</span>)}
-          </div>
-        </div>
-        <div className="project-card-copy" data-layer="card" data-kind="project-card-copy">
-          <div className="project-card-title">
-            <div>
-              <h3 data-layer="text" data-kind="project-title">{project.title}</h3>
-              <p className="project-subtitle" data-layer="text" data-kind="project-description">{project.subtitle}</p>
-            </div>
-            <span className="project-arrow" data-layer="icon" data-kind="project-arrow" aria-hidden="true">↗</span>
-          </div>
-          <p className="project-meta" data-layer="text" data-kind="project-meta">
-            {[project.categories[0]?.toUpperCase(), project.year].filter(Boolean).join(" / ")}
-          </p>
-        </div>
-      </button>
+      {study ? (
+        <TransitionLink
+          className="project-link"
+          data-layer="button"
+          data-kind="project-open"
+          href={`/work/${study.slug}`}
+          draggable={false}
+          onClick={() => track("case-study-opened", { from: "work", project: project.title })}
+          aria-label={`Read the case study: ${project.title}`}
+        >
+          {inner}
+        </TransitionLink>
+      ) : (
+        <button
+          className="project-link"
+          data-layer="button"
+          data-kind="project-open"
+          type="button"
+          onClick={() => { track("project-opened", { project: project.title }); onOpen(project); }}
+          aria-label={`View details: ${project.title}`}
+        >
+          {inner}
+        </button>
+      )}
     </motion.article>
   );
 }
-
-const projectStudy = (title: string) => caseStudyForProject(title);
 
 function ProjectDrawer({ project, imagePath, onClose }: { project: Project; imagePath?: string; onClose: () => void }) {
   const closeButton = useRef<HTMLButtonElement>(null);
@@ -254,7 +313,6 @@ function ProjectDrawer({ project, imagePath, onClose }: { project: Project; imag
           <div><dt>CATEGORY</dt><dd data-layer="text" data-kind="drawer-category">{project.categories.join(" · ") || "Selected work"}</dd></div>
         </dl>
         <div className="project-drawer-links">
-          {projectStudy(project.title) && <Link className="project-drawer-link is-case-study" data-cursor-label="OPEN" data-layer="button" data-kind="drawer-case-study" href={`/work/${projectStudy(project.title)?.slug}`} onClick={() => track("case-study-opened", { from: "drawer", project: project.title })}>READ THE CASE STUDY <span aria-hidden="true">→</span></Link>}
           {project.liveHref && <a className="project-drawer-link is-primary" data-cursor-label="OPEN" data-layer="button" data-kind="drawer-live-link" href={project.liveHref} target="_blank" rel="noreferrer">VISIT LIVE PROJECT <span>↗</span></a>}
           {project.githubHref && <a className="project-drawer-link" data-cursor-label="OPEN" data-layer="button" data-kind="drawer-github-link" href={project.githubHref} target="_blank" rel="noreferrer">VIEW ON GITHUB <span>↗</span></a>}
         </div>
@@ -270,7 +328,6 @@ export function WorkSection({ projectImages = {} }: { projectImages?: Record<str
   const [viewAll, setViewAll] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [carouselProgress, setCarouselProgress] = useState(0);
-  const searchRef = useRef<HTMLInputElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ startX: number; startScroll: number; lastX: number; lastTime: number; velocity: number; moved: boolean } | null>(null);
   const suppressClickRef = useRef(false);
@@ -348,17 +405,6 @@ export function WorkSection({ projectImages = {} }: { projectImages?: Record<str
   };
 
   useEffect(() => {
-    const onShortcut = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        searchRef.current?.focus();
-      }
-    };
-    document.addEventListener("keydown", onShortcut);
-    return () => document.removeEventListener("keydown", onShortcut);
-  }, []);
-
-  useEffect(() => {
     updateCarouselProgress();
   }, [filteredProjects.length, updateCarouselProgress, viewAll]);
 
@@ -408,7 +454,6 @@ export function WorkSection({ projectImages = {} }: { projectImages?: Record<str
         <label className="work-search" data-layer="card" data-kind="work-search">
           <span aria-hidden="true">⌕</span>
           <input
-            ref={searchRef}
             type="search"
             data-layer="button"
             data-kind="search-input"
@@ -416,9 +461,7 @@ export function WorkSection({ projectImages = {} }: { projectImages?: Record<str
             onChange={(event) => { setSearch(event.currentTarget.value); setViewAll(false); if (carouselRef.current) carouselRef.current.scrollLeft = 0; }}
             placeholder={work.searchPlaceholder}
             aria-label={work.searchPlaceholder}
-            aria-keyshortcuts="Control+K Meta+K"
           />
-          <kbd aria-hidden="true">⌘K</kbd>
         </label>
       </div>
 

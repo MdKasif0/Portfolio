@@ -62,39 +62,19 @@ export const KIND_RULES: Record<string, SceneRule> = {
   "logo-plate": { recipe: ["DRAW_BOX", "DROP_IMAGE"], absorb: true, noGroup: true },
   "machine-frame": { recipe: ["DRAW_BOX", "DROP_IMAGE"], absorb: true, noGroup: true },
 
-  // 4. Recognition: panel, tally, then the feature card's award; the two smaller cards copy-paste.
-  "recognition-panel": { recipe: ["DRAW_BOX", "GRADIENT", "ROUND_CORNERS"], hero: true },
+  // 4. Recognition: the tally, then the award slams in after the rest of its block.
   "recognition-number": { recipe: ["DRAW_TEXTBOX", "TYPE", "RESIZE_TEXT"], resizeFrom: 24, noGroup: true },
-  "recognition-feature": { recipe: ["DRAW_BOX", "GRADIENT", "ROUND_CORNERS"], flash: true },
-  "recognition-card": { flash: true },
-  // The award is the hero: its seal is picked and dropped in, then the result slams in after the rest of the card.
-  "recognition-seal": { recipe: ["DRAW_BOX", "OPEN_PICKER", "PICK_SYMBOL", "DROP"], absorb: true },
   "recognition-result": { recipe: ["DRAW_TEXTBOX", "TYPE", "SLAM"], late: true, noGroup: true },
 
-  // 5. Raw → real
-  // The browser frame goes first, then its chrome, then both panels drop in and an agent drags the divider.
+  // 5. The reel band and the proof images drop in whole.
+  "reel-art": { recipe: ["DRAW_BOX", "DROP_IMAGE"], absorb: true, noGroup: true },
+  "github-graph": { recipe: ["DRAW_BOX", "DROP_IMAGE"], absorb: true, noGroup: true },
+  "post-image": { recipe: ["DRAW_BOX", "DROP_IMAGE"], absorb: true },
 
-  // 6. About
-  // Panels first; the toolkit chips and process steps then copy-paste, and the line runs through the nodes.
-  "education-card": { recipe: ["DRAW_BOX", "GRADIENT", "ROUND_CORNERS"] },
-  "toolkit-panel": { recipe: ["DRAW_BOX", "FILL", "ROUND_CORNERS"] },
-  "process-card": { recipe: ["DRAW_BOX", "FILL", "ROUND_CORNERS"], flash: true },
-  "education-degree": { recipe: ["DRAW_TEXTBOX", "TYPE", "RESIZE_TEXT"], resizeFrom: 18 },
-  "process-line": { after: ["process-step"] },
-  "process-node": { noGroup: true },
-  "about-quote": { recipe: ["DRAW_BOX", "FILL", "ROUND_CORNERS"] },
-  "quote-signature": { recipe: ["STROKE"] },
-
-  // 7. Journey, contact, footer
-  // Journey: the current-role card and milestones panel come first; the smaller rows copy-paste.
-  "journey-current": { recipe: ["DRAW_BOX", "GRADIENT", "ROUND_CORNERS"], flash: true },
-  "milestones-panel": { recipe: ["DRAW_BOX", "FILL", "ROUND_CORNERS"] },
-  "journey-rail": { after: ["journey-current"] },
+  // 6. About, journey, contact
+  "quote-signature": { recipe: ["DRAW_BOX", "DROP_IMAGE"], absorb: true },
   "contact-row": { noGroup: true },
-  // The form card first, then its fields; the budget options copy-paste; the send button goes last.
-  "project-form": { recipe: ["DRAW_BOX", "GRADIENT", "ROUND_CORNERS"], flash: true },
   "form-submit": { late: true },
-  "showreel-card": { recipe: ["DRAW_BOX", "GRADIENT", "ROUND_CORNERS"], flash: true },
   "section-headline-accent": { pair: "style" },
   // Footer: logo dropped in, name and roles typed, link lists copy-paste, then the wordmark is stamped last.
   "footer-logo": { recipe: ["DRAW_BOX", "DROP_IMAGE"] },

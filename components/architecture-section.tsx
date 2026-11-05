@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, useState, type KeyboardEvent } from "react";
-import Link from "next/link";
+import { EdFold } from "@/components/ed-fold";
 import { MachineFigure } from "@/components/machines/machine-figure";
+import { TransitionLink } from "@/components/transition-link";
 import { SectionHeader } from "@/components/section-header";
 import { portfolioContent } from "@/data/content";
 import { systems } from "@/data/systems";
@@ -78,14 +79,14 @@ export function ArchitectureSection() {
         <dl className="arch-numbers">
           {system.facts.map((fact) => (
             <div key={fact.label} data-layer="card" data-kind="arch-fact">
-              <dd data-layer="text">{fact.value}</dd>
               <dt data-layer="text">{fact.label}</dt>
-              <span className={fact.source === "Measured" ? "is-measured" : undefined} data-layer="text">{fact.source}</span>
+              <dd className="arch-number" data-layer="text">{fact.value}</dd>
+              <dd className={`arch-source${fact.source === "Measured" ? " is-measured" : ""}`} data-layer="text">{fact.source}</dd>
             </div>
           ))}
         </dl>
 
-        <h3 className="arch-subhead" data-layer="text">{copy.tradeOffsLabel}</h3>
+        <EdFold label={copy.tradeOffsLabel} className="arch-fold">
         <ol className="arch-calls">
           {system.tradeOffs.map((item) => (
             <li key={item.chose} data-layer="card" data-kind="arch-tradeoff">
@@ -98,12 +99,13 @@ export function ArchitectureSection() {
             </li>
           ))}
         </ol>
+        </EdFold>
 
         <div className="arch-actions">
           {system.caseStudy && (
-            <Link className="arch-action is-primary" data-magnetic data-layer="button" data-kind="arch-case-study" href={`/work/${system.caseStudy}`} onClick={() => track("case-study-opened", { from: "architecture", project: system.id })}>
+            <TransitionLink className="arch-action is-primary" data-magnetic data-layer="button" data-kind="arch-case-study" href={`/work/${system.caseStudy}`} onClick={() => track("case-study-opened", { from: "architecture", project: system.id })}>
               {copy.caseStudyLabel} <span aria-hidden="true">→</span>
-            </Link>
+            </TransitionLink>
           )}
           <a className="arch-action" data-magnetic data-layer="button" data-kind="arch-source" href={system.href} target="_blank" rel="noreferrer">
             {copy.sourceLabel} <span aria-hidden="true">↗</span>

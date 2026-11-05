@@ -63,15 +63,15 @@ public/
   favicon.svg             Compact KASIF browser icon
   og-image.svg            Social-sharing preview artwork
   hero-cutout.png         Original supplied transparent avatar
-  hero-cutout.webp        Optimized desktop hero portrait
-  hero-cutout-mobile.webp Optimized mobile hero portrait
+  hero-cutout.webp        Optimized hero portrait
 ```
 
 ## Content and assets to replace
 
 Update the typed source in `data/content.ts` and add files under `public/`. Missing optional values are omitted from the page rather than shown as placeholder tokens:
 
-- **Portrait:** the supplied transparent avatar is installed as `public/hero-cutout.webp` and `public/hero-cutout-mobile.webp`; `public/hero-cutout.png` is the original source.
+- **Portrait:** the supplied transparent avatar is installed as `public/hero-cutout.webp`; `public/hero-cutout.png` is the original source. Phones get a smaller size from `public/img/`.
+- **Booking link:** set `NEXT_PUBLIC_CAL_LINK` on Netlify to your Cal.com link. The booking buttons in Services and Contact stay hidden until it is set.
 - **Showreel:** replace `hero.reelEmbedUrl` with the YouTube or X video URL.
 - **CV:** set `hero.cvHref` to the real downloadable CV path or URL.
 - **Project URLs and details:** add each project's confirmed `href`, `year`, category and description. Cookie and ShiftKit need a real category and description before they can be fully presented.
@@ -104,7 +104,20 @@ No unprovided email address, award, year, or project statistic is fabricated. Le
 - The director maps marked layers into a deterministic ~35-second six-act desktop sequence (scan, blueprint, build, polish, finale, handoff); the mobile version is shorter, capped at 10 cursors, and omits trails. Replay reuses the same seeded sequence. In development, the control bar includes a timeline scrubber for inspecting and seeking the build.
 - The mobile navigation expands into a full-screen menu and closes on selection or Escape.
 - The project filter tabs, showreel dialog, and Raw-to-Real range slider support keyboard interaction.
-- Next Image is used for the hero portrait; add any future raster images with `next/image`.
+- Next Image is used for raster images, through the custom loader in `lib/image-loader.ts`, because a static export can't resize images on request. An image missing from the manifest is served at its original size.
+
+## Generated files
+
+These outputs are checked in. Run a tool again after changing its source.
+
+| Output | Command | Needs |
+| --- | --- | --- |
+| `public/img/*`, `lib/image-manifest.json` | `python3 tools/images/build.py` | Pillow |
+| `public/cv.pdf`, from `tools/cv/cv.html` | `node tools/cv/build.mjs` | Chrome |
+| `public/og/*`, the share cards | `node tools/share-cards/build.mjs` | Chrome, `sips` (macOS) |
+| `data/github.json` | `node tools/github/fetch.mjs`, which runs before every build | Network. A failed fetch keeps the last snapshot |
+
+Set `CHROME_PATH` if Chrome isn't in its usual place.
 
 ## Machine drawings
 

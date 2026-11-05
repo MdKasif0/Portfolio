@@ -7,7 +7,7 @@ import { portfolioContent } from "@/data/content";
 import { useMotionPreference } from "@/components/motion-shell";
 import { useAgentBuild } from "@/components/agent-build/BuildProvider";
 
-const socialNames: Record<string, string> = { X: "X / Twitter", GITHUB: "GitHub" };
+const socialNames: Record<string, string> = { X: "X / Twitter" };
 
 function useDotGap() { const [gap,setGap]=useState(6); useEffect(()=>{ const update=()=>setGap(innerWidth<640?4:innerWidth<1100?5:6); update(); addEventListener("resize",update); return()=>removeEventListener("resize",update);},[]); return gap; }
 function IstClock() { const [time,setTime]=useState(""); useEffect(()=>{const update=()=>setTime(new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Kolkata"}).format(new Date()));update();const id=setInterval(update,30000);return()=>clearInterval(id);},[]); return <span className="hwf-clock" data-layer="text" data-kind="footer-ist"><i aria-hidden="true" />IST <time>{time || "--:--"}</time></span>; }
@@ -18,7 +18,7 @@ export function SiteFooter({ base = "" }: { base?: string }) {
   const { identity, hero, contact, navigation, work } = portfolioContent; const email = contact.email;
   const projects = work.projects.map((project)=>{ const href = project.liveHref || project.githubHref; return { label:project.title, href, external:href.startsWith("http") }; });
   const columns: FooterColumn[] = [
-    { title:"Navigate", links:navigation.map((item)=>({ label:item.label, href:`${base}${item.href}` })) },
+    { title:"Navigate", links:[...navigation.map((item)=>({ label:item.label, href:`${base}${item.href}` })), { label:"Engineering notes", href:"/notes" }] },
     { title:"Selected work", links:projects },
     { title:"Connect", links:[...contact.socials.map(item=>({ label:socialNames[item.label] ?? item.label, href:item.href, external:true })), ...(email ? [{ label:"Email me", href:`mailto:${email}` }] : [])] }
   ];

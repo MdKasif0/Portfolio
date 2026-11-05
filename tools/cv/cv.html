@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Md Kasif Uddin: AI Software Engineer and Backend Architect, CV</title>
+<meta name="author" content="Md Kasif Uddin" />
+<style>
+  /* node tools/cv/build.mjs writes this to public/cv.pdf. Every fact here is on the site or in the project's source. */
+  @font-face { font-family: "Jakarta"; src: url("../fonts/jakarta.woff2") format("woff2"); font-weight: 200 800; }
+  @font-face { font-family: "Anton"; src: url("../fonts/anton.woff2") format("woff2"); }
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { width: 210mm; height: 296mm; overflow: hidden; padding: 11mm 13mm 9mm; background: #fff; color: #17171c; font: 400 8.75pt/1.36 "Jakarta", Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  a { color: inherit; text-decoration: none; }
+  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 8mm; padding-bottom: 3mm; border-bottom: 1.4pt solid #17171c; }
+  h1 { margin: 0; font: 400 30pt/1 "Anton", Impact, sans-serif; letter-spacing: .1pt; }
+  h1 i { color: #d42a25; font-style: normal; }
+  .role { margin: 1.4mm 0 0; color: #c9261f; font-size: 10.5pt; font-weight: 700; letter-spacing: -.1pt; }
+  .contact { display: grid; justify-items: end; gap: .2mm; color: #33333b; font-size: 8.2pt; text-align: right; white-space: nowrap; }
+  .summary { margin: 2.8mm 0 0; font-size: 9.4pt; line-height: 1.38; }
+  section { margin-top: 3.4mm; }
+  h2 { margin: 0 0 1.5mm; padding-bottom: .7mm; border-bottom: .5pt solid #c8c8cf; color: #c9261f; font-size: 8pt; font-weight: 800; letter-spacing: .85pt; text-transform: uppercase; }
+  .item { margin-bottom: 1.75mm; break-inside: avoid; }
+  .item:last-child { margin-bottom: 0; }
+  .head { display: flex; align-items: baseline; justify-content: space-between; gap: 5mm; }
+  h3 { margin: 0; font-size: 9.6pt; font-weight: 700; letter-spacing: -.08pt; }
+  h3 span { color: #55555f; font-weight: 500; }
+  .meta { flex: none; color: #55555f; font-size: 7.9pt; text-align: right; }
+  ul { margin: .35mm 0 0; padding: 0 0 0 3.2mm; }
+  li { margin: 0; padding-left: .4mm; }
+  li::marker { color: #d42a25; }
+  .two { display: grid; grid-template-columns: 1.38fr 1fr; gap: 6mm; }
+  .skills { display: grid; grid-template-columns: auto 1fr; gap: .3mm 3mm; margin: 0; }
+  .skills dt { color: #55555f; font-weight: 600; white-space: nowrap; }
+  .skills dd { margin: 0; }
+  .also { margin: 1.2mm 0 0; color: #33333b; }
+  .also b { font-weight: 600; }
+</style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>MD KASIF UDDIN<i>.</i></h1>
+      <p class="role">AI Software Engineer &amp; Backend Architect</p>
+    </div>
+    <div class="contact">
+      <a href="mailto:mdkasifuddin123@gmail.com">mdkasifuddin123@gmail.com</a>
+      <a href="https://kasif-portfolio.netlify.app">kasif-portfolio.netlify.app</a>
+      <span><a href="https://github.com/MdKasif0">github.com/MdKasif0</a> · <a href="https://x.com/md_kasif_uddin">x.com/md_kasif_uddin</a></span>
+      <span>India · Open to work</span>
+    </div>
+  </header>
+
+  <p class="summary">I build AI products and the backend systems behind them: LLM pipelines, APIs and data models that hold up in production, plus native desktop apps. I take work from first idea to launch, and build in public on X.</p>
+
+  <section>
+    <h2>Selected projects</h2>
+    <div class="item">
+      <div class="head"><h3>GitRoasted <span>· AI scoring and roasts for any GitHub profile</span></h3><span class="meta">Next.js, TypeScript, Groq, Firebase · 2025–now</span></div>
+      <ul>
+        <li>Scores a profile out of 1,000 across eight dimensions in plain code, so the leaderboard stays fair. An LLM only writes the words.</li>
+        <li>One server action crosses the GitHub API, scoring, Groq and Firestore, with a median live roast of about 2.1 s over 5 runs.</li>
+        <li>Capped inputs (1,000 repos, 100 events, 20 commits), a 5-minute cache, tolerant JSON parsing, model fallback and server-only leaderboard writes. 21 GitHub stars.</li>
+      </ul>
+    </div>
+    <div class="item">
+      <div class="head"><h3>AI Checkers Arena <span>· Live, server-authoritative LLM matches</span></h3><span class="meta">Next.js, TypeScript, OpenRouter, Supabase · 2026</span></div>
+      <ul>
+        <li>The server owns the rules: it rebuilds the board from a Postgres move log, offers the model only legal moves and validates every answer before saving it.</li>
+        <li>Up to 3 attempts with rising temperature, then a recorded fallback move, so a match always finishes. Forced moves skip the model and spend no tokens.</li>
+      </ul>
+    </div>
+    <div class="item">
+      <div class="head"><h3>GigSense <span>· Local-first ledger for gig couriers, 1st Runner-Up at InnoSprint 2.0</span></h3><span class="meta">Next.js, IndexedDB · 2026</span></div>
+      <ul>
+        <li>Profit maths and evidence stay on the device in three IndexedDB stores, and a service worker keeps it running with no signal.</li>
+        <li>AI only interprets: at most 20 text descriptions per request, no files ever leave the device, and replies are validated before they reach the screen.</li>
+      </ul>
+    </div>
+    <div class="item">
+      <div class="head"><h3>Cookie <span>· Native desktop companion for macOS and Windows</span></h3><span class="meta">Swift, SpriteKit, AppKit, Sparkle, C# · 2026</span></div>
+      <ul>
+        <li>Shipped on both platforms within 10 days of the first commit, with 126 macOS unit tests, in-app signed updates and no account, analytics or cloud calls.</li>
+        <li>Reads window positions through Quartz with no screenshots, passes clicks through transparent pixels, and drops from 60 to 15 FPS while she sleeps.</li>
+      </ul>
+    </div>
+    <div class="item">
+      <div class="head"><h3>Shadow of the Crimson Gate <span>· Action game that runs in a browser tab</span></h3><span class="meta">Three.js, TypeScript, WebGL, Web Audio · 2026</span></div>
+      <ul>
+        <li>16,242 lines of TypeScript on my own game loop, combat, AI, audio and save systems: 191 KB of compressed JavaScript at first load and 59.9 FPS at 1080p on an Apple M5.</li>
+      </ul>
+    </div>
+    <div class="item">
+      <div class="head"><h3>ReleaseStack <span>· AI outreach platform for startup launches</span></h3><span class="meta">Next.js, Supabase, Groq, Resend</span></div>
+      <ul>
+        <li>Single-admin platform that automates launch promotion on X, from content generation to scheduled outreach, on Postgres and transactional email.</li>
+      </ul>
+    </div>
+    <p class="also"><b>Also:</b> Object Detection Suite (YOLOv8, OpenCV), Kerr Black Hole (Blender, Python), TrustLayer (media verification), iWriteTech (MDX affiliate platform). Case studies and live demos are on my site.</p>
+  </section>
+
+  <section>
+    <h2>Experience</h2>
+    <div class="item">
+      <div class="head"><h3>Freelance AI Software Engineer &amp; Backend Architect</h3><span class="meta">2025–Present</span></div>
+      <ul>
+        <li>Design and build AI-powered software from first idea to production, pairing applied AI with solid backend architecture.</li>
+        <li>Integrate third-party APIs and cloud services, including auth, storage, payments and email.</li>
+      </ul>
+    </div>
+    <div class="item">
+      <div class="head"><h3>Tech Content Creator on X</h3><span class="meta">2026–Present</span></div>
+      <ul>
+        <li>6,500+ followers, and 20+ collaborations with AI and tech brands, including Moonshot AI, Tavus, daily.dev, TinyFish and Blackbox AI.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="two">
+    <section>
+      <h2>Skills</h2>
+      <dl class="skills">
+        <dt>Languages</dt><dd>TypeScript, JavaScript, Python, Swift, C#</dd>
+        <dt>Backend &amp; data</dt><dd>Node.js, REST APIs, PostgreSQL, Supabase, Firebase</dd>
+        <dt>AI &amp; ML</dt><dd>LLM integration, Groq, OpenAI, Gemini, OpenRouter, Hugging Face, TensorFlow, YOLOv8</dd>
+        <dt>Frontend</dt><dd>React, Next.js, Tailwind CSS, Three.js</dd>
+        <dt>Tools</dt><dd>Git, Docker, n8n, Netlify, Vercel, Figma</dd>
+      </dl>
+    </section>
+    <div>
+      <section>
+        <h2>Recognition</h2>
+        <div class="item"><h3>1st Runner-Up, InnoSprint 2.0 <span>· 2026</span></h3>Solo hackathon by D4 Community × Google for Developers, Chandigarh University.</div>
+        <div class="item"><h3>TrustLayer, Hackverse <span>· 2026</span></h3>Terrabyte Society, Chandigarh University.</div>
+      </section>
+      <section>
+        <h2>Education</h2>
+        <h3>B.Tech CSE <span>· 1st year, 2026–now</span></h3>Chandigarh University, Mohali.
+      </section>
+    </div>
+  </div>
+</body>
+</html>

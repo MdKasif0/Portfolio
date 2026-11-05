@@ -9,7 +9,9 @@ import { ArchitectureSection } from "@/components/architecture-section";
 import { WritingSection } from "@/components/writing-section";
 import { ContactSection } from "@/components/contact-footer";
 import { SiteFooter } from "@/components/site-footer";
-import { Atmosphere, RulerDivider } from "@/components/design-primitives";
+import { Atmosphere } from "@/components/design-primitives";
+import { ReelBand } from "@/components/reel-band";
+import { ServicesSection } from "@/components/services-section";
 import { portfolioContent } from "@/data/content";
 
 export default function Home() {
@@ -29,20 +31,15 @@ export default function Home() {
       <SiteNav />
       <main id="main-content">
         <HeroSection cvAvailable={cvAvailable} />
-        <RulerDivider label="001 / 064" />
         <WorkSection projectImages={projectImages} />
-        <RulerDivider label="002 / 128" />
         <CollaboratorStrip />
-        <RulerDivider label="003 / 192" />
         <RecognitionSection />
-        <RulerDivider label="004 / 256" />
         <ArchitectureSection />
-        <RulerDivider label="005 / 320" />
+        <ReelBand />
         <AboutSection />
-        <RulerDivider label="006 / 384" />
         <JourneySection />
         <WritingSection />
-        <RulerDivider label="007 / 448" />
+        <ServicesSection />
         <ContactSection />
       </main>
       <SiteFooter />

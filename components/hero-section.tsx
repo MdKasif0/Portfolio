@@ -9,12 +9,13 @@ import {
   useSpring,
   useTransform
 } from "framer-motion";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { portfolioContent } from "@/data/content";
 import { useAgentBuild } from "@/components/agent-build/BuildProvider";
 import { useMotionPreference } from "@/components/motion-shell";
-import { ShowreelModal } from "@/components/showreel-modal";
 
+const ShowreelModal = dynamic(() => import("@/components/showreel-modal").then((module) => module.ShowreelModal), { ssr: false });
 const hero = portfolioContent.hero;
 const providedHeroStats: Array<{ value: string; label: string }> = hero.stats.flatMap((stat) =>
   stat.value ? [{ value: stat.value, label: stat.label }] : []
@@ -64,7 +65,7 @@ function AnimatedStat({
   }, [active, numericValue]);
 
   return (
-    <div className="hero-stat" data-layer="card" data-kind="stat-card" role="listitem">
+    <div className="hero-stat" data-layer="card" data-kind="stat-card">
       <span className="hero-stat-value" data-layer="text" data-kind="stat-number">
         {Number.isFinite(numericValue) ? (
           <>
@@ -102,12 +103,6 @@ function HeroHud() {
           <circle cx="240" cy="240" r="184" strokeDasharray="1 9" />
         </g>
       </svg>
-      <span className="hero-hud-corner hero-hud-corner-tl" data-layer="line" data-kind="crop-mark" />
-      <span className="hero-hud-corner hero-hud-corner-tr" data-layer="line" data-kind="crop-mark" />
-      <span className="hero-hud-corner hero-hud-corner-bl" data-layer="line" data-kind="crop-mark" />
-      <span className="hero-hud-corner hero-hud-corner-br" data-layer="line" data-kind="crop-mark" />
-      <span className="hero-hud-label hero-hud-label-top" data-layer="text" data-kind="hud-label">FRAME 001</span>
-      <span className="hero-hud-label hero-hud-label-bottom" data-layer="text" data-kind="hud-label">1920 × 1080</span>
     </div>
   );
 }
@@ -253,12 +248,12 @@ export function HeroSection({ cvAvailable = false }: { cvAvailable?: boolean }) 
               <span className="hero-avatar-ground" aria-hidden="true" />
               <span className="hero-avatar-rim" aria-hidden="true" />
               <picture>
-                <source media="(max-width: 700px)" srcSet={hero.cutoutMobilePath} type="image/webp" />
                 <Image
                   src={hero.cutoutPath}
                   alt={hero.cutoutAlt}
                   width={1254}
                   height={1254}
+                  sizes="(max-width: 440px) 75vw, (max-width: 700px) 380px, (max-width: 1600px) 52vw, 835px"
                   priority
                   onLoad={() => setCutoutLoaded(true)}
                   onError={(event) => {
@@ -317,12 +312,12 @@ export function HeroSection({ cvAvailable = false }: { cvAvailable?: boolean }) 
             </div>
           </div>
 
-          <aside className="hero-v2-aside">
+          <div className="hero-v2-aside">
             <p className="hero-v2-aside-note" data-layer="text" data-kind="aside-note">
               <span data-layer="icon" data-kind="aside-asterisk" aria-hidden="true">✳</span>
               <em>{hero.asideNote}</em>
             </p>
-            <div className="hero-v2-stats" ref={statsRef} data-layer="card" data-kind="stats-rail" role="list">
+            <div className="hero-v2-stats" ref={statsRef} data-layer="card" data-kind="stats-rail">
               {heroStats.map((stat) => (
                 <AnimatedStat
                   key={stat.label}
@@ -333,13 +328,13 @@ export function HeroSection({ cvAvailable = false }: { cvAvailable?: boolean }) 
                 />
               ))}
               {cvAvailable && (
-                <a className="hero-v2-cv" data-magnetic data-layer="button" data-kind="cv-download" href={hero.cvHref ?? "/cv.pdf"}>
+                <a className="hero-v2-cv" data-magnetic data-layer="button" data-kind="cv-download" href={hero.cvHref ?? "/cv.pdf"} download="Md-Kasif-Uddin-CV.pdf">
                   <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2v10m-4-4 4 4 4-4M3 14v2h12v-2" /></svg>
                   {hero.cvLabel}
                 </a>
               )}
             </div>
-          </aside>
+          </div>
 
           <div className="hero-v2-marquee" aria-hidden="true">
             <div className="hero-marquee-row hero-marquee-row-one" data-layer="text" data-kind="marquee-row">

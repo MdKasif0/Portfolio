@@ -14,6 +14,11 @@ export type AnalyticsEvent =
   | "case-study-opened"
   | "contact-reached"
   | "contact-form-sent"
+  | "offer-chosen"
+  | "booking-opened"
+  | "demo-started"
+  | "palette-opened"
+  | "note-opened"
   | "cv-downloaded";
 
 type Umami = { track: (event: string, data?: Record<string, string | number>) => void };

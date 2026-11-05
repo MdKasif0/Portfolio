@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { portfolioContent } from "@/data/content";
+import { openPalette } from "@/components/command-palette";
 import { useMotionPreference } from "@/components/motion-shell";
 
 /** `base` is "/" on other pages, so its links lead back to the home page's sections. */
@@ -14,6 +15,11 @@ export function SiteNav({ base = "" }: { base?: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const [compressed, setCompressed] = useState(false);
+  const [shortcut, setShortcut] = useState("⌘K");
+
+  useEffect(() => {
+    if (!/mac|iphone|ipad/i.test(navigator.userAgent)) setShortcut("Ctrl K");
+  }, []);
 
   useEffect(() => {
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -92,8 +98,10 @@ export function SiteNav({ base = "" }: { base?: string }) {
                 {item.label}{activeSection === item.href.slice(1) && <motion.i className="nav-active-underline" layoutId="nav-active-underline" />}
               </Link>
             ))}
+            <button className="nav-palette-link" type="button" onClick={() => { setMenuOpen(false); openPalette(); }}>Search the site</button>
           </nav>
           <div className="nav-actions">
+            <button className="palette-trigger" data-magnetic data-layer="button" data-kind="nav-palette" type="button" aria-label="Search the site" aria-keyshortcuts="Meta+K Control+K" onClick={openPalette}><kbd>{shortcut}</kbd></button>
             <button
               className={`menu-toggle${menuOpen ? " is-open" : ""}`}
               data-layer="button"

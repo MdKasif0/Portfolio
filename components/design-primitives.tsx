@@ -111,7 +111,3 @@ export function Atmosphere() {
     </div>
   );
 }
-
-export function RulerDivider({ label }: { label: string }) {
-  return <div className="ruler-divider container-x" data-layer="line" data-kind="ruler" aria-hidden="true"><span>{label}</span></div>;
-}

@@ -115,7 +115,7 @@ export interface BuildPlan {
   total: number;
 }
 
-export const SECTION_ORDER = ["nav", "top", "work", "collaborators", "recognition", "architecture", "about", "journey", "writing", "contact", "footer"];
+export const SECTION_ORDER = ["nav", "top", "work", "collaborators", "recognition", "architecture", "reel", "about", "journey", "writing", "services", "contact", "footer"];
 const TRAILING_SYMBOL = /\s*([↗↑→▶↓✓+↔])\s*$/;
 
 function sectionOf(element: Element) {
