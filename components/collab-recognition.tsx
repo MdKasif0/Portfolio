@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, type CSSProperties } from "react";
+import { useRef } from "react";
+import Image from "next/image";
 import { useInView } from "framer-motion";
-import { portfolioContent } from "@/data/content";
+import { portfolioContent, type Brand } from "@/data/content";
 import { SectionHeader } from "@/components/section-header";
 import { CountUp } from "@/components/design-primitives";
 
@@ -24,6 +25,23 @@ function AwardSeal() {
   );
 }
 
+const brandNames = collaborators.brands.map((brand) => brand.name);
+const brandRows = [collaborators.brands.slice(0, collaborators.rowSplit), collaborators.brands.slice(collaborators.rowSplit)];
+
+/** One brand in the marquee. The second copy of each row only exists to make the loop seamless, so it's hidden from assistive tech and the keyboard. */
+function BrandPlate({ brand, duplicate }: { brand: Brand; duplicate: boolean }) {
+  const inner = (
+    <>
+      {brand.logo && <Image className="collab-logo" src={brand.logo} alt={duplicate || brand.label ? "" : brand.name} width={brand.width} height={brand.height} loading="eager" style={{ height: brand.height, width: "auto" }} data-layer="image" data-kind="collaboration-logo" />}
+      {(!brand.logo || brand.label) && <span className="collab-wordmark" data-layer="text" data-kind="collaboration-name">{brand.label ?? brand.name}</span>}
+    </>
+  );
+  const shared = { className: "collab-logo-plate", "data-layer": "card", "data-kind": "logo-plate", "aria-hidden": duplicate || undefined } as const;
+  return brand.href
+    ? <a {...shared} href={brand.href} target="_blank" rel="noreferrer" tabIndex={duplicate ? -1 : undefined} aria-label={duplicate ? undefined : brand.name} role={duplicate ? undefined : "listitem"}>{inner}</a>
+    : <span {...shared} role={duplicate ? undefined : "listitem"}>{inner}</span>;
+}
+
 export function CollaboratorStrip() {
   const countRef = useRef<HTMLDivElement>(null);
   const countInView = useInView(countRef, { once: true, amount: 0.6 });
@@ -39,15 +57,11 @@ export function CollaboratorStrip() {
           <b><CountUp value={collaborators.count} suffix={collaborators.countSuffix} active={countInView} /></b> {collaborators.countLabel}
         </p>
       </div>
-      <div className="collab-marquees" aria-label={collaborators.names.join(", ")}>
-        {[1, -1].map((direction, row) => (
-          <div className={`collab-marquee collab-marquee-${row + 1}`} key={row}>
-            <div className="collab-marquee-track" style={{ "--marquee-direction": direction } as CSSProperties}>
-              {[...collaborators.names, ...collaborators.names].map((name, index) => (
-                <span className="collab-logo-plate" data-layer="card" data-kind="logo-plate" aria-hidden={index >= collaborators.names.length} key={`${name}-${index}`}>
-                  <span className="collab-wordmark" data-layer="text" data-kind="collaboration-logo">{name}</span>
-                </span>
-              ))}
+      <div className="collab-marquees" role="list" aria-label={brandNames.join(", ")}>
+        {brandRows.map((row, rowIndex) => (
+          <div className={`collab-marquee collab-marquee-${rowIndex + 1}`} key={rowIndex}>
+            <div className="collab-marquee-track">
+              {[row, row].flatMap((set, copy) => set.map((brand) => <BrandPlate brand={brand} duplicate={copy === 1} key={`${brand.name}-${copy}`} />))}
             </div>
           </div>
         ))}
@@ -109,7 +123,7 @@ export function RecognitionSection() {
               {entry.event && <p className="recognition-event" data-layer="text">{entry.event}</p>}
               {entry.showPartners && (
                 <ul className="recognition-partners" aria-label={`${collaborators.count}${collaborators.countSuffix} brand collaborators, including`}>
-                  {collaborators.names.map((name) => <li data-layer="text" data-kind="recognition-partner" key={name}>{name}</li>)}
+                  {brandNames.map((name) => <li data-layer="text" data-kind="recognition-partner" key={name}>{name}</li>)}
                 </ul>
               )}
               {entry.href && (

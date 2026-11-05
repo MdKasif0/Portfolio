@@ -76,7 +76,7 @@ Update the typed source in `data/content.ts` and add files under `public/`. Miss
 - **CV:** set `hero.cvHref` to the real downloadable CV path or URL.
 - **Project URLs and details:** add each project's confirmed `href`, `year`, category and description. Cookie and ShiftKit need a real category and description before they can be fully presented.
 - **Project thumbnails:** add real images for GitRoasted, ReviewPilot, GreenBoard, Gravites Network, AI Checkers Arena, Cookie, and ShiftKit; replace the CSS thumbnail previews in `components/work-section.tsx`.
-- **Collaborator logos:** add supplied logo assets for Blackbox AI, Kimi, SuperApp, yapper.so, Glass Editor, and startblock.shop; the current strip uses text wordmarks.
+- **Collaborator logos:** Glass Editor and startblock.shop still need official logos in `public/brands/`; the rest are in place.
 - **Contact email:** set `contact.email` to the real address. The email row is omitted until this is supplied.
 - **Stats and aggregate count:** set hero stats and the recognition `count` only to confirmed figures; the six brand collaborations are already supplied.
 - **Years and dates:** add confirmed project, education, recognition, timeline, and milestone dates. Unknown years are omitted.

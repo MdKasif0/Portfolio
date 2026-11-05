@@ -2369,7 +2369,7 @@ a, button, label, input, textarea, select, summary, [role="slider"], [role="swit
    Tiny text inside the decorative product mockups stays as artwork. */
 .hero-v2-eyebrow, .hero-v2-availability, .hero-v2-scroll, .hero-v2-footer-label, .recognition-list-heading, .recognition-breakdown dt, .hero-stat-label, .hero-v2-cv, .hero-v2-reel-label, .hero-v2-reel-meta, .hero-v2-location, .hero-v2-aside-note em,
 .work-all-link, .work-view-all, .work-view-all span, .project-tag, .project-meta, .work-filter, .work-filter small,
-.collab-strip-label, .collab-strip-label span, .collab-strip-label strong, .collab-count, .collab-count b, .collab-wordmark,
+.collab-strip-label, .collab-strip-label span, .collab-strip-label strong,
 .recognition-type, .recognition-row-index, .recognition-year, .recognition-count-label, .recognition-partners li, .recognition-breakdown dt, .recognition-link,
   .education-status, .education-year, .micro-heading, .milestones > .micro-heading, .about-panel .micro-heading, .quote-footer, .toolkit-group h4, .journey-now,
 .showreel-kicker, .showreel-card-caption, .contact-label, .contact-status, .contact-locale span, .india-time, .contact-cta, .contact-copy, .form-control > span, .form-budget legend,
@@ -2606,3 +2606,53 @@ html[data-motion="ready"] .arch-link::after { animation: arch-pulse 2.25s linear
 .nf .arch-actions { margin-top: 26px; }
 .project-drawer-link.is-case-study { flex-basis: 100%; justify-content: center; border-color: rgba(242,80,62,.55); color: #fff; }
 @media (prefers-reduced-motion: reduce) { .arch-tab, .arch-action, .cs-next-card, .writing-profile { transition: none; } }
+
+
+/* ==========================================================================
+   Been part of: the brand wall.
+   ========================================================================== */
+.collab-strip { position: relative; grid-template-columns: clamp(200px, 19vw, 280px) minmax(0, 1fr); align-items: center; gap: clamp(24px, 3vw, 48px); padding-block: clamp(40px, 5vw, 68px); border-block: 0; overflow: visible; }
+.collab-strip::before, .collab-strip::after { position: absolute; right: 0; left: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.14) 18%, rgba(242,80,62,.42) 50%, rgba(255,255,255,.14) 82%, transparent); content: ""; }
+.collab-strip::before { top: 0; }
+.collab-strip::after { bottom: 0; }
+.collab-strip-copy { display: flex; flex-direction: column; gap: clamp(14px, 1.6vw, 22px); }
+.collab-strip-label { flex-direction: column; gap: 5px; color: #8c8c9a; font-size: 11px; letter-spacing: .16em; }
+.collab-strip-label strong { color: var(--text-100); font-size: 11px; font-weight: 700; letter-spacing: .14em; }
+.collab-count { display: grid; gap: 6px; margin: 0; color: var(--text-300); font-size: 13px; letter-spacing: 0; line-height: 1.35; }
+.collab-count b { color: #fff; font-family: var(--font-display), Impact, sans-serif; font-size: clamp(54px, 5.6vw, 88px); font-weight: 400; line-height: .95; font-variant-numeric: normal; }
+.collab-marquees { gap: 10px; padding-block: 4px; overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
+.collab-marquee { overflow: visible; mask-image: none; -webkit-mask-image: none; }
+.collab-marquee-track { display: flex; width: max-content; height: auto; gap: 10px; animation: collab-marquee-run 58s linear infinite; }
+.collab-marquee-2 .collab-marquee-track { animation-direction: reverse; animation-duration: 50s; }
+.collab-strip:hover .collab-marquee-track { animation-play-state: running; }
+.collab-marquee:hover .collab-marquee-track, .collab-marquee:focus-within .collab-marquee-track { animation-play-state: paused; }
+.collab-logo-plate { position: relative; display: inline-flex; width: auto; min-width: clamp(150px, 13vw, 196px); height: clamp(76px, 6.4vw, 92px); flex: 0 0 auto; align-items: center; justify-content: center; gap: 10px; padding-inline: clamp(24px, 2.4vw, 36px); overflow: hidden; border: 1px solid rgba(255,255,255,.08); border-radius: 16px; background: linear-gradient(160deg, rgba(255,255,255,.055), rgba(255,255,255,.012) 62%); transition: border-color .28s ease, background .28s ease; }
+a.collab-logo-plate:hover { border-color: rgba(242,80,62,.5); background: linear-gradient(160deg, rgba(229,50,45,.16), rgba(255,255,255,.02) 70%); }
+a.collab-logo-plate:focus-visible { outline: 2px solid #ff6a5b; outline-offset: -2px; }
+.collab-logo { display: block; flex: none; max-width: none; opacity: .82; transition: opacity .28s ease, transform .4s var(--ease-expo-out); }
+a.collab-logo-plate:hover .collab-logo { opacity: 1; transform: scale(1.05); }
+.collab-wordmark { color: rgba(247,247,248,.84); font: 700 clamp(16px, 1.4vw, 19px)/1.2 var(--font-body), sans-serif; letter-spacing: -.01em; text-align: center; text-transform: none; white-space: nowrap; }
+@media (max-width: 860px) {
+  .collab-strip { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  .collab-strip-copy { flex-direction: row; align-items: end; justify-content: space-between; gap: 16px; }
+  .collab-strip-label { flex-direction: column; align-items: flex-start; }
+  .collab-count { justify-items: end; text-align: right; }
+  .collab-count b { font-size: clamp(46px, 11vw, 64px); }
+  .collab-marquees { margin-inline: calc(var(--container-gutter) * -1); mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
+  .collab-logo-plate { min-width: 138px; height: 70px; padding-inline: 20px; border-radius: 14px; }
+  .collab-logo { transform: scale(.88); transform-origin: center; }
+}
+@media (max-width: 640px) {
+  .collab-strip { padding-inline: 20px; }
+  .collab-marquees { margin-inline: -20px; }
+}
+@media (hover: none) {
+  a.collab-logo-plate:hover { border-color: rgba(255,255,255,.08); background: linear-gradient(160deg, rgba(255,255,255,.055), rgba(255,255,255,.012) 62%); }
+  a.collab-logo-plate:hover .collab-logo { opacity: .82; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .collab-marquee-track { flex-wrap: wrap; width: auto; animation: none !important; }
+  .collab-logo-plate[aria-hidden="true"] { display: none; }
+  .collab-marquees { mask-image: none; -webkit-mask-image: none; }
+  .collab-logo-plate, .collab-logo { transition: none; }
+}
