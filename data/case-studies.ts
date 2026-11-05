@@ -10,8 +10,8 @@ import { automatonMachine, lanternMachine, roasterMachine, type Machine, type Sy
 export type Incident = { date: string; title: string; what: string; fix: string };
 export type Media = { kind: "image" | "video"; src: string; poster?: string; width: number; height: number; alt: string; caption: string };
 export type Excerpt = { file: string; href: string; lang: string; code: string; note: string };
-/** Each project keeps its own world: ember on black, warm paper, moonlit teal. */
-export type CaseStudyTheme = "ember" | "paper" | "moon";
+/** Every page is dark, tinted for its project: ember on black, the site's own red and black, moonlit teal. */
+export type CaseStudyTheme = "ember" | "brand" | "moon";
 
 export type CaseStudy = {
   slug: string;
@@ -176,7 +176,7 @@ export const caseStudies: CaseStudy[] = [
   {
     slug: "cookie",
     project: "Cookie",
-    theme: "paper",
+    theme: "brand",
     title: "Cookie",
     deck: "A tiny cat that lives on your desktop. She walks along your windows, sits on the Dock and naps when you stop working. The hard part is being a polite background app.",
     description: "How Cookie, a tiny desktop companion for macOS and Windows, navigates real windows, stays out of your clicks, and keeps everything offline.",

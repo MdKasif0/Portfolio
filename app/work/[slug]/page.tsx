@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CaseStudyMedia } from "@/components/case-study-media";
@@ -183,10 +184,26 @@ export default function CaseStudyPage({ params }: Props) {
         </div>
 
         <nav className="cs-end" data-next={next.theme} aria-label="More case studies">
-          <Link className="cs-next-link" href={`/work/${next.slug}`}>
-            <span className="cs-label">Next case study</span>
-            <strong>{next.title}</strong>
-            <i aria-hidden="true">→</i>
+          <Link className="cs-next-link" href={`/work/${next.slug}`} aria-label={`Next case study: ${next.title}`}>
+            <span className="cs-next-inner cs-wrap">
+              <span className="cs-next-copy">
+                <span className="cs-next-meta cs-label">
+                  <span>Next case study</span>
+                  <span>{String(caseStudies.indexOf(next) + 1).padStart(2, "0")} / {String(caseStudies.length).padStart(2, "0")}</span>
+                </span>
+                <strong className={next.title.length > 14 ? "is-long" : undefined}>{next.title}</strong>
+                <span className="cs-next-role">{next.role}</span>
+              </span>
+              <span className="cs-next-art">
+                <span className="cs-next-frame"><Image src={next.cover} alt="" fill sizes="(max-width: 860px) 100vw, 44vw" /></span>
+                <span className="cs-next-go" aria-hidden="true">
+                  <span className="cs-next-arrows">
+                    <svg viewBox="0 0 24 24"><path d="M3 12h17M13.5 5.5 20 12l-6.5 6.5" /></svg>
+                    <svg viewBox="0 0 24 24"><path d="M3 12h17M13.5 5.5 20 12l-6.5 6.5" /></svg>
+                  </span>
+                </span>
+              </span>
+            </span>
           </Link>
           <p className="cs-end-note cs-wrap">Have something similar to build? <Link href="/#contact">Let&apos;s talk <span aria-hidden="true">→</span></Link></p>
         </nav>

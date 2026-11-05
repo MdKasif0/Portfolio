@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode, useLayoutEffect, useRef } from "react";
 import Lenis from "lenis";
 import { usePathname } from "next/navigation";
 import { BuildProvider } from "@/components/agent-build/BuildProvider";
@@ -16,6 +16,8 @@ export function useMotionPreference() {
   if (!context) throw new Error("useMotionPreference must be used within MotionShell");
   return context;
 }
+
+const useIsomorphicLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 export function MotionShell({ children }: { children: ReactNode }) {
   const [motionEnabled, setMotionEnabled] = useState(true);
@@ -68,6 +70,26 @@ export function MotionShell({ children }: { children: ReactNode }) {
       lenis.destroy();
     };
   }, [motionEnabled]);
+
+  // A new page starts at the top. Without this, a glide still running from the last wheel scroll
+  // carries on after the route changes and drags the new page back down to the old position.
+  const pathname = usePathname();
+  const previousPath = useRef(pathname);
+  const historyMove = useRef(false);
+  useEffect(() => {
+    const onPopState = () => { historyMove.current = true; };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+  useIsomorphicLayoutEffect(() => {
+    if (previousPath.current === pathname) return;
+    previousPath.current = pathname;
+    const keepPosition = historyMove.current || Boolean(window.location.hash);
+    historyMove.current = false;
+    // Back, forward and #anchors choose their own position, so those only stop the glide.
+    if (lenisInstance) lenisInstance.scrollTo(keepPosition ? window.scrollY : 0, { immediate: true, force: true });
+    else if (!keepPosition) window.scrollTo({ top: 0, behavior: "auto" });
+  }, [pathname, lenisInstance]);
 
   const scrollTo = (target: number, duration: number) => {
     if (lenisInstance) {
