@@ -9,7 +9,7 @@ export type TradeOff = { chose: string; over: string; why: string; cost: string 
 
 /** One step of a request, played on the machine. `parts` are what light up; `object` says what they are in the machine. */
 export type MachineStation = { title: string; object: string; note: string; parts: string[]; seconds: number };
-export type Machine = { figure: "roaster" | "referee" | "fieldcase" | "automaton" | "lantern"; object: string; stations: MachineStation[] };
+export type Machine = { figure: "roaster" | "automaton" | "lantern"; object: string; stations: MachineStation[] };
 
 export type System = {
   id: string;
@@ -101,92 +101,73 @@ export const systems: System[] = [
     href: "https://github.com/MdKasif0/GitRoasted"
   },
   {
-    id: "checkers",
-    name: "AI Checkers Arena",
-    kicker: "Server-authoritative",
-    summary: "LLMs hallucinate moves, so the model never decides what is legal. The server owns the rules, offers the model only legal moves, and checks the answer before anything is saved.",
-    machine: {
-      figure: "referee",
-      object: "A tournament referee rig",
-      stations: [
-        { title: "Replay the log", object: "the punched tape", note: "Each turn, the stored moves are replayed from Postgres to rebuild the board, so there's one source of truth.", parts: ["log"], seconds: 2.6 },
-        { title: "Rules engine", object: "the board", note: "International Checkers in TypeScript works out the legal moves first. With only one legal move, the model is skipped entirely.", parts: ["board", "rules"], seconds: 1.8 },
-        { title: "Ask the model", object: "the sealed booth", note: "An OpenRouter model picks from the legal list, under a 60 s timeout per call. In this illustration its first answer is illegal, so the comb rejects it.", parts: ["model", "rules"], seconds: 3.2 },
-        { title: "Retry", object: "the attempt lamps", note: "Up to 3 attempts, with temperature rising each time. If all three fail, a random legal move keeps the match alive, and the failure is recorded.", parts: ["model", "rules"], seconds: 3 },
-        { title: "Apply the move", object: "the gantry", note: "The server applies the move. The model never touches the board directly.", parts: ["gantry", "board"], seconds: 3.4 },
-        { title: "Save it", object: "a new row on the tape", note: "Every move is stored with its reasoning, latency and tokens, so any match can be audited move by move.", parts: ["log"], seconds: 2 }
-      ]
-    },
+    id: "cookie",
+    name: "Cookie",
+    kicker: "Native desktop app",
+    summary: "She runs all day beside your real work, so one stolen click or spinning fan gets her uninstalled. She knows where windows are but never what's in them, lets clicks fall through, and keeps everything on your machine.",
+    machine: automatonMachine,
     facts: [
-      { value: "3", label: "Attempts per move before the fallback", source: "From the code" },
-      { value: "60s", label: "Timeout on each model call", source: "From the code" },
-      { value: "0", label: "Tokens spent on forced moves", source: "From the code" },
-      { value: "100%", label: "Of moves checked by the rules engine", source: "From the code" }
+      { value: "0.4s", label: "Fastest window scan, with no screenshots", source: "From the code" },
+      { value: "15 FPS", label: "While she sleeps, down from 60, and paused when hidden", source: "From the code" },
+      { value: "126", label: "macOS unit tests", source: "From the code" },
+      { value: "0", label: "Accounts, analytics or cloud calls", source: "From the code" }
     ],
     tradeOffs: [
       {
-        chose: "Rebuilding state from the move log",
-        over: "Saving a board snapshot",
-        why: "There is one source of truth, and any match can be audited move by move.",
-        cost: "Every turn replays the whole game so far."
+        chose: "Quartz window metadata",
+        over: "Screenshots or screen analysis",
+        why: "It gives window positions without capturing a single pixel, and scans are throttled to one every 0.4 seconds at most.",
+        cost: "She knows where windows are, never what's in them, so she can't react to content."
       },
       {
-        chose: "Retry, then a random legal move",
-        over: "Letting a bad model break the match",
-        why: "A match always finishes. Temperature rises on each retry, and the failure is recorded.",
-        cost: "A fallback move is not really the model's play."
+        chose: "An alpha-mask hit test",
+        over: "A rectangular click area",
+        why: "A click on a transparent pixel goes through to the app underneath, and the same mask tells nose from tail for petting.",
+        cost: "The mask has to stay in sync with the artwork."
       },
       {
-        chose: "Skipping the LLM on forced moves",
-        over: "Calling the model every turn",
-        why: "With one legal move there is nothing to decide, so it costs no tokens and no wait.",
-        cost: "Latency stats need to account for those instant turns."
+        chose: "Frame rate that follows behavior",
+        over: "A constant 60 FPS",
+        why: "She renders at 60 FPS when active and 15 when asleep, and pauses completely when her window is hidden.",
+        cost: "Every behavior change also has to think about rendering."
       }
     ],
-    href: "https://github.com/MdKasif0/AI-Checkers-Arena"
+    caseStudy: "cookie",
+    href: "https://github.com/MdKasif0/Cookie"
   },
   {
-    id: "gigsense",
-    name: "GigSense",
-    kicker: "Local-first",
-    summary: "Couriers often work with no signal, and their evidence is sensitive. So the profit maths and all stored data live on the device, and AI only ever interprets, never calculates.",
-    machine: {
-      figure: "fieldcase",
-      object: "A sealed field case",
-      stations: [
-        { title: "No signal", object: "the radio and battery pack", note: "Couriers often work with no signal. A service worker keeps the app shell running offline.", parts: ["radio", "shell"], seconds: 2.4 },
-        { title: "Deterministic core", object: "the calculator", note: "Vehicle costs and net pay per hour are calculated on the device. Money figures are exact, repeatable and don't need a network.", parts: ["calc"], seconds: 3.4 },
-        { title: "IndexedDB", object: "three steel trays", note: "Deliveries, incidents and evidence files go into three local stores. The trays have no way out.", parts: ["trays"], seconds: 2.8 },
-        { title: "AI, text only", object: "the slot and radio", note: "When there's signal, only text goes out: at most 20 evidence descriptions per request. The files themselves never leave the device.", parts: ["slot", "radio"], seconds: 4 },
-        { title: "Check the reply", object: "the reply tray", note: "The model returns structured JSON, and it's parsed and validated before it reaches the screen. AI only interprets; it never calculates.", parts: ["reply", "radio"], seconds: 2.8 }
-      ]
-    },
+    id: "crimson",
+    name: "Shadow of the Crimson Gate",
+    kicker: "Game engine in a browser",
+    summary: "A full action game that opens from a link, so it has to live within a browser's limits on hardware I'll never see. There's no commercial engine: one loop drives my own combat, AI, world, audio and save systems on top of Three.js.",
+    machine: lanternMachine,
     facts: [
-      { value: "0", label: "Network calls needed for the profit maths", source: "From the code" },
-      { value: "3", label: "IndexedDB stores on the device", source: "From the code" },
-      { value: "20", label: "Evidence descriptions per AI request, at most", source: "From the code" },
-      { value: "0", label: "Evidence files sent to the AI", source: "From the code" }
+      { value: "100ms", label: "Cap on delta time, so a slow frame can't break the game", source: "From the code" },
+      { value: "59.9", label: "FPS during gameplay at 1080p on an Apple M5", source: "Measured" },
+      { value: "191 KB", label: "Compressed JavaScript at first load", source: "Measured" },
+      { value: "3", label: "Boss phases, changing at 70% and 35% health", source: "From the code" }
     ],
     tradeOffs: [
       {
-        chose: "Storing everything on the device",
-        over: "A hosted database",
-        why: "It works in a basement with no signal, and sensitive evidence stays with the worker.",
-        cost: "No sync between devices, and clearing browser storage loses data."
+        chose: "Three.js with my own game systems",
+        over: "A full game engine",
+        why: "It keeps the first load to 191 KB of compressed JavaScript, and I control the whole frame.",
+        cost: "Combat, AI, cameras and saves were all mine to build and debug."
       },
       {
-        chose: "Maths in code, AI for context",
-        over: "Letting a model estimate pay",
-        why: "Money figures have to be exact and repeatable, and work without a network.",
-        cost: "AI features still need a connection."
+        chose: "Instanced meshes and particle pools",
+        over: "One object per tree, rock and petal",
+        why: "One draw call can render thousands of instances, and pooled particles avoid creating and collecting objects in the middle of a fight.",
+        cost: "Individual instances are harder to animate and change."
       },
       {
-        chose: "Sending descriptions, not files",
-        over: "Uploading evidence to the model",
-        why: "Photos and receipts never leave the device.",
-        cost: "The AI only knows what the worker describes."
+        chose: "Frame-safety limits",
+        over: "Trusting the browser's timing",
+        why: "Delta time is capped at 100 ms, pixel ratio is capped at 2, and the game pauses when the tab is hidden.",
+        cost: "A long stall briefly slows the game instead of catching up."
       }
     ],
-    href: "https://github.com/MdKasif0/GigSense"
+    caseStudy: "shadow-of-the-crimson-gate",
+    href: "https://github.com/MdKasif0/Shadow-of-the-Crimson-Gate"
   }
 ];

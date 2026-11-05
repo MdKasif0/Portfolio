@@ -315,8 +315,8 @@ export const portfolioContent = {
   },
   architecture: {
     eyebrow: "A LOOK UNDER THE SURFACE",
-    titleLines: ["EVERY BACKEND", "IS A MACHINE."],
-    caption: "Three real backends, each built as a working machine you can watch run. Every step maps to real code. Click any part to see what it does.",
+    titleLines: ["EVERY SYSTEM", "IS A MACHINE."],
+    caption: "Three real systems, each built as a working machine you can watch run. Every step maps to real code. Click any part to see what it does.",
     tabsLabel: "Choose a system",
     tradeOffsLabel: "The calls behind it",
     caseStudyLabel: "Read the full case study",

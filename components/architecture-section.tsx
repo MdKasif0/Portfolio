@@ -18,6 +18,12 @@ export function ArchitectureSection() {
   const choose = (index: number) => {
     setActive(index);
     track("architecture-tab", { system: systems[index].id });
+    // On small screens the tabs scroll sideways, and a long name can start half hidden.
+    const tab = tabs.current[index];
+    const strip = tab?.parentElement;
+    if (tab && strip && strip.scrollWidth > strip.clientWidth) {
+      strip.scrollTo({ left: tab.offsetLeft, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    }
   };
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;

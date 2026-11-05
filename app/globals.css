@@ -2471,12 +2471,7 @@ html[data-motion="ready"] .arch-panel { animation: arch-in .5s var(--ease-expo-o
 .fg-beans-pile ellipse { fill: #b0966a; stroke: #1a100a; stroke-width: .4; }
 .fg-port { fill: #0d0604; }
 .fg-paper { fill: #d8d2c4; }
-.fg-ink { stroke: #3a342b; }
-.fg-dark-squares { fill: #0b0b10; }
 .fg-well { fill: #07070b; }
-.fg-foam { fill: #14141a; }
-.fg-screen { fill: #081410; }
-.fg-display { stroke: #5fdba7; stroke-linecap: round; }
 .fg-hub { fill: #f1f1f5; }
 .fg-glass { fill: rgba(190,215,225,.12); }
 .fg-art { fill: #f4efe6; opacity: .92; }
@@ -2486,8 +2481,6 @@ html[data-motion="ready"] .arch-panel { animation: arch-in .5s var(--ease-expo-o
 .fg-screen-cloth { fill: #0a1214; }
 .fg-hp { fill: #e5322d; }
 .fg-meter { stroke: #5fdba7; }
-.fg-bar { fill: #24242c; }
-.fg-bar[data-state="true"] { fill: #5fdba7; }
 .fg-lamp { fill: #24242c; stroke: #5b5b68; stroke-width: .5; }
 .fg-lamp[data-state="on"] { fill: #ffb340; }
 .fg-lamp[data-state="good"] { fill: #5fdba7; }
