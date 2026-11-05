@@ -32,7 +32,7 @@ export function WritingSection() {
                 <span className="ed-post-image" data-layer="image" data-kind="post-image"><Image src={post.image} alt="" fill unoptimized referrerPolicy="no-referrer" sizes="(max-width: 700px) 92px, (max-width: 1640px) 28vw, 460px" /></span>
                 <span className="ed-label" data-layer="text">{post.date}</span>
                 <p data-layer="text">{post.text}</p>
-                <span className="ed-post-foot" data-layer="text"><span>{post.likes} likes · {post.replies} replies</span><b>{copy.readLabel} ↗</b></span>
+                <span className="ed-post-foot" data-layer="text"><span className="ed-post-stats"><span>{post.views} views</span> <span>{post.likes} likes</span> <span>{post.replies} replies</span></span><b>{copy.readLabel} ↗</b></span>
               </a>
             </li>
           ))}

@@ -12,7 +12,7 @@
 // Build Mode uses to print the word in, dots dropping onto their place left to right;
 // brand/rule slots; a dedicated band so the word never collides with the links.
 
-import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type MouseEventHandler, type ReactNode } from "react";
 
 export interface HalftonePalette {
   /** The footer background. */
@@ -45,6 +45,8 @@ export interface HalftoneWordmarkFooterProps {
   ruleStart?: ReactNode;
   /** Show the back-to-top link. Defaults to true. */
   backToTop?: boolean;
+  /** Takes over the back-to-top click, for example to scroll there smoothly. */
+  onBackToTop?: MouseEventHandler<HTMLAnchorElement>;
   palette: HalftonePalette;
   /** Distance between dot centres, in CSS px. Defaults to 6. */
   dotGap?: number;
@@ -125,7 +127,7 @@ const clamp = (n: number, a = 0, b = 1) => Math.max(a, Math.min(b, n));
 const smooth = (n: number) => n * n * (3 - 2 * n);
 
 export default function HalftoneWordmarkFooter({
-  wordmark, logo, label, meta, brandExtra, columns, ruleStart, backToTop = true, palette,
+  wordmark, logo, label, meta, brandExtra, columns, ruleStart, backToTop = true, onBackToTop, palette,
   dotGap = 6, radius = 80, crop = 0.2, grain = 0.5, interactive = true, animate = true, reveal = 1,
   fontFamily, fontWeight = 400, monoFamily = "system-ui, sans-serif"
 }: HalftoneWordmarkFooterProps) {
@@ -419,7 +421,7 @@ export default function HalftoneWordmarkFooter({
         </div>
         <div className="hwf-rule" data-layer="line" data-kind="footer-rule">
           <div className="hwf-rule-start">{ruleStart}</div>
-          {backToTop && <a href="#top" className="hwf-up" data-magnetic data-layer="button" data-kind="footer-top"><span className="hwf-link-label">Back to top</span> <span aria-hidden="true">↑</span></a>}
+          {backToTop && <a href="#top" className="hwf-up" onClick={onBackToTop} data-magnetic data-layer="button" data-kind="footer-top"><span className="hwf-link-label">Back to top</span> <span aria-hidden="true">↑</span></a>}
         </div>
       </div>
       <div ref={bandRef} className="hwf-mark" data-cursor-zone="ring">

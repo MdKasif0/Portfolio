@@ -62,7 +62,7 @@ export function CommandPalettePanel({ onClose, onPlayReel }: { onClose: () => vo
       },
       { id: "reel", group: "Do", label: "Play the reel", hint: "4 films", keywords: "video showreel film", run: () => { onClose(); onPlayReel(); } },
       ...(services.bookHref ? [{ id: "book", group: "Do", label: services.bookLabel, hint: "Cal.com ↗", keywords: "call meeting schedule", run: open(services.bookHref) }] : []),
-      ...(pathname === "/" ? [{ id: "replay", group: "Do", label: "Replay the build", keywords: "intro film", run: () => { onClose(); replayBuild(); } }] : []),
+      ...(pathname === "/" && motionEnabled ? [{ id: "replay", group: "Do", label: "Replay the build", keywords: "intro film", run: () => { onClose(); replayBuild(); } }] : []),
       { id: "motion", group: "Do", label: motionEnabled ? "Turn motion off" : "Turn motion on", keywords: "animation reduce", run: () => { setMotionEnabled(!motionEnabled); onClose(); } },
       ...contact.socials.map((social) => ({ id: `social-${social.label}`, group: "Do", label: `Open ${social.label}`, hint: `${social.value} ↗`, run: open(social.href) }))
     ];

@@ -61,7 +61,7 @@ export function ContactSection() {
         <div>
           <p className="ed-lead" data-layer="text">{contact.introduction}</p>
           <div className="contact-actions">
-            {services.bookHref && <a className="contact-cta" data-magnetic data-layer="button" data-kind="contact-cta" href={services.bookHref} target="_blank" rel="noreferrer" onClick={() => track("booking-opened")}>{services.bookLabel}<span aria-hidden="true">↗</span></a>}
+            {services.bookHref && <a className="contact-cta" data-magnetic data-magnetic-variant="outline" data-layer="button" data-kind="contact-cta" href={services.bookHref} target="_blank" rel="noreferrer" onClick={() => track("booking-opened")}>{services.bookLabel}<span aria-hidden="true">↗</span></a>}
             <button className={`contact-copy${copied ? " is-copied" : ""}`} data-layer="button" data-kind="contact-copy" type="button" onClick={copyEmail}>{copied ? "Copied ✓" : "Copy email"}</button>
           </div>
           <ul className="ed-rows contact-details" aria-label="Contact details">
@@ -126,7 +126,7 @@ export function ContactSection() {
                 </div>
               </fieldset>
               <label className="form-control form-control-wide"><span>Message</span><textarea required name="message" rows={3} placeholder="What are we building?" data-layer="line" data-kind="form-field" /></label>
-              <button className="form-submit" data-magnetic type="submit" disabled={status === "sending"} data-layer="button" data-kind="form-submit">{status === "sending" ? contact.formSending : contact.formSubmit} <span aria-hidden="true">↗</span></button>
+              <button className="form-submit" data-magnetic data-magnetic-variant="outline" type="submit" disabled={status === "sending"} data-layer="button" data-kind="form-submit">{status === "sending" ? contact.formSending : contact.formSubmit} <span aria-hidden="true">↗</span></button>
               {status === "error" && <p className="form-error" role="alert">{contact.formError} <a href={`mailto:${contact.email}`}>{contact.email}</a></p>}
             </>
           )}

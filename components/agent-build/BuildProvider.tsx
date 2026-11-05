@@ -22,7 +22,7 @@ import { BuildEngine, type Activity } from "@/components/agent-build/engine/engi
 import { restoreClass } from "@/components/agent-build/engine/ghost";
 import type { BuildPhase } from "@/components/agent-build/types";
 
-type BuildContextValue = { replayBuild: () => void; phase: BuildPhase; buildWillRun: boolean };
+type BuildContextValue = { replayBuild: () => void; scrollToTop: () => void; phase: BuildPhase; buildWillRun: boolean };
 const BuildContext = createContext<BuildContextValue | null>(null);
 
 /** The control bar's agent tray (its avatar dots): where agents come from and go back to. */
@@ -40,9 +40,12 @@ export function useAgentBuild() {
 type BuildProviderProps = {
   children: ReactNode;
   motionEnabled: boolean;
-  scrollTo: (target: number, duration: number) => void;
+  scrollTo: (target: number, duration: number, lock?: boolean) => void;
   cancelScroll: () => void;
 };
+
+/** The glide to the top takes longer the further it has to travel. */
+const topGlideSeconds = () => Math.min(2.4, Math.max(0.9, window.scrollY / 4000));
 
 const isMobile = () => window.matchMedia("(max-width: 700px)").matches;
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -115,6 +118,8 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   const lastActivityRef = useRef(0);
   const finishTimerRef = useRef<number | null>(null);
   const hardCapRef = useRef<number | null>(null);
+  /** Set while a replay is gliding up to the top, before the film starts. */
+  const replayGlideRef = useRef<number | null>(null);
 
   phaseRef.current = phase;
   scrollToRef.current = scrollTo;
@@ -259,17 +264,49 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   }, [motionEnabled, playSound, skipBuild]);
 
   const replayBuild = useCallback(() => {
-    if (!buildModeConfig.enabled || !motionEnabled || prefersReducedMotion()) return;
+    if (!buildModeConfig.enabled || !motionEnabled || prefersReducedMotion() || replayGlideRef.current !== null) return;
     cleanup();
     if (finishTimerRef.current !== null) window.clearTimeout(finishTimerRef.current);
-    setSpeed(isMobile() ? buildModeConfig.mobileSpeedDefault : buildModeConfig.speedDefault);
-    setMuted(!buildModeConfig.soundDefault);
-    setPhase("scanning");
-    setIntroLive(true);
-    setIntroRun((run) => run + 1);
-    setVisible(true);
-    window.setTimeout(startBuild, buildModeConfig.autoStartMs);
+    const begin = () => {
+      setSpeed(isMobile() ? buildModeConfig.mobileSpeedDefault : buildModeConfig.speedDefault);
+      setMuted(!buildModeConfig.soundDefault);
+      setPhase("scanning");
+      setIntroLive(true);
+      setIntroRun((run) => run + 1);
+      setVisible(true);
+      window.setTimeout(startBuild, buildModeConfig.autoStartMs);
+    };
+    if (window.scrollY <= 1) {
+      begin();
+      return;
+    }
+    // The film opens at the top of the page, so the page gets there first.
+    setVisible(false);
+    setPhase("idle");
+    const seconds = topGlideSeconds();
+    const deadline = performance.now() + seconds * 1000 + 600;
+    scrollToRef.current(0, seconds, true);
+    const waitForTop = () => {
+      // Followed a link on the way up: the film belongs to the home page, so it's off.
+      if (window.location.pathname !== "/") {
+        replayGlideRef.current = null;
+        return;
+      }
+      const arrived = window.scrollY <= 1;
+      if (!arrived && performance.now() < deadline) {
+        replayGlideRef.current = window.requestAnimationFrame(waitForTop);
+        return;
+      }
+      replayGlideRef.current = null;
+      if (!arrived) scrollToRef.current(0, 0, true);
+      begin();
+    };
+    replayGlideRef.current = window.requestAnimationFrame(waitForTop);
   }, [cleanup, motionEnabled, startBuild]);
+
+  const scrollToTop = useCallback(() => {
+    scrollToRef.current(0, motionEnabled ? topGlideSeconds() : 0);
+  }, [motionEnabled]);
 
   const dismiss = useCallback(() => setVisible(false), []);
   const skipByVisitor = useCallback(() => {
@@ -414,6 +451,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   useEffect(() => () => {
     if (finishTimerRef.current !== null) window.clearTimeout(finishTimerRef.current);
     if (hardCapRef.current !== null) window.clearTimeout(hardCapRef.current);
+    if (replayGlideRef.current !== null) window.cancelAnimationFrame(replayGlideRef.current);
     cleanup();
     if (soundRef.current) void soundRef.current.close();
   }, [cleanup]);
@@ -447,7 +485,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   }, [phase]);
   useEffect(() => () => { delete document.documentElement.dataset.build; }, []);
 
-  const contextValue = useMemo(() => ({ replayBuild, phase, buildWillRun: phase === "building" || phase === "scanning" || phase === "finishing" }), [phase, replayBuild]);
+  const contextValue = useMemo(() => ({ replayBuild, scrollToTop, phase, buildWillRun: phase === "building" || phase === "scanning" || phase === "finishing" }), [phase, replayBuild, scrollToTop]);
   const progress = layersTotal ? layersDone / layersTotal : 0;
 
   return (

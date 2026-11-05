@@ -103,7 +103,7 @@ export function ArchitectureSection() {
 
         <div className="arch-actions">
           {system.caseStudy && (
-            <TransitionLink className="arch-action is-primary" data-magnetic data-layer="button" data-kind="arch-case-study" href={`/work/${system.caseStudy}`} onClick={() => track("case-study-opened", { from: "architecture", project: system.id })}>
+            <TransitionLink className="arch-action is-primary" data-magnetic data-magnetic-variant="outline" data-layer="button" data-kind="arch-case-study" href={`/work/${system.caseStudy}`} onClick={() => track("case-study-opened", { from: "architecture", project: system.id })}>
               {copy.caseStudyLabel} <span aria-hidden="true">→</span>
             </TransitionLink>
           )}

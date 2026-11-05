@@ -93,11 +93,14 @@ export function MotionShell({ children }: { children: ReactNode }) {
     else if (!keepPosition) window.scrollTo({ top: 0, behavior: "auto" });
   }, [pathname, lenisInstance]);
 
-  const scrollTo = (target: number, duration: number) => {
+  const scrollTo = (target: number, duration: number, lock = false) => {
     if (lenisInstance) {
       lenisInstance.scrollTo(target, {
         duration,
         immediate: duration === 0,
+        // A locked scroll can't be interrupted by the wheel, and it overrides any glide still running.
+        lock,
+        force: lock,
         // Long cinematic ease that never overshoots its target.
         easing: (value) => value < 0.5 ? 4 * value ** 3 : 1 - (-2 * value + 2) ** 3 / 2
       });

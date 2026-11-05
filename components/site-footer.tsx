@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import Image from "next/image";
 import HalftoneWordmarkFooter, { type FooterColumn } from "@/components/ui/halftone-wordmark-footer";
 import { anton } from "@/app/fonts";
@@ -14,7 +14,13 @@ function IstClock() { const [time,setTime]=useState(""); useEffect(()=>{const up
 
 /** `base` is "/" on other pages, so its links lead back to the home page's sections. */
 export function SiteFooter({ base = "" }: { base?: string }) {
-  const { motionEnabled } = useMotionPreference(); const { replayBuild, buildWillRun } = useAgentBuild(); const gap = useDotGap();
+  const { motionEnabled } = useMotionPreference(); const { replayBuild, scrollToTop, buildWillRun } = useAgentBuild(); const gap = useDotGap();
+  const backToTop = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    scrollToTop();
+    // The jump would have moved keyboard focus to the top, so this does too.
+    document.querySelector<HTMLElement>(".nav-logo")?.focus({ preventScroll: true });
+  };
   const { identity, hero, contact, navigation, work } = portfolioContent; const email = contact.email;
   const projects = work.projects.map((project)=>{ const href = project.liveHref || project.githubHref; return { label:project.title, href, external:href.startsWith("http") }; });
   const columns: FooterColumn[] = [
@@ -30,7 +36,7 @@ export function SiteFooter({ base = "" }: { base?: string }) {
   const ruleStart = <>
     <span className="hwf-meta" data-layer="text" data-kind="footer-meta">{`© ${new Date().getFullYear()} ${identity.name} · ${contact.location}`}</span>
     <IstClock/>
-    {!base && <button type="button" className="hwf-replay" onClick={replayBuild} data-magnetic data-layer="button" data-kind="footer-replay"><span className="hwf-link-label">Replay build</span> <span aria-hidden="true">▶</span></button>}
+    {!base && motionEnabled && <button type="button" className="hwf-replay" onClick={replayBuild} data-magnetic data-magnetic-variant="outline" data-layer="button" data-kind="footer-replay"><span className="hwf-replay-play" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3 1.5v9l7.5-4.5z" /></svg></span><span className="hwf-replay-label">Replay build</span></button>}
   </>;
 
   return <div id="footer" className="halftone-footer-wrap"><div className="halftone-footer-glow" aria-hidden="true"/><HalftoneWordmarkFooter
@@ -40,6 +46,7 @@ export function SiteFooter({ base = "" }: { base?: string }) {
     brandExtra={brandExtra}
     columns={columns}
     ruleStart={ruleStart}
+    onBackToTop={backToTop}
     palette={{ background:"transparent", ink:"#E5322D", warm:"#F7F7F8", text:"#C9C9D2" }}
     fontFamily={`${anton.style.fontFamily}, Anton, Impact, sans-serif`}
     fontWeight={400}

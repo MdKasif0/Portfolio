@@ -348,6 +348,7 @@ export const portfolioContent = {
         text: "Built this real time hand tracking physics engine entirely using Gemini 3 Pro in @arena. The accuracy is insane.",
         href: "https://x.com/md_kasif_uddin/status/2009594268332241062",
         image: "https://pbs.twimg.com/ext_tw_video_thumb/2009594041277788160/pu/img/Ygf_FZH1_U_aVe42.jpg?name=small",
+        views: "99.8K",
         likes: 45,
         replies: 9
       },
@@ -356,6 +357,7 @@ export const portfolioContent = {
         text: "Just made a quick edit on OpenAI’s AI tools. What do you think? 👀 (Note: Clips used in this video are from OpenAI’s official channels)",
         href: "https://x.com/md_kasif_uddin/status/2036752264057270381",
         image: "https://pbs.twimg.com/ext_tw_video_thumb/2036752093596602369/pu/img/UK-veG2j-IHSfBSW.jpg?name=small",
+        views: "130.7K",
         likes: 160,
         replies: 39
       },
@@ -364,6 +366,7 @@ export const portfolioContent = {
         text: "Just built a few landing page designs using Stitch. Which one’s the best? 👀",
         href: "https://x.com/md_kasif_uddin/status/2008492252705030491",
         image: "https://pbs.twimg.com/media/G9-ZB6EbYAAbwpv.jpg?format=jpg&name=small",
+        views: "1.9M",
         likes: 111,
         replies: 60
       }
