@@ -3,8 +3,8 @@
 export type Point3 = [number, number, number];
 export type Projection = { origin: [number, number]; scale: number; azimuth?: number; elevation?: number };
 export type Figure = { id: string; width: number; height: number; label: string; P: Projection; paths: Record<string, unknown>; body: string };
-/** Called with the clock in seconds within the whole tour. Returns the readout for that moment. */
-export type Pose = (now: number) => string;
+/** Sets every part for the machine's running clock, in seconds. Returns the live readout for the given step. */
+export type Pose = (now: number, station: number) => string;
 export type StationTiming = { seconds: number };
 
 const UNIT = Math.sqrt(1.6);

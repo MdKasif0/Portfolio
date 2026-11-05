@@ -6,6 +6,9 @@ import { schedule, type Figure, type Pose } from "@/components/machines/runtime"
 import type { Machine } from "@/data/systems";
 import "@/components/machines/iso.css";
 
+/** Where the machine sits for anyone with reduced motion on: a moment with something happening everywhere. */
+const STILL_FRAME = 2.7;
+
 const cache = new Map<string, Promise<Figure>>();
 const loadFigure = (id: string) => {
   if (!cache.has(id)) cache.set(id, fetch(`/figures/${id}.json`).then((response) => response.json() as Promise<Figure>));
@@ -13,8 +16,10 @@ const loadFigure = (id: string) => {
 };
 
 /**
- * One machine and its stations. The drawing is plain SVG markup built by tools/figures; a pure pose
- * function moves it. The clock only runs while it's on screen, and reduced motion gets still frames.
+ * One machine and its stations. The drawing is plain SVG markup built by tools/figures. Every part runs
+ * at once on one clock, and a second, slower clock walks the steps below it. A step only highlights its
+ * parts and picks the readout; it never starts or stops anything. Both clocks stop offscreen, and reduced
+ * motion gets a still frame.
  */
 export function MachineFigure({ machine, name, label }: { machine: Machine; name: string; label: string }) {
   const frame = useRef<HTMLDivElement>(null);
@@ -23,6 +28,7 @@ export function MachineFigure({ machine, name, label }: { machine: Machine; name
   const bar = useRef<HTMLSpanElement>(null);
   const pose = useRef<Pose | null>(null);
   const clock = useRef(0);
+  const running = useRef(STILL_FRAME);
   const lastStation = useRef(-1);
   const [ready, setReady] = useState(false);
   const [station, setStation] = useState(0);
@@ -40,12 +46,12 @@ export function MachineFigure({ machine, name, label }: { machine: Machine; name
 
   const paint = useCallback((t: number) => {
     const wrapped = ((t % total) + total) % total;
+    const now = stationAt(wrapped);
     if (pose.current && readout.current) {
-      const text = pose.current(wrapped);
+      const text = pose.current(running.current, now);
       if (readout.current.textContent !== text) readout.current.textContent = text;
     }
     bar.current?.style.setProperty("--p", String(wrapped / total));
-    const now = stationAt(wrapped);
     if (now !== lastStation.current) {
       lastStation.current = now;
       setStation(now);
@@ -70,7 +76,7 @@ export function MachineFigure({ machine, name, label }: { machine: Machine; name
         if (cancelled || !stage.current) return;
         stage.current.innerHTML = `<svg class="iso-svg" viewBox="0 0 ${figure.width} ${figure.height}" role="img" aria-label="${figure.label.replace(/"/g, "&quot;")}">${figure.body}</svg>`;
         const svg = stage.current.querySelector("svg") as SVGSVGElement;
-        pose.current = drivers[machine.figure](svg, figure, machine.stations);
+        pose.current = drivers[machine.figure](svg, figure);
         lastStation.current = -1;
         setReady(true);
       }).catch(() => undefined);
@@ -89,7 +95,7 @@ export function MachineFigure({ machine, name, label }: { machine: Machine; name
     const tick = (time: number) => {
       const dt = last ? Math.min((time - last) / 1000, 1 / 20) : 0;
       last = time;
-      if (!pausedRef.current) clock.current += dt;
+      if (!pausedRef.current) { clock.current += dt; running.current += dt; }
       paint(clock.current);
       handle = visible ? requestAnimationFrame(tick) : 0;
     };

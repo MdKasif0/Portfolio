@@ -85,7 +85,7 @@ export const caseStudies: CaseStudy[] = [
     ],
     architectureHeadline: "One request, seven stops.",
     machine: roasterMachine,
-    machineNote: "A single server action runs this whole path. The model only sees data that has already been fetched, capped and scored. The machine is an illustration, slowed down so you can follow it: real roasts take about 2 seconds.",
+    machineNote: "A single server action runs this whole path. The model only sees data that has already been fetched, capped and scored. The machine is an illustration, with every stage running at once like a production line. A real request passes through them in order, in about 2 seconds.",
     figures: [
       {
         kind: "image",
@@ -211,7 +211,7 @@ export const caseStudies: CaseStudy[] = [
     ],
     architectureHeadline: "How she finds her way around a desktop she can't read.",
     machine: automatonMachine,
-    machineNote: "The macOS architecture, drawn as a machine and slowed down so you can follow it. The Windows version is a separate C# implementation of the same behavior.",
+    machineNote: "The macOS architecture, drawn as a machine with every part running at once. The Windows version is a separate C# implementation of the same behavior.",
     figures: [
       {
         kind: "video",
@@ -347,7 +347,7 @@ if let engine = behaviorEngine {
     ],
     architectureHeadline: "Everything runs through one loop.",
     machine: lanternMachine,
-    machineNote: "Each system is its own TypeScript module, updated by the game loop. The rig is an illustration of one frame, slowed down so you can follow it: the real thing runs this about 60 times a second.",
+    machineNote: "Each system is its own TypeScript module, updated by the game loop. The rig is an illustration with every system running at once. Its speeds aren't to scale: the real loop runs about 60 times a second.",
     figures: [
       {
         kind: "video",

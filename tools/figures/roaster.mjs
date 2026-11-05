@@ -217,6 +217,8 @@ export function build() {
   drum.push(k.dotsSvg(G.dotsOf(F, L0 + 8, DRUM.r, 16, P, { all: true }), { size: 0.55, tone: "hi" }));
   drum.push(L(G.circleOf(F, L0 + 8, 20, P), { tone: "mid" }));
   out.push(part("drum", drum.join("")));
+  // Reserved: the drum's ribs turn live.
+  out.push(`<g data-part="drum"><g data-slot="drum-ribs"></g></g>`);
   // Door glass: an ellipse in the plane x = const. Beans tumble in the reserved slot, clipped to it.
   const glass = G.circleOf(F, L0 + 8, PORT.r, P);
   out.push(`<radialGradient id="rs-heat"><stop offset="0" stop-color="#ff9a3d" stop-opacity=".95"/><stop offset=".6" stop-color="#e5322d" stop-opacity=".5"/><stop offset="1" stop-color="#7a1210" stop-opacity=".15"/></radialGradient><clipPath id="rs-port"><path d="${glass}"/></clipPath>`);
@@ -275,6 +277,8 @@ export function build() {
     tray: { x: TRAY.x, y: TRAY.y, w: TRAY.w, d: TRAY.d, z: 11 },
     burner: { x0: DRUM.x0 + 26, x1: DRUM.x0 + 91, y: 14, z: 10 },
     slatStep: 12,
+    drum: { x0: DRUM.x0 + 11, x1: DRUM.x1 - 11, z: DRUM.z, r: DRUM.r },
+    toward: k.towardViewer(P),
     bottles: [[85, -69, 104], [121, -69, 104]],
     cardRise: 16,
     hopper: { x: H.x, y: H.y, neck: 72 },
