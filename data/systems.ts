@@ -79,7 +79,7 @@ export const systems: System[] = [
     summary: "One request crosses GitHub, a scoring engine, an LLM and a database. The number comes from code and the words come from AI, so the score stays repeatable while the roast stays personal.",
     diagram: gitRoastedDiagram,
     facts: [
-      { value: "~4.0s", label: "Median live roast, 5 runs, range 3.7–6.5 s", source: "Measured" },
+      { value: "~2.1s", label: "Median live roast, 5 runs, range 1.8–5.6 s", source: "Measured" },
       { value: "1,000", label: "Point score from code, not the model", source: "From the code" },
       { value: "20", label: "Commit messages sent to the model, at most", source: "From the code" },
       { value: "5 min", label: "GitHub response cache", source: "From the code" }

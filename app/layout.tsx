@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { anton, caveat, jakarta } from "@/app/fonts";
+import { anton, caveat, jakarta, mono } from "@/app/fonts";
 import { portfolioContent } from "@/data/content";
 import { MotionShell } from "@/components/motion-shell";
 import SiteCursor from "@/components/site-cursor";
@@ -106,7 +106,7 @@ const structuredData = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${anton.variable} ${jakarta.variable} ${caveat.variable}`}>
+    <html lang="en" className={`${anton.variable} ${jakarta.variable} ${caveat.variable} ${mono.variable}`}>
       <body><SiteAnalytics /><MotionShell><SiteCursor>{children}</SiteCursor></MotionShell><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></body>
     </html>
   );
