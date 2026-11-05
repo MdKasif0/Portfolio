@@ -340,7 +340,7 @@ export const portfolioContent = {
     titleBefore: "NOT JUST CODE",
     titleAfter: "A WAY OF TELLING STORIES",
     bioLines: [
-      "A developer in delusion: convinced every idea can ship, then shipping it.",
+      "A developer fueled by audacity: convinced every idea is shippable, then actually shipping it.",
       "AI software engineer and backend architect, building LLM-powered products, APIs and data systems, plus native desktop apps, from the first sketch to production.",
       "Building in public as a tech creator on X, @md_kasif_uddin."
     ],
