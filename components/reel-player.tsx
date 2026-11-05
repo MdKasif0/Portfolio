@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { portfolioContent } from "@/data/content";
+import { track as trackEvent } from "@/lib/analytics";
 
 const { reels, reelContactLabel } = portfolioContent.hero;
 const { reelModalKicker } = portfolioContent.contact;
@@ -255,6 +256,7 @@ export function ReelPlayer({ onContact, onClose }: { onContact: () => void; onCl
   const selectFilm = useCallback((next: number) => {
     restore.current = { time: 0, play: true };
     stalls.current = 0;
+    trackEvent("reel-film-changed", { film: reels[next].id });
     setIndex(next);
     setTime(0);
     setDuration(reels[next].duration);
@@ -583,6 +585,7 @@ export function ReelPlayer({ onContact, onClose }: { onContact: () => void; onCl
           onEnded={(event) => {
             setPaused(true);
             setEnded(true);
+            trackEvent("reel-finished", { film: filmRef.current.id });
             setIdle(false);
             paintProgress(event.currentTarget.duration, event.currentTarget.duration);
             if (autoplayRef.current && !isLastRef.current) setCountdown(NEXT_COUNTDOWN);

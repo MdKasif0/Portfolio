@@ -72,13 +72,6 @@ export const KIND_RULES: Record<string, SceneRule> = {
 
   // 5. Raw → real
   // The browser frame goes first, then its chrome, then both panels drop in and an agent drags the divider.
-  "comparison-browser": { recipe: ["DRAW_BOX", "FILL", "ROUND_CORNERS"], flash: true },
-  "wire-to-real-comparison": { container: true },
-  "comparison-dots": { recipe: ["DRAW_BOX", "OPEN_PICKER", "PICK_SYMBOL", "DROP"], absorb: true },
-  "wireframe-panel": { recipe: ["DRAW_BOX", "DROP_IMAGE"], absorb: true },
-  "final-panel": { recipe: ["DRAW_BOX", "DROP_IMAGE"], absorb: true },
-  "comparison-handle": { recipe: ["DRAW_LINE", "SLIDER_DEMO"], after: ["wireframe-panel", "final-panel"] },
-  "comparison-slider": { container: true },
 
   // 6. About
   // Panels first; the toolkit chips and process steps then copy-paste, and the line runs through the nodes.

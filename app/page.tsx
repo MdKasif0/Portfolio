@@ -4,7 +4,9 @@ import { SiteNav } from "@/components/site-nav";
 import { HeroSection } from "@/components/hero-section";
 import { WorkSection } from "@/components/work-section";
 import { CollaboratorStrip, RecognitionSection } from "@/components/collab-recognition";
-import { AboutSection, JourneySection, RawToRealSection } from "@/components/about-journey";
+import { AboutSection, JourneySection } from "@/components/about-journey";
+import { ArchitectureSection } from "@/components/architecture-section";
+import { WritingSection } from "@/components/writing-section";
 import { ContactSection } from "@/components/contact-footer";
 import { SiteFooter } from "@/components/site-footer";
 import { Atmosphere, RulerDivider } from "@/components/design-primitives";
@@ -34,11 +36,12 @@ export default function Home() {
         <RulerDivider label="003 / 192" />
         <RecognitionSection />
         <RulerDivider label="004 / 256" />
-        <RawToRealSection />
+        <ArchitectureSection />
         <RulerDivider label="005 / 320" />
         <AboutSection />
         <RulerDivider label="006 / 384" />
         <JourneySection />
+        <WritingSection />
         <RulerDivider label="007 / 448" />
         <ContactSection />
       </main>

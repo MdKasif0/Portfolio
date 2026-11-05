@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import Lenis from "lenis";
+import { usePathname } from "next/navigation";
 import { BuildProvider } from "@/components/agent-build/BuildProvider";
 import { portfolioContent } from "@/data/content";
 
@@ -100,6 +101,7 @@ export function MotionShell({ children }: { children: ReactNode }) {
 
 function MotionPolish() {
   const { motionEnabled } = useMotionPreference();
+  const pathname = usePathname();
 
   useEffect(() => {
     const root = document.documentElement;
@@ -129,7 +131,7 @@ function MotionPolish() {
       window.clearTimeout(safety);
       observer.disconnect();
     };
-  }, [motionEnabled]);
+  }, [motionEnabled, pathname]);
 
   return null;
 }

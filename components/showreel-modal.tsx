@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ReelPlayer } from "@/components/reel-player";
+import { track } from "@/lib/analytics";
 
 const EXIT_MS = 220;
 
@@ -29,6 +30,7 @@ export function ShowreelModal({ onClose }: { onClose: () => void }) {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     window.dispatchEvent(new CustomEvent("kasif:reel", { detail: { open: true } }));
+    track("reel-opened");
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {

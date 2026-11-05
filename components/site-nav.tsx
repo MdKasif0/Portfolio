@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { portfolioContent } from "@/data/content";
 import { useMotionPreference } from "@/components/motion-shell";
 
-export function SiteNav() {
+/** `base` is "/" on other pages, so its links lead back to the home page's sections. */
+export function SiteNav({ base = "" }: { base?: string }) {
   const { motionEnabled, setMotionEnabled } = useMotionPreference();
   const [progress, setProgress] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -26,10 +28,11 @@ export function SiteNav() {
     updateProgress();
     window.addEventListener("scroll", updateProgress, { passive: true });
     window.addEventListener("resize", updateProgress);
-    const sections = portfolioContent.navigation
+    const sections = base ? [] : portfolioContent.navigation
       .map((item) => document.querySelector<HTMLElement>(item.href))
       .filter((section): section is HTMLElement => section !== null);
     const observer = new IntersectionObserver((entries) => {
+      if (!sections.length) return;
       const current = entries
         .filter((entry) => entry.isIntersecting)
         .sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top))[0];
@@ -52,7 +55,7 @@ export function SiteNav() {
       window.removeEventListener("resize", updateProgress);
       observer.disconnect();
     };
-  }, [setMotionEnabled]);
+  }, [base, setMotionEnabled]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -79,15 +82,15 @@ export function SiteNav() {
       </div>
       <header className={`site-nav${compressed ? " is-compressed" : ""}`} data-scene="nav" data-layer="card" data-kind="nav-frame">
         <div className="nav-inner container-x">
-          <a className="nav-logo" data-magnetic data-layer="text" data-kind="logo" href="#top" aria-label="Kasif, home">
+          <Link className="nav-logo" data-magnetic data-layer="text" data-kind="logo" href={base || "#top"} aria-label="Kasif, home">
             <Image className="nav-logo-mark" src="/logo-mark.png" alt="" width={128} height={128} priority />
             <span>KASIF<span className="logo-dot">.</span></span>
-          </a>
+          </Link>
           <nav id="primary-navigation" className={`nav-links${menuOpen ? " is-open" : ""}`} aria-label="Main navigation" data-lenis-prevent>
             {portfolioContent.navigation.map((item) => (
-              <a className={activeSection === item.href.slice(1) ? "is-active" : ""} data-magnetic data-layer="text" data-kind="nav-link" href={item.href} key={item.href} onClick={() => setMenuOpen(false)}>
+              <Link className={activeSection === item.href.slice(1) ? "is-active" : ""} data-magnetic data-layer="text" data-kind="nav-link" href={`${base}${item.href}`} key={item.href} onClick={() => setMenuOpen(false)}>
                 {item.label}{activeSection === item.href.slice(1) && <motion.i className="nav-active-underline" layoutId="nav-active-underline" />}
-              </a>
+              </Link>
             ))}
           </nav>
           <div className="nav-actions">
@@ -115,7 +118,7 @@ export function SiteNav() {
               <span className={`motion-switch-track${motionEnabled ? " is-on" : ""}`} aria-hidden="true"><i /></span>
               <span className="motion-toggle-label">Motion {motionEnabled ? "on" : "off"}</span>
             </button>
-            <a className="talk-link" data-magnetic data-layer="button" data-kind="nav-cta" href={portfolioContent.navigationCta.href}>{portfolioContent.navigationCta.label} <span aria-hidden="true">↗</span></a>
+            <Link className="talk-link" data-magnetic data-layer="button" data-kind="nav-cta" href={`${base}${portfolioContent.navigationCta.href}`}>{portfolioContent.navigationCta.label} <span aria-hidden="true">↗</span></Link>
           </div>
         </div>
         <div className="nav-scroll-progress" aria-hidden="true"><i style={{ transform: `scaleX(${progress})` }} /></div>

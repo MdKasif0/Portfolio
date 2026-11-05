@@ -25,7 +25,7 @@ const heroStats = providedHeroStats.length >= 3
   : [...providedHeroStats, { value: String(portfolioContent.work.projects.length), label: "PROJECTS" }];
 const marqueeCopy = "AI ENGINEERING · BACKEND SYSTEMS · AI PRODUCTS · TECH CONTENT · SHIPPED FAST";
 const hudTicks = Array.from({ length: 48 }, (_, index) => index);
-const heroChips = ["React", "Next.js", "Backend", "AI"];
+const heroChips = ["LLM Apps", "Node.js APIs", "Data Models", "AI"];
 
 function AnimatedStat({
   value,
@@ -209,7 +209,7 @@ export function HeroSection({ cvAvailable = false }: { cvAvailable?: boolean }) 
             </div>
             <div className="hero-v2-availability" data-layer="card" data-kind="availability">
               <span data-layer="icon" data-kind="availability-dot" aria-hidden="true" />
-              {hero.availability}
+              {hero.availability} · {hero.nextAvailability}
             </div>
           </div>
 

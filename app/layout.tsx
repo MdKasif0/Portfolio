@@ -3,13 +3,14 @@ import { anton, caveat, jakarta } from "@/app/fonts";
 import { portfolioContent } from "@/data/content";
 import { MotionShell } from "@/components/motion-shell";
 import SiteCursor from "@/components/site-cursor";
+import { SiteAnalytics } from "@/components/site-analytics";
 import "./globals.css";
 
 const { identity, about, contact, work, siteUrl } = portfolioContent;
 const siteOrigin = siteUrl.replace(/\/$/, "");
 const title = "Md Kasif Uddin (KASIF) — AI Software Engineer & Backend Architect";
 const description = "Md Kasif Uddin (KASIF) is a freelance AI software engineer and backend architect from India building AI-powered products, full-stack web apps and macOS tools.";
-const socialDescription = "I turn ideas into interfaces people feel: fast, modern, and built with AI. Explore projects by Md Kasif Uddin.";
+const socialDescription = "I build AI products and the backend systems behind them. Explore real projects, architecture and case studies by Md Kasif Uddin.";
 const socialImage = { url: "/og-image.jpg", width: 1200, height: 630, type: "image/jpeg", alt: "KASIF portfolio: AI Software Engineer & Backend Architect" };
 const skills = about.toolkitGroups.flatMap((group) => group.skills);
 
@@ -106,7 +107,7 @@ const structuredData = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${anton.variable} ${jakarta.variable} ${caveat.variable}`}>
-      <body><MotionShell><SiteCursor>{children}</SiteCursor></MotionShell><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></body>
+      <body><SiteAnalytics /><MotionShell><SiteCursor>{children}</SiteCursor></MotionShell><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></body>
     </html>
   );
 }

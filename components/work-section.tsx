@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import {
   AnimatePresence,
   motion,
@@ -15,6 +16,8 @@ import {
   type PointerEvent
 } from "react";
 import { portfolioContent } from "@/data/content";
+import { caseStudyForProject } from "@/data/case-studies";
+import { track } from "@/lib/analytics";
 import { useMotionPreference } from "@/components/motion-shell";
 import { SectionHeader } from "@/components/section-header";
 
@@ -134,7 +137,7 @@ function ProjectCard({
         data-layer="button"
         data-kind="project-open"
         type="button"
-        onClick={() => onOpen(project)}
+        onClick={() => { track("project-opened", { project: project.title }); onOpen(project); }}
         aria-label={`View case study: ${project.title}`}
       >
         <div className={`project-thumbnail art-${project.art}${imagePath && !imageFailed ? " has-project-image" : ""}`} data-layer="image" data-kind="project-thumbnail">
@@ -172,6 +175,8 @@ function ProjectCard({
     </motion.article>
   );
 }
+
+const projectStudy = (title: string) => caseStudyForProject(title);
 
 function ProjectDrawer({ project, imagePath, onClose }: { project: Project; imagePath?: string; onClose: () => void }) {
   const closeButton = useRef<HTMLButtonElement>(null);
@@ -249,6 +254,7 @@ function ProjectDrawer({ project, imagePath, onClose }: { project: Project; imag
           <div><dt>CATEGORY</dt><dd data-layer="text" data-kind="drawer-category">{project.categories.join(" · ") || "Selected work"}</dd></div>
         </dl>
         <div className="project-drawer-links">
+          {projectStudy(project.title) && <Link className="project-drawer-link is-case-study" data-cursor-label="OPEN" data-layer="button" data-kind="drawer-case-study" href={`/work/${projectStudy(project.title)?.slug}`} onClick={() => track("case-study-opened", { from: "drawer", project: project.title })}>READ THE CASE STUDY <span aria-hidden="true">→</span></Link>}
           {project.liveHref && <a className="project-drawer-link is-primary" data-cursor-label="OPEN" data-layer="button" data-kind="drawer-live-link" href={project.liveHref} target="_blank" rel="noreferrer">VISIT LIVE PROJECT <span>↗</span></a>}
           {project.githubHref && <a className="project-drawer-link" data-cursor-label="OPEN" data-layer="button" data-kind="drawer-github-link" href={project.githubHref} target="_blank" rel="noreferrer">VIEW ON GITHUB <span>↗</span></a>}
         </div>

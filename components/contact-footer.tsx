@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { portfolioContent } from "@/data/content";
 import { ShowreelModal } from "@/components/showreel-modal";
+import { track } from "@/lib/analytics";
 import { SectionHeader } from "@/components/section-header";
 
 type IconName = typeof portfolioContent.contact.socials[number]["icon"] | typeof portfolioContent.footer.socialLinks[number]["icon"] | "email";
@@ -44,6 +45,7 @@ export function ContactSection() {
       const response = await fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() });
       if (!response.ok) throw new Error(`Form post failed: ${response.status}`);
       setStatus("sent");
+      track("contact-form-sent");
     } catch {
       setStatus("error");
     }
@@ -60,7 +62,7 @@ export function ContactSection() {
             id="contact-heading"
             titleClassName="contact-heading"
           />
-          <span className="contact-status" data-layer="text" data-kind="contact-status"><i aria-hidden="true" />{hero.availability}</span>
+          <span className="contact-status" data-layer="text" data-kind="contact-status"><i aria-hidden="true" />{hero.availability} · {hero.nextAvailability}</span>
         </div>
 
         <div className="contact-grid">

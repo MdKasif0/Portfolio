@@ -10,6 +10,8 @@ import {
   useState,
   type ReactNode
 } from "react";
+import { usePathname } from "next/navigation";
+import { track } from "@/lib/analytics";
 import { HWF_PRINT_SOFT } from "@/components/ui/halftone-wordmark-footer";
 import { buildModeConfig } from "@/components/agent-build/buildMode.config";
 import { BuildInspector } from "@/components/agent-build/BuildInspector";
@@ -71,6 +73,8 @@ function actFor(progress: number) {
   if (progress < 0.99) return "finale";
   return "handoff";
 }
+
+const INSIDE_VISIT_KEY = "kasif-inside-visit";
 
 export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll }: BuildProviderProps) {
   const [phase, setPhase] = useState<BuildPhase>("idle");
@@ -268,6 +272,21 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
   }, [cleanup, motionEnabled, startBuild]);
 
   const dismiss = useCallback(() => setVisible(false), []);
+  const skipByVisitor = useCallback(() => {
+    track("intro-skipped");
+    skipBuild();
+  }, [skipBuild]);
+  // Leaving the home page mid-build: the engine's page is gone, so restore everything and remember the visit.
+  const pathname = usePathname();
+  useEffect(() => {
+    if (pathname === "/") return;
+    try {
+      window.sessionStorage.setItem(INSIDE_VISIT_KEY, "1");
+    } catch {
+      // Storage can be blocked; the intro would simply replay.
+    }
+    if (phaseRef.current !== "idle" && phaseRef.current !== "done" && phaseRef.current !== "skipped") skipBuild();
+  }, [pathname, skipBuild]);
   /** Go live: during the finale (clicked by the lead agent, or the visitor) it flips the lights on. */
   const goLive = useCallback((event?: { currentTarget: HTMLElement }) => {
     const engine = engineRef.current;
@@ -294,8 +313,19 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
 
   useEffect(() => {
     if (!buildModeConfig.enabled) return;
+    // Build Mode belongs to the home page. Coming home from another page of the site shouldn't replay it.
+    let arrivedFromInside = false;
+    try {
+      if (window.location.pathname !== "/") window.sessionStorage.setItem(INSIDE_VISIT_KEY, "1");
+      else if (window.sessionStorage.getItem(INSIDE_VISIT_KEY)) {
+        arrivedFromInside = true;
+        window.sessionStorage.removeItem(INSIDE_VISIT_KEY);
+      }
+    } catch {
+      arrivedFromInside = false;
+    }
     // ?build=off shows the finished site straight away (also used to compare against the built page).
-    if (!motionEnabled || prefersReducedMotion() || new URLSearchParams(window.location.search).get("build") === "off") {
+    if (window.location.pathname !== "/" || arrivedFromInside || !motionEnabled || prefersReducedMotion() || new URLSearchParams(window.location.search).get("build") === "off") {
       setPhase("skipped");
       setVisible(false);
       return;
@@ -339,7 +369,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     };
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        skipBuild();
+        skipByVisitor();
       } else {
         takeoverRef.current = true;
         touringRef.current = false;
@@ -356,7 +386,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
       window.removeEventListener("pointerdown", takeOver);
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [phase, skipBuild]);
+  }, [phase, skipByVisitor]);
 
   useEffect(() => {
     if (phase !== "finishing") return;
@@ -372,6 +402,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
         cleanup();
         if (hardCapRef.current !== null) window.clearTimeout(hardCapRef.current);
         setPhase("done");
+        track("intro-completed");
         setAnnouncement("Site built, interactive now");
         setElapsedMs(Math.max(0, finishingAtRef.current - startedAtRef.current));
         finishTimerRef.current = window.setTimeout(() => setVisible(false), buildModeConfig.autoDismissMs);
@@ -444,7 +475,7 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
           elapsedMs={elapsedMs}
           directorAct={actFor(progress)}
           onStart={startBuild}
-          onSkip={skipBuild}
+          onSkip={skipByVisitor}
           onDismiss={dismiss}
           onReplay={replayBuild}
           onCycleSpeed={cycleSpeed}

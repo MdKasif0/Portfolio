@@ -12,10 +12,12 @@ export const portfolioContent = {
   hero: {
     backgroundWord: "PORTFOLIO",
     eyebrow: ["AI ENGINEER / BACKEND ARCHITECT / TECH CREATOR", "VISUAL STORYTELLER"],
-    availability: "AVAILABLE FOR COLLABORATION",
+    availability: "OPEN TO WORK",
+    /** Change this one line when you get booked, for example "NEXT AVAILABLE: JAN 2027". */
+    nextAvailability: "AVAILABLE NOW",
     greeting: "Hello, I'm",
     disciplines: ["AI SOFTWARE ENGINEER &", "BACKEND ARCHITECT"],
-    introduction: "I turn ideas into interfaces people feel. From the first wireframe to the last pixel, shipped fast, built with AI.",
+    introduction: "I build AI products and the backend systems behind them: LLM pipelines, APIs and data models that hold up in production.",
     workCta: "See my work",
     location: "INDIA",
     reelLabel: "PLAY REEL",
@@ -134,12 +136,12 @@ export const portfolioContent = {
     cutoutPlaceholder: "ADD CUTOUT · /public/hero-cutout.webp",
     stats: [
       { value: "3+", label: "YEARS BUILDING" },
-      { value: "∞", label: "PROJECTS SHIPPED" },
+      { value: "10+", label: "PROJECTS SHIPPED" },
       { value: "20+", label: "BRAND COLLABS" }
     ],
     cvLabel: "DOWNLOAD CV",
     cvHref: "/cv.pdf",
-    asideNote: "Every pixel, a different feeling.",
+    asideNote: "Fast to ship. Built to hold.",
     scrollLabel: "SCROLL TO DISCOVER +",
     footerLabel: "SELECTED WORK · 2025–2026",
     cutoutPath: "/hero-cutout.webp",
@@ -184,20 +186,20 @@ export const portfolioContent = {
         liveHref: "https://gitroasted.netlify.app",
         overview: "A free, open-source tool that reads real git activity, scores a developer's GitHub profile out of 1,000 and delivers an unfiltered AI roast, with shareable result cards and an installable PWA.",
         role: "Product design · Full-stack development",
-        stack: ["Next.js", "TypeScript", "Genkit · Gemini", "Firebase", "PWA"],
+        stack: ["Next.js", "TypeScript", "Groq", "Firebase", "PWA"],
         art: "gitroasted",
         cover: "gitroasted"
       },
       {
         title: "Cookie",
-        tag: "MACOS COMPANION",
-        subtitle: "A quiet, warm desktop cat that lives on your Mac.",
+        tag: "DESKTOP COMPANION",
+        subtitle: "A quiet, warm desktop cat for macOS and Windows.",
         categories: ["macOS"],
         year: "2026",
         href: "https://cookie-v1.netlify.app/",
         githubHref: "https://github.com/MdKasif0/Cookie",
         liveHref: "https://cookie-v1.netlify.app/",
-        overview: "A lightweight, fully offline macOS companion that roams your windows and Dock with real physics, adapts to what you're working on, and never sends a byte of data anywhere.",
+        overview: "A lightweight, fully offline desktop companion for macOS and Windows that roams your windows and Dock with real physics, adapts to what you're working on, and never sends a byte of data anywhere.",
         role: "Native macOS app · Design & engineering",
         stack: ["Swift", "SwiftUI", "SpriteKit", "Sparkle"],
         art: "cookie",
@@ -212,7 +214,7 @@ export const portfolioContent = {
         href: "https://shadow-of-the-crimson-gate.netlify.app/",
         githubHref: "https://github.com/MdKasif0/Shadow-of-the-Crimson-Gate",
         liveHref: "https://shadow-of-the-crimson-gate.netlify.app/",
-        overview: "Real-time katana combat with dashes and combos, multi-phase yokai boss fights, moonlit atmospheric lighting and synthesized audio, all running in the browser on a custom Three.js engine with saved progress.",
+        overview: "Real-time katana combat with dashes and combos, multi-phase yokai boss fights, moonlit atmospheric lighting and layered sound, all running in the browser on a custom Three.js engine with saved progress.",
         role: "Game design · Engine & graphics programming",
         stack: ["Three.js", "TypeScript", "WebGL", "Web Audio API"],
         art: "crimson",
@@ -293,24 +295,27 @@ export const portfolioContent = {
       { title: "Brand collaborations", result: undefined, type: "COLLAB", year: "2026", event: undefined, description: "20+ creative collaborations with AI and tech brands.", href: undefined, linkLabel: undefined, projectHref: undefined, projectLabel: undefined, showPartners: true }
     ]
   },
-  rawToReal: {
+  architecture: {
     eyebrow: "A LOOK UNDER THE SURFACE",
-    titleBefore: "FROM WIREFRAME",
-    titleAfter: "TO REAL",
-    caption: "One screen. Many layers. See how a rough layout becomes a living product.",
-    beforeLabel: "WIREFRAME",
-    afterLabel: "FINAL UI",
-    project: "GitRoasted",
-    year: "2025",
-    url: "gitroasted.netlify.app",
-    liveLabel: "VISIT LIVE",
-    finalImage: "/raw-real/gitroasted-final.webp",
-    finalImageMobile: "/raw-real/gitroasted-final-mobile.webp",
-    wireImage: "/raw-real/gitroasted-wire.svg",
-    wireImageMobile: "/raw-real/gitroasted-wire-mobile.svg",
-    finalAlt: "The live GitRoasted landing page",
-    wireAlt: "A wireframe of the same GitRoasted page, drawn from its real layout",
-    sliderLabel: "Reveal final interface"
+    titleLines: ["BEHIND THE INTERFACE.", "THE ARCHITECTURE."],
+    caption: "Three real systems, read straight from their code: what runs where, what I traded away, and the numbers behind it.",
+    tabsLabel: "Choose a system",
+    tradeOffsLabel: "THE TRADE-OFFS",
+    caseStudyLabel: "Read the full case study",
+    sourceLabel: "Read the source"
+  },
+  writing: {
+    eyebrow: "BUILDING IN PUBLIC",
+    titleLines: ["WRITTEN IN THE OPEN."],
+    handle: "@md_kasif_uddin",
+    profileHref: "https://x.com/md_kasif_uddin",
+    followers: "6,500+",
+    followersLabel: "FOLLOWERS ON X",
+    intro: "Notes on AI, Python and shipping things, written while they're being built.",
+    cta: "Follow along on X",
+    readLabel: "Read on X",
+    /** Add real posts here and they appear as cards: { date: "Oct 2026", text: "…", href: "https://x.com/md_kasif_uddin/status/…" } */
+    posts: [] as { date: string; text: string; href: string }[]
   },
   about: {
     eyebrow: "02 / BEHIND THE SCREEN",
@@ -318,7 +323,7 @@ export const portfolioContent = {
     titleAfter: "A WAY OF TELLING STORIES",
     bioLines: [
       "A developer in delusion: convinced every idea can ship, then shipping it.",
-      "Freelance software engineer building AI-powered products, full-stack web apps and native macOS tools, from the first sketch to production.",
+      "AI software engineer and backend architect, building LLM-powered products, APIs and data systems, plus native desktop apps, from the first sketch to production.",
       "Building in public as a tech creator on X, @md_kasif_uddin."
     ],
     educationLabel: "EDUCATION",
@@ -329,17 +334,17 @@ export const portfolioContent = {
     toolkitLabel: "CREATIVE TOOLKIT",
     toolkitGroups: [
       { label: "Languages", skills: ["TypeScript", "JavaScript", "Python", "Swift"] },
-      { label: "Frontend", skills: ["React", "Next.js", "Tailwind CSS", "Three.js"] },
       { label: "Backend & Data", skills: ["Node.js", "Supabase", "Firebase", "PostgreSQL"] },
       { label: "AI & ML", skills: ["OpenAI", "Gemini", "Hugging Face", "TensorFlow"] },
+      { label: "Frontend", skills: ["React", "Next.js", "Tailwind CSS", "Three.js"] },
       { label: "Tools", skills: ["Git", "Figma", "Docker", "n8n", "Netlify"] }
     ],
     processLabel: "FROM IDEA TO FINAL SHIP",
     process: [
       { title: "THE IDEA", description: "Start with a need, question or rough sketch worth exploring." },
-      { title: "THE PLAN", description: "Map the structure, key states and path through the product." },
-      { title: "THE CRAFT", description: "Turn the plan into a considered interface and working code." },
-      { title: "THE POLISH", description: "Refine the details, interactions and responsive behavior." },
+      { title: "THE PLAN", description: "Map the data model, services and failure paths before building features." },
+      { title: "THE CRAFT", description: "Build the services and the interface together, as one working system." },
+      { title: "THE POLISH", description: "Harden error handling and performance, then refine the details." },
       { title: "THE LAUNCH", description: "Check the final experience and prepare it to ship." }
     ],
     quote: "From concept to code, to a product that feels alive.",
