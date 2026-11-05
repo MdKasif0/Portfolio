@@ -400,4 +400,508 @@ const fieldcase: Mount = (svg, figure, stations) => {
   };
 };
 
-export const drivers: Record<string, Mount> = { roaster, referee, fieldcase };
+/** A point a given fraction of the way along a polyline. */
+const along = (points: Point3[], u: number): Point3 => {
+  const f = clamp01(u) * (points.length - 1);
+  const n = Math.min(points.length - 2, Math.floor(f));
+  return lerp3(points[n], points[n + 1], f - n);
+};
+const d2 = (p: [number, number]) => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`;
+
+/** Her artwork, drawn around the feet at the origin, one group per pose. */
+const CAT_SIT = `<path d="M6.5 -2C13 -1 13 -9 10 -11" fill="none" stroke="#3a2c22" stroke-width="3.6" stroke-linecap="round"/><path d="M6.5 -2C13 -1 13 -9 10 -11" fill="none" stroke="#fffaf2" stroke-width="2.3" stroke-linecap="round"/><ellipse cx="0" cy="-6.6" rx="7" ry="6.6" fill="#fffaf2" stroke="#3a2c22" stroke-width=".7"/><path d="M-9 -18L-9.6 -27L-2.6 -23ZM9 -18L9.6 -27L2.6 -23Z" fill="#fffaf2" stroke="#3a2c22" stroke-width=".7" stroke-linejoin="round"/><path d="M-8.3 -20.4L-8.6 -25L-5 -23ZM8.3 -20.4L8.6 -25L5 -23Z" fill="#ff8f7d"/><ellipse cx="0" cy="-17.2" rx="10.8" ry="8.8" fill="#fffaf2" stroke="#3a2c22" stroke-width=".7"/><circle cx="-4.2" cy="-17" r="1.25" fill="#20140e"/><circle cx="4.2" cy="-17" r="1.25" fill="#20140e"/><ellipse cx="-7" cy="-14.4" rx="1.9" ry="1.2" fill="#ffb9ad"/><ellipse cx="7" cy="-14.4" rx="1.9" ry="1.2" fill="#ffb9ad"/>`;
+const CAT_LEAP = `<path d="M-9 -8C-15 -9 -16 -14 -14 -17" fill="none" stroke="#3a2c22" stroke-width="3.6" stroke-linecap="round"/><path d="M-9 -8C-15 -9 -16 -14 -14 -17" fill="none" stroke="#fffaf2" stroke-width="2.3" stroke-linecap="round"/><ellipse cx="-1" cy="-8" rx="10" ry="5.4" fill="#fffaf2" stroke="#3a2c22" stroke-width=".7" transform="rotate(-14 -1 -8)"/><path d="M-7 -5L-11 -1M5 -7L10 -3" stroke="#3a2c22" stroke-width="2.6" stroke-linecap="round"/><path d="M-7 -5L-11 -1M5 -7L10 -3" stroke="#fffaf2" stroke-width="1.5" stroke-linecap="round"/><path d="M1 -18L1 -25.6L7.2 -22ZM15.6 -18L16.4 -25.6L9.8 -22Z" fill="#fffaf2" stroke="#3a2c22" stroke-width=".7" stroke-linejoin="round"/><ellipse cx="8.5" cy="-15.5" rx="9.6" ry="8" fill="#fffaf2" stroke="#3a2c22" stroke-width=".7"/><circle cx="5" cy="-15.5" r="1.2" fill="#20140e"/><circle cx="12.2" cy="-15.5" r="1.2" fill="#20140e"/>`;
+const CAT_NAP = `<path d="M9 -2C15 -1 15 -6 12 -7" fill="none" stroke="#3a2c22" stroke-width="3.4" stroke-linecap="round"/><path d="M9 -2C15 -1 15 -6 12 -7" fill="none" stroke="#fffaf2" stroke-width="2.2" stroke-linecap="round"/><ellipse cx="1.5" cy="-5.6" rx="11.5" ry="5.8" fill="#fffaf2" stroke="#3a2c22" stroke-width=".7"/><path d="M-11.5 -9.6L-12.4 -16.4L-6.5 -13.4ZM-.5 -9.6L.4 -16.4L-5.5 -13.4Z" fill="#fffaf2" stroke="#3a2c22" stroke-width=".7" stroke-linejoin="round"/><ellipse cx="-6" cy="-7.4" rx="8.4" ry="6.6" fill="#fffaf2" stroke="#3a2c22" stroke-width=".7"/><path d="M-10 -7.4q1.4 1.2 2.8 0M-4.8 -7.4q1.4 1.2 2.8 0" fill="none" stroke="#20140e" stroke-width=".8" stroke-linecap="round"/>`;
+
+/** Cookie: blank windows she can only measure, a drum that picks what she does, and a real parabola to the next window. */
+const automaton: Mount = (svg, figure, stations) => {
+  const paths = figure.paths as {
+    toward: Point3; rail: { x0: number; x1: number; y: number; z: number }; corners: Record<string, [Point3, Point3]>;
+    drum: { x0: number; y: number; z: number; r: number; tracks: number[] }; cool: { x: number; y: number; z: number; R: number };
+    board: { y: number; x0: number; x1: number; z0: number; h: number }; gov: { x: number; y: number; top: number; sleeve: number };
+    mask: { z: number; y: number; clearX: number; artX: number; nozzle: number; floor: number }; box: { x: number; y: number; z: number };
+    cat: { dock: Point3; dockEnd: Point3; w3: Point3; w3Raw: Point3; w2: Point3 }; routes: Record<string, Point3[]>;
+  };
+  const project = projector(figure.P);
+  const move = mover(figure.P);
+  const lamp = lamps(svg);
+  const { starts, total } = schedule(stations);
+  const [tScan, tPick, tJump, tFrames, tClick, tSave] = starts;
+  const q = (s: string) => svg.querySelector(s);
+  const slot = (name: string) => q(`[data-slot='${name}']`) ?? undefined;
+
+  // The measuring arm.
+  const carriage = q("[data-carriage]");
+  const arm = make("path", { class: "iso-line", "data-tone": "hi", style: "stroke-width:1.5" }, slot("arm"));
+  const tip = make("circle", { r: 2, class: "fg-hub" }, slot("arm"));
+  // One tour of the corners, back to front. Each window gives two points and nothing else.
+  const touches: { id: string; at: Point3 }[] = [];
+  for (const id of ["w2", "w3", "w1"]) paths.corners[id].forEach((at, i) => touches.push({ id: `${id}-${i}`, at }));
+  const brackets = new Map(touches.map(({ id }) => [id, q(`[data-corner='${id}']`)]));
+
+  // The drum's pins, each on a track at its own angle. Only the facing half is drawn.
+  const pins = Array.from({ length: 22 }, (_, i) => ({ track: i % paths.drum.tracks.length, a: hash(i + 3) * Math.PI * 2, el: make("circle", { r: 1.25, class: "fg-hub" }, slot("pins")) }));
+  const tines = Array.from(svg.querySelectorAll("[data-tine]"));
+  const STATES = ["sitting", "walking", "curious", "grooming", "sleeping"];
+  const coolNeedle = q("[data-cool]");
+
+  // The plotted arc, the pen on the board, and Cookie.
+  const arcGhost = make("path", { class: "iso-line", "data-tone": "lo", "stroke-dasharray": "3 3", opacity: 0 }, slot("arc"));
+  const arcLine = make("path", { class: "iso-line", "data-tone": "lit", style: "stroke-width:1.5" }, slot("arc"));
+  const corridor = q("[data-corridor]");
+  const pen = make("circle", { r: 2.2, fill: "var(--machine-accent, #ff5243)", opacity: 0 }, slot("pen"));
+  const catHost = make("g", {}, slot("cat"));
+  const shadow = make("ellipse", { rx: 11, ry: 3.8, fill: "#000", opacity: 0.22 }, slot("cat"));
+  catHost.parentElement?.insertBefore(shadow, catHost);
+  const poses = [CAT_SIT, CAT_LEAP, CAT_NAP].map((art) => { const g = make("g", { opacity: 0 }, catHost); g.innerHTML = art; return g; });
+  const zees = [0, 1, 2].map(() => { const z = make("text", { "font-size": 9, "font-weight": 700, fill: "var(--machine-accent, #ff5243)", opacity: 0 }, slot("cat")); z.textContent = "z"; return z; });
+
+  const hump = (from: Point3, to: Point3, height: number, p: number): Point3 => [lerp(from[0], to[0], p), lerp(from[1], to[1], p), lerp(from[2], to[2], p) + 4 * height * p * (1 - p)];
+  const arcD = (from: Point3, to: Point3, height: number, upto: number) => {
+    const steps = Math.max(2, Math.ceil(36 * upto));
+    let d = "";
+    for (let i = 0; i <= steps; i++) d += `${i ? "L" : "M"}${d2(project(hump(from, to, height, (i / steps) * upto)))}`;
+    return d;
+  };
+  const APEX_A = 46, APEX_B = 30, APEX_C = 18;
+
+  // The governor's arms and balls swap sides of the spindle as they go round.
+  const back = slot("gov-back"), front = slot("gov-front");
+  const sleeve = q("[data-sleeve]");
+  const balls = [0, 1].map(() => {
+    const g = make("g", {}, front);
+    return { g, arm: make("path", { class: "iso-line", "data-tone": "hi", style: "stroke-width:1.1" }, g), link: make("path", { class: "iso-line", "data-tone": "mid", style: "stroke-width:.8" }, g), ball: make("circle", { r: 4.2, class: "fg-ball" }, g) };
+  });
+
+  // The mask: beads drop from a travelling nozzle.
+  const dropper = q("[data-dropper]");
+  const beadClear = make("circle", { r: 2.5, fill: "var(--machine-accent, #ff5243)", opacity: 0 }, slot("beads"));
+  const beadArt = make("circle", { r: 2.5, fill: "var(--machine-accent, #ff5243)", opacity: 0 }, slot("beads"));
+  const ripple = make("ellipse", { fill: "none", stroke: "var(--machine-accent, #ff5243)", "stroke-width": 1, opacity: 0 }, slot("ripple"));
+  const clearFloor = project([paths.mask.clearX, paths.mask.y, paths.mask.floor]);
+  ripple.setAttribute("cx", clearFloor[0].toFixed(1));
+  ripple.setAttribute("cy", clearFloor[1].toFixed(1));
+
+  // The strongbox: one card goes in, the drawer closes, and that's the only way in or out.
+  const drawer = q("[data-drawer]");
+  const card = make("path", { class: "fg-paper", opacity: 0 }, slot("store-card"));
+  const flat = (at: Point3, w: number, d: number) => `M${([[at[0] - w / 2, at[1] - d / 2, at[2]], [at[0] + w / 2, at[1] - d / 2, at[2]], [at[0] + w / 2, at[1] + d / 2, at[2]], [at[0] - w / 2, at[1] + d / 2, at[2]]] as Point3[]).map((c) => d2(project(c))).join("L")}Z`;
+
+  // A pulse carries each stage's result along the floor to the next.
+  const pulse = make("circle", { r: 2.6, fill: "var(--machine-accent, #ff5243)", opacity: 0 }, slot("pulse"));
+  const hand: [string, number][] = [["scanToDrum", tPick], ["drumToBoard", tJump], ["boardToGov", tFrames], ["govToMask", tClick], ["maskToBox", tSave]];
+
+  return (now) => {
+    const t = ((now % total) + total) % total;
+    const fadeOut = 1 - smooth((t - (total - 0.7)) / 0.6);
+
+    // ---- Scan: the arm visits each corner in turn. It never looks at a face.
+    const scan = clamp01((t - tScan) / stations[0].seconds);
+    const f = scan * touches.length;
+    const n = Math.min(touches.length - 1, Math.floor(f));
+    const home: Point3 = [paths.rail.x0 + 30, paths.rail.y, paths.rail.z - 18];
+    const from = n === 0 ? home : touches[n - 1].at;
+    const to = touches[n].at;
+    const hop = smooth((f - n) / 0.7);
+    const reading = t < tPick ? lerp3(from, to, hop) : lerp3(touches[touches.length - 1].at, home, smooth((t - tPick) / 0.8));
+    const lifted: Point3 = [reading[0], reading[1], reading[2] + 7 * Math.sin(Math.PI * (t < tPick ? hop : 0))];
+    move(carriage, [lifted[0], 0, 0]);
+    arm.setAttribute("d", `M${d2(project([lifted[0], paths.rail.y, paths.rail.z]))}L${d2(project(lifted))}`);
+    const [tx, ty] = project(lifted);
+    tip.setAttribute("cx", tx.toFixed(1));
+    tip.setAttribute("cy", ty.toFixed(1));
+    touches.forEach(({ id }, i) => brackets.get(id)?.setAttribute("opacity", t < tPick + 0.5 && f > i + 0.7 ? "1" : (t < tPick + 1 && f > i + 0.7 ? (1 - smooth((t - tPick - 0.5) / 0.5)).toFixed(2) : "0")));
+    const scanned = Math.min(3, Math.ceil(f / 2));
+
+    // ---- Pick: the drum turns, pins lift tines, and the lamp shows the state it landed on.
+    const spin = t * 0.9;
+    const toward = paths.toward;
+    pins.forEach(({ track, a, el }) => {
+      const angle = a + spin;
+      const y = Math.cos(angle), z = Math.sin(angle);
+      if (y * toward[1] + z * toward[2] <= 0.1) { el.setAttribute("opacity", "0"); return; }
+      const [px, py] = project([paths.drum.tracks[track], paths.drum.y + y * (paths.drum.r + 0.4), paths.drum.z + z * (paths.drum.r + 0.4)]);
+      el.setAttribute("cx", px.toFixed(1));
+      el.setAttribute("cy", py.toFixed(1));
+      el.setAttribute("opacity", "1");
+    });
+    const lifts = [0, 0, 0, 0, 0];
+    pins.forEach(({ track, a }) => {
+      const angle = ((a + spin) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+      const gap = Math.abs(angle - Math.PI / 2);
+      if (gap < 0.34) lifts[track] = Math.max(lifts[track], 1 - gap / 0.34);
+    });
+    tines.forEach((tine, i) => move(tine, [0, 0, lifts[i] * 3.6]));
+    // What she's doing, across the whole tour.
+    const stateNow = t < tPick + 0.8 ? 0 : t < tJump ? 1 : t < tFrames ? 2 : t < tClick - 0 ? 4 : t < tClick + stations[4].seconds * 0.62 ? 4 : 0;
+    STATES.forEach((_, i) => lamp(`state-${i}`, i === stateNow ? "on" : "off"));
+    // The cooldown runs down: there's a minimum wait between autonomous actions.
+    const cool = t >= tPick && t < tJump ? 1 - clamp01((t - tPick) / stations[1].seconds) : 1;
+    const coolA = cool * (14 / 28) * Math.PI * 2;
+    const { x: cx, y: cy, z: cz, R: cR } = paths.cool;
+    coolNeedle?.setAttribute("d", `M${d2(project([cx, cy, cz]))}L${d2(project([cx + Math.sin(coolA) * cR, cy - Math.cos(coolA) * cR, cz]))}`);
+
+    // ---- Jump: plotted on the board, clamped, then flown for real along the same formula.
+    const jump = clamp01((t - tJump) / stations[2].seconds);
+    const { dock, dockEnd, w3, w3Raw, w2 } = paths.cat;
+    const clamp = smooth((jump - 0.04) / 0.14);
+    const aim = lerp3(w3Raw, w3, clamp);
+    corridor?.setAttribute("opacity", (envelope(t, tJump, tFrames - 0.5, 0.3)).toFixed(2));
+    const leapA = clamp01((jump - 0.2) / 0.28), leapB = clamp01((jump - 0.62) / 0.26);
+    const home2 = clamp01((t - (total - 1.15)) / 0.95);
+    arcGhost.setAttribute("d", arcD(dockEnd, w3Raw, APEX_A, 1));
+    arcGhost.setAttribute("opacity", (envelope(t, tJump + 0.05, tJump + stations[2].seconds * 0.24, 0.2)).toFixed(2));
+    if (jump > 0 && jump < 1 || (t >= tFrames && t < tFrames + 0.5)) {
+      arcLine.setAttribute("d", (jump < 0.2 ? arcD(dockEnd, aim, APEX_A, 1) : jump < 0.56 ? arcD(dockEnd, w3, APEX_A, 1) : "") + (jump > 0.56 ? arcD(w3, w2, APEX_B, 1) : ""));
+      arcLine.setAttribute("opacity", (t < tFrames ? 1 : 1 - smooth((t - tFrames) / 0.5)).toFixed(2));
+    } else arcLine.setAttribute("opacity", "0");
+    const penU = jump < 0.56 ? leapA : leapB;
+    const [gx, gy] = project([lerp(paths.board.x0, paths.board.x1, penU), paths.board.y, paths.board.z0 + 4 * paths.board.h * penU * (1 - penU)]);
+    pen.setAttribute("cx", gx.toFixed(1));
+    pen.setAttribute("cy", gy.toFixed(1));
+    pen.setAttribute("opacity", jump > 0 && jump < 1 ? "1" : "0");
+
+    // Where she is, and which pose.
+    let at: Point3, pose = 0, flip = 1, ground = 0;
+    if (t < tPick) at = dock;
+    else if (t < tJump) { at = lerp3(dock, dockEnd, smooth((t - tPick - 0.8) / (stations[1].seconds - 1))); flip = -1; }
+    else if (jump < 0.2) at = dockEnd;
+    else if (jump < 0.48) { at = hump(dockEnd, w3, APEX_A, leapA); pose = 1; ground = 1; }
+    else if (jump < 0.62) at = w3;
+    else if (jump < 0.88) { at = hump(w3, w2, APEX_B, leapB); pose = 1; flip = -1; ground = 1; }
+    else at = w2;
+    const asleepFrom = tFrames + 0.9;
+    const awakeAt = tClick + stations[4].seconds * 0.62;
+    if (t >= tFrames) at = w2;
+    if (t >= asleepFrom && t < awakeAt) pose = 2;
+    if (home2 > 0) { at = hump(w2, dock, APEX_C, home2); pose = home2 < 1 ? 1 : 0; flip = 1; ground = home2 < 1 ? 1 : 0; }
+    const [ax, ay] = project(at);
+    const bob = pose === 0 && t >= tPick && t < tJump ? Math.abs(Math.sin(t * 9)) * 1.1 : 0;
+    catHost.setAttribute("transform", `translate(${ax.toFixed(1)} ${(ay - bob).toFixed(1)}) scale(${(flip * 1.32).toFixed(2)} 1.32)`);
+    poses.forEach((g, i) => g.setAttribute("opacity", i === pose ? "1" : "0"));
+    shadow.setAttribute("cx", ax.toFixed(1));
+    shadow.setAttribute("cy", (ay + 0.6).toFixed(1));
+    shadow.setAttribute("opacity", ground ? "0" : "0.22");
+    zees.forEach((z, i) => {
+      const u = ((t * 0.45 + i / 3) % 1);
+      const on = pose === 2;
+      z.setAttribute("x", (ax + 6 + u * 12 + i).toFixed(1));
+      z.setAttribute("y", (ay - 22 - u * 20).toFixed(1));
+      z.setAttribute("opacity", on ? (Math.sin(u * Math.PI) * 0.95).toFixed(2) : "0");
+    });
+
+    // ---- Frames: 60 awake, 15 asleep, and stopped when her window is hidden. The clock here is slowed for the eye.
+    const hidden = tFrames + stations[3].seconds * 0.74;
+    const fps = t < asleepFrom ? 60 : t < hidden ? 15 : t < tClick ? 0 : t < awakeAt ? 15 : 60;
+    const speedOf = (v: number) => v / 60 * 12;
+    const phase = (() => {
+      const a = Math.min(t, asleepFrom) * speedOf(60);
+      const b = Math.max(0, Math.min(t, hidden) - asleepFrom) * speedOf(15);
+      const c = Math.max(0, Math.min(t, awakeAt) - tClick) * speedOf(15);
+      const e = Math.max(0, t - awakeAt) * speedOf(60);
+      return a + b + c + e;
+    })();
+    const rising = t < asleepFrom ? 1 : t < hidden ? 1 - smooth((t - asleepFrom) / 0.6) * 0.72 : t < tClick ? 0.28 - smooth((t - hidden) / 0.4) * 0.28 : t < awakeAt ? smooth((t - tClick) / 0.5) * 0.28 : 0.28 + smooth((t - awakeAt) / 0.6) * 0.72;
+    const swing = 0.3 + rising * 0.78;
+    const { x: gvx, y: gvy, top } = paths.gov;
+    const armLen = 26;
+    const drop = Math.cos(swing) * armLen;
+    const reach = Math.sin(swing) * armLen;
+    const sleeveZ = top - drop * 1.72 - paths.gov.sleeve;
+    move(sleeve, [0, 0, sleeveZ - 11]);
+    balls.forEach(({ g, arm: rod, link, ball }, i) => {
+      const a = phase + i * Math.PI;
+      const dx = Math.cos(a), dy = Math.sin(a);
+      const b: Point3 = [gvx + dx * reach, gvy + dy * reach, top - drop];
+      const mid: Point3 = [gvx + dx * reach * 0.5, gvy + dy * reach * 0.5, top - drop * 0.5];
+      rod.setAttribute("d", `M${d2(project([gvx, gvy, top]))}L${d2(project(b))}`);
+      link.setAttribute("d", `M${d2(project(mid))}L${d2(project([gvx, gvy, paths.gov.sleeve + sleeveZ - 11 + 3]))}`);
+      const [bx, by] = project(b);
+      ball.setAttribute("cx", bx.toFixed(1));
+      ball.setAttribute("cy", by.toFixed(1));
+      const behind = dx * toward[0] + dy * toward[1] < 0;
+      const host = behind ? back : front;
+      if (host && g.parentElement !== host) host.appendChild(g);
+    });
+    lamp("fps-60", fps === 60 ? "good" : "off");
+    lamp("fps-15", fps === 15 ? "on" : "off");
+    lamp("fps-0", fps === 0 ? "bad" : "off");
+
+    // ---- Clicks: one on a clear pixel falls through to the app. One on her artwork stays with her.
+    const click = clamp01((t - tClick) / stations[4].seconds);
+    const beadAt = (x: number, u: number, floor: number) => project([x, paths.mask.y, lerp(paths.mask.nozzle, floor, u * u)]);
+    const firstU = clamp01((click - 0.12) / 0.2), secondU = clamp01((click - 0.5) / 0.12);
+    const dropX = click < 0.42 ? paths.mask.clearX : t < tClick ? paths.mask.clearX : lerp(paths.mask.clearX, paths.mask.artX, smooth((click - 0.34) / 0.14));
+    move(dropper, [dropX, 0, 0]);
+    const [c1x, c1y] = beadAt(paths.mask.clearX, firstU, paths.mask.floor);
+    beadClear.setAttribute("cx", c1x.toFixed(1));
+    beadClear.setAttribute("cy", c1y.toFixed(1));
+    beadClear.setAttribute("opacity", click > 0.12 && click < 0.34 ? "1" : "0");
+    const ring = clamp01((click - 0.32) / 0.22);
+    ripple.setAttribute("rx", (2 + ring * 16).toFixed(1));
+    ripple.setAttribute("ry", (1 + ring * 8).toFixed(1));
+    ripple.setAttribute("opacity", ring > 0 && ring < 1 ? (1 - ring).toFixed(2) : "0");
+    const [c2x, c2y] = beadAt(paths.mask.artX, secondU, paths.mask.z + 1);
+    beadArt.setAttribute("cx", c2x.toFixed(1));
+    beadArt.setAttribute("cy", c2y.toFixed(1));
+    beadArt.setAttribute("opacity", click > 0.5 && click < 0.92 ? "1" : "0");
+
+    // ---- Save: a card, one drawer, no wires.
+    const save = clamp01((t - tSave) / stations[5].seconds);
+    const out = envelope(t, tSave, tSave + stations[5].seconds * 0.82, 0.35);
+    move(drawer, [0, 16 * out, 0]);
+    const { x: bx, y: by, z: bz } = paths.box;
+    const inU = clamp01((save - 0.14) / 0.4);
+    if (inU > 0 && inU < 1) {
+      const height = lerp(bz + 40, bz, smooth(inU));
+      card.setAttribute("d", flat([bx, by + 9, height], 34, 10));
+      card.setAttribute("opacity", (smooth(inU / 0.2) * (1 - smooth((inU - 0.85) / 0.15))).toFixed(2));
+    } else card.setAttribute("opacity", "0");
+    lamp("saved", save > 0.56 && fadeOut > 0.5 ? "good" : "off");
+
+    // ---- Hand-offs along the floor.
+    let shown = false;
+    for (const [name, start] of hand) {
+      const u = (t - (start - 0.55)) / 0.8;
+      if (u > 0 && u < 1) {
+        const [px, py] = project(along(paths.routes[name], u));
+        pulse.setAttribute("cx", px.toFixed(1));
+        pulse.setAttribute("cy", py.toFixed(1));
+        shown = true;
+      }
+    }
+    pulse.setAttribute("opacity", shown ? "1" : "0");
+
+    if (t < tPick) return `quartz window list · window ${scanned} of 3 · bounds only, no pixels`;
+    if (t < tJump) return `state: ${STATES[stateNow]} · next action after 14 s at least (balanced)`;
+    if (t < tFrames) return jump < 0.2 ? "target too close to the edge · clamped 25 pt inside" : "arc = line + 4h · p(1 − p)";
+    if (t < tClick) return fps === 60 ? "she's awake · 60 fps" : fps === 15 ? "she's asleep · 15 fps" : "window hidden · scene paused";
+    if (t < tSave) return click < 0.42 ? "clear pixel · the click passes to the app below" : click < 0.62 ? "checking the alpha mask · 96 × 101 grid" : "her artwork · the click is hers, and she wakes";
+    return "cookie-store.json · atomic write · no account, no cloud";
+  };
+};
+
+/** Crimson Gate: one crank turns everything, a stop pin caps the frame time, and the frame is thrown onto the screen. */
+const lantern: Mount = (svg, figure, stations) => {
+  const paths = figure.paths as {
+    toward: Point3; shaft: { x0: number; y: number; z: number }; wheel: { x: number; r: number }; cams: number[]; dt: { x: number; y: number; z: number; R: number };
+    hp: { x0: number; x1: number; y: number; z0: number; z1: number }; screen: { x0: number; x1: number; y: number; z0: number; z1: number }; lens: Point3; lensR: number; axis: Point3;
+    forest: { z: number; spots: [number, number][]; x: number; y: number; w: number; d: number }; lever: { x: number; y: number; z: number; length: number };
+    carousel: { x: number; y: number; z: number; r: number }; meterStep: number; faders: { name: string; level: number; x: number; y0: number; y1: number; z: number }[];
+    tin: { x: number; y: number; z: number; away: number }; routes: Record<string, Point3[]>;
+  };
+  const project = projector(figure.P);
+  const move = mover(figure.P);
+  const lamp = lamps(svg);
+  const { starts, total } = schedule(stations);
+  const [tLoop, tCombat, tWorld, tRender, tAudio, tSave] = starts;
+  const q = (s: string) => svg.querySelector(s);
+  const slot = (name: string) => q(`[data-slot='${name}']`) ?? undefined;
+
+  const spokes = make("path", { class: "iso-line", "data-tone": "mid", style: "stroke-width:1" }, slot("wheel"));
+  const needle = q("[data-dt-needle]");
+  // Cams are drawn live, each a closed profile in the plane across the shaft.
+  const camShapes = paths.cams.map((_, i) => {
+    const host = q(`[data-cam='${i}']`) ?? undefined;
+    return { back: make("path", { class: "fg-cam-side" }, host), face: make("path", { class: "fg-cam" }, host) };
+  });
+  const followers = paths.cams.map((_, i) => q(`[data-follower='${i}']`));
+  const followerLamps = paths.cams.map((_, i) => q(`[data-follower-lamp='${i}']`));
+  const lampBase = followerLamps.map((el) => Number(el?.getAttribute("cy") ?? 0));
+  const hp = q("[data-hp]");
+  const ENEMY = ["IDLE", "WALK", "STRAFE", "MAINTAIN_DISTANCE", "ATTACK", "RETREAT", "HURT"];
+
+  // Trees all go down, and come back, on a single pull.
+  const trees = Array.from(svg.querySelectorAll("[data-tree]")).map((el) => ({ el, x: el.getAttribute("data-x"), y: el.getAttribute("data-y"), s: Number(el.getAttribute("data-s")) }));
+  const leverRod = q("[data-lever]");
+  const leverKnob = q("[data-lever-knob]");
+
+  // Beam: soft planes from the lens to the four corners of the cloth, under the lens barrel.
+  const beamHost = slot("beam");
+  const defs = make("defs", {}, beamHost);
+  const [lx, ly] = project(paths.lens);
+  const { x0, x1, y: sy, z0, z1 } = paths.screen;
+  const corners = ([[x0, sy, z0], [x1, sy, z0], [x1, sy, z1], [x0, sy, z1]] as Point3[]).map(project);
+  const mid = project([(x0 + x1) / 2, sy, (z0 + z1) / 2]);
+  const beamGrad = make("linearGradient", { id: "ln-beam", gradientUnits: "userSpaceOnUse", x1: lx, y1: ly, x2: mid[0], y2: mid[1] }, defs);
+  [["0", "#fff6da", .62], [".35", "#d6f0e6", .26], ["1", "#9fdcd0", .07]].forEach(([offset, color, opacity]) => make("stop", { offset, "stop-color": color, "stop-opacity": opacity }, beamGrad));
+  const beamD = `M${lx.toFixed(1)} ${ly.toFixed(1)}L${corners.map(d2).join("L")}Z`;
+  const beam = make("path", { d: beamD, fill: "url(#ln-beam)", opacity: 0 }, beamHost);
+  const beamEdges = make("path", { d: [corners[0], corners[3]].map((c) => `M${lx.toFixed(1)} ${ly.toFixed(1)}L${d2(c)}`).join(""), fill: "none", stroke: "#e8fff4", "stroke-width": .5, opacity: 0 }, beamHost);
+  const motes = Array.from({ length: 14 }, () => make("circle", { r: .9, fill: "#fff6da", opacity: 0 }, beamHost));
+  const picture = q("[data-picture]");
+  const raw = q("[data-raw]");
+
+  // Petals: a fixed pool. They leave the ring, cross the forest and come back. None is ever created.
+  const petalHost = slot("petals");
+  const carouselHost = slot("carousel");
+  const POOL = 24;
+  const petals = Array.from({ length: POOL }, () => make("ellipse", { rx: 2.5, ry: 1.5, fill: "#ff9db0", stroke: "#7a2b3a", "stroke-width": .3 }, petalHost));
+  const pegs = make("path", { class: "iso-line", "data-tone": "lo", fill: "none" }, carouselHost);
+
+  // Mixing desk: a level meter beside each fader.
+  const meters = paths.faders.map((_, i) => make("path", { class: "fg-meter", "stroke-width": 2, fill: "none", "stroke-linecap": "round" }, slot(`meter-${i}`)));
+
+  // The tin: cards from outside, stamped with a version.
+  const cardsHost = slot("cards");
+  const good = make("path", { class: "fg-paper", opacity: 0 }, cardsHost);
+  const bad = make("path", { fill: "#ff5243", opacity: 0 }, cardsHost);
+  const upright = (x: number, y: number, z: number, w: number, h: number) => `M${([[x - w / 2, y, z], [x + w / 2, y, z], [x + w / 2, y, z + h], [x - w / 2, y, z + h]] as Point3[]).map((c) => d2(project(c))).join("L")}Z`;
+
+  const pulse = make("circle", { r: 2.6, fill: "var(--machine-accent, #ff5243)", opacity: 0 }, slot("pulse"));
+  const hand: [string, number][] = [["shaftToBoss", tCombat], ["shaftToLever", tWorld], ["lampToDesk", tAudio], ["deskToTin", tSave]];
+
+  return (now) => {
+    const t = ((now % total) + total) % total;
+    const spin = t * 5.2;
+    const fadeOut = 1 - smooth((t - (total - 0.7)) / 0.6);
+
+    // ---- Loop: flywheel and dt. A hitch throws the needle round, and the pin stops it at 100 ms.
+    const { x: wx, r: wr } = paths.wheel, { y: wy, z: wz } = paths.shaft;
+    let d = "";
+    for (let i = 0; i < 6; i++) {
+      const a = spin + (i / 6) * Math.PI * 2;
+      d += `M${d2(project([wx, wy + Math.cos(a) * 4, wz + Math.sin(a) * 4]))}L${d2(project([wx, wy + Math.cos(a) * wr, wz + Math.sin(a) * wr]))}`;
+    }
+    spokes.setAttribute("d", d);
+    const loop = clamp01((t - tLoop) / stations[0].seconds);
+    const hitch = envelope(t, tLoop + stations[0].seconds * 0.38, tLoop + stations[0].seconds * 0.8, 0.14);
+    const steady = 16.7 + Math.sin(t * 11) * 1.1;
+    const dtShown = lerp(steady, 100, hitch) + (hitch > 0.98 ? Math.sin(t * 34) * 1.2 : 0);
+    const dtA = (Math.min(100, dtShown) / 300) * Math.PI * 2;
+    const { x: dx, y: dy, z: dz, R } = paths.dt;
+    needle?.setAttribute("d", `M${d2(project([dx - Math.sin(dtA) * 4, dy + Math.cos(dtA) * 4, dz]))}L${d2(project([dx + Math.sin(dtA) * R, dy - Math.cos(dtA) * R, dz]))}`);
+
+    // ---- Combat and AI: cams turn with the shaft, and the third one changes as the boss loses health.
+    const combat = clamp01((t - tCombat) / stations[1].seconds);
+    const health = 1 - smooth(combat / 0.9) * 0.82 + smooth((t - (total - 0.8)) / 0.7) * 0.82;
+    const phaseIndex = health > 0.7 ? 0 : health > 0.35 ? 1 : 2;
+    const toward = paths.toward;
+    paths.cams.forEach((x, i) => {
+      const lobes = i === 2 ? phaseIndex + 1 : 1;
+      const a0 = spin * (i === 2 ? 0.8 : 0.62 + i * 0.13);
+      const profile = (a: number) => 11 + (i === 2 ? 3.6 : 4.4) * Math.cos((a - a0) * lobes);
+      const ring = (at: number) => {
+        let path = "";
+        for (let n = 0; n < 36; n++) {
+          const a = (n / 36) * Math.PI * 2;
+          const r = profile(a);
+          path += `${n ? "L" : "M"}${d2(project([at, wy + Math.cos(a) * r, wz + Math.sin(a) * r]))}`;
+        }
+        return `${path}Z`;
+      };
+      camShapes[i].back.setAttribute("d", ring(x - 3));
+      camShapes[i].face.setAttribute("d", ring(x + 3));
+      const lift = profile(Math.PI / 2) - 11;
+      move(followers[i], [0, 0, lift]);
+      const lamped = followerLamps[i];
+      if (lamped) lamped.setAttribute("cy", (lampBase[i] - lift * 0.866 * (figure.P.scale * Math.SQRT2 * 0.894)).toFixed(1));
+      lamp(`cam-${i}`, lift > 2 ? (i === 2 ? "bad" : "on") : "off");
+    });
+    const { x0: hx0, x1: hx1, y: hy, z0: hz0, z1: hz1 } = paths.hp;
+    const hz = lerp(hz0, hz1, health);
+    hp?.setAttribute("d", `M${([[hx0, hy, hz0], [hx1, hy, hz0], [hx1, hy, hz], [hx0, hy, hz]] as Point3[]).map((c) => d2(project(c))).join("L")}Z`);
+    [0, 1, 2].forEach((i) => lamp(`phase-${i}`, i === phaseIndex ? "bad" : "off"));
+
+    // ---- World: one pull and every tree is set at once. Same mesh, one draw call.
+    const world = clamp01((t - tWorld) / stations[2].seconds);
+    const pull = envelope(t, tWorld + 0.1, tWorld + stations[2].seconds * 0.5, 0.3);
+    const a = lerp(0.5, -0.45, pull);
+    const { x: vx, y: vy, z: vz, length } = paths.lever;
+    const top: Point3 = [vx + Math.sin(a) * length, vy, vz + Math.cos(a) * length];
+    leverRod?.setAttribute("d", `M${d2(project([vx, vy, vz]))}L${d2(project(top))}`);
+    const knob = project(top);
+    leverKnob?.setAttribute("cx", knob[0].toFixed(1));
+    leverKnob?.setAttribute("cy", knob[1].toFixed(1));
+    const gone = t >= tWorld ? smooth(world / 0.1) * (1 - smooth((world - 0.24) / 0.1)) : 0;
+    const scale = 1 - gone;
+    const pop = world > 0.24 && world < 0.42 ? 1 + Math.sin(((world - 0.24) / 0.18) * Math.PI) * 0.08 : 1;
+    trees.forEach(({ el, x, y, s }) => el.setAttribute("transform", `translate(${x} ${y}) scale(${(s * scale * pop).toFixed(3)})`));
+    const { x: cx, y: cy, z: cz, r: cr } = paths.carousel;
+    const ringA = t * 0.5;
+    let pegD = "";
+    petals.forEach((petal, i) => {
+      const slotA = (i / POOL) * Math.PI * 2 + ringA;
+      const home: Point3 = [cx + Math.cos(slotA) * cr, cy + Math.sin(slotA) * cr, cz + 0.4];
+      if (i < POOL) pegD += `M${d2(project(home))}`;
+      const delay = (i / POOL) * 0.34;
+      const u = clamp01((world - 0.4 - delay) / 0.46);
+      let at = home;
+      if (u > 0 && u < 1 && t >= tWorld) {
+        const fx = paths.forest.x + hash(i + 5) * paths.forest.w;
+        const fy = paths.forest.y + hash(i + 17) * paths.forest.d;
+        const away: Point3 = [fx, fy, 30 + hash(i + 29) * 26];
+        const swing = Math.sin(u * Math.PI);
+        const pass = u < 0.5 ? lerp3(home, away, smooth(u * 2)) : lerp3(away, home, smooth((u - 0.5) * 2));
+        at = [pass[0] + Math.sin(t * 3 + i) * 3 * swing, pass[1], pass[2] + 16 * swing + Math.sin(t * 4 + i * 2) * 2 * swing];
+      }
+      const [px, py] = project(at);
+      petal.setAttribute("cx", px.toFixed(1));
+      petal.setAttribute("cy", py.toFixed(1));
+      petal.setAttribute("transform", `rotate(${Math.round((t * 80 + i * 47) % 360)} ${px.toFixed(1)} ${py.toFixed(1)})`);
+    });
+    pegs.setAttribute("d", "");
+
+    // ---- Render: the lamp comes up, the raw frame gets its tone mapping, and it stays until the tour ends.
+    const render = clamp01((t - tRender) / stations[3].seconds);
+    const up = envelope(t, tRender, tAudio + 0.1, 0.5);
+    const flicker = 0.93 + Math.sin(spin * 1.6) * 0.07;
+    beam.setAttribute("opacity", (up * flicker).toFixed(3));
+    beamEdges.setAttribute("opacity", (up * 0.28).toFixed(3));
+    motes.forEach((mote, i) => {
+      const u = ((t * (0.05 + hash(i) * 0.05) + hash(i + 40)) % 1);
+      const sway = (hash(i + 70) - 0.5);
+      const c = corners[i % 4];
+      const px = lerp(lx, lerp(mid[0], c[0], sway + 0.5), u);
+      const py = lerp(ly, lerp(mid[1], c[1], sway + 0.5), u);
+      mote.setAttribute("cx", px.toFixed(1));
+      mote.setAttribute("cy", py.toFixed(1));
+      mote.setAttribute("opacity", (up * Math.sin(u * Math.PI) * 0.8).toFixed(2));
+    });
+    // A dim frame is left on the cloth between runs, so the screen is never just a black rectangle.
+    picture?.setAttribute("opacity", Math.max(0.22, up * flicker).toFixed(3));
+    raw?.setAttribute("opacity", (t >= tRender && t < tAudio ? (1 - smooth((render - 0.28) / 0.34)) * 0.55 : 0).toFixed(3));
+
+    // ---- Audio: five real bus levels, and meters that move with the mix.
+    const audio = envelope(t, tAudio, tSave + 0.2, 0.3);
+    meters.forEach((meter, i) => {
+      const { x, y0, y1, z, level } = paths.faders[i];
+      const beat = 0.62 + 0.38 * Math.abs(Math.sin(t * (3.2 + i * 0.9) + i));
+      const y = lerp(y0, y1, level * beat * audio);
+      meter.setAttribute("d", audio > 0.01 ? `M${d2(project([x + 7.5, y0, z]))}L${d2(project([x + 7.5, y, z]))}` : "");
+    });
+
+    // ---- Save: a good card goes in, a damaged one is refused, and the game still starts.
+    const save = clamp01((t - tSave) / stations[5].seconds);
+    const { x: tx, y: ty, z: tz, away } = paths.tin;
+    const inU = clamp01(save / 0.36), badU = clamp01((save - 0.46) / 0.34);
+    good.setAttribute("d", upright(tx, ty, lerp(tz + away, tz - 16, smooth(inU)), 18, 16));
+    good.setAttribute("opacity", inU > 0 && inU < 1 ? (smooth(inU / 0.2)).toFixed(2) : "0");
+    const dip = badU < 0.45 ? smooth(badU / 0.45) : 1 - smooth((badU - 0.45) / 0.55);
+    bad.setAttribute("d", upright(tx + (badU > 0.45 ? (badU - 0.45) * 30 : 0), ty, lerp(tz + away, tz + 2, dip), 18, 16));
+    bad.setAttribute("opacity", badU > 0 && badU < 1 ? (1 - smooth((badU - 0.72) / 0.28)).toFixed(2) : "0");
+    lamp("save", save <= 0 || fadeOut < 0.5 ? "off" : badU > 0.3 && badU < 1 ? "bad" : inU >= 1 ? "good" : "off");
+
+    let shown = false;
+    for (const [name, start] of hand) {
+      const u = (t - (start - 0.5)) / 0.8;
+      if (u > 0 && u < 1) {
+        const [px, py] = project(along(paths.routes[name], u));
+        pulse.setAttribute("cx", px.toFixed(1));
+        pulse.setAttribute("cy", py.toFixed(1));
+        shown = true;
+      }
+    }
+    pulse.setAttribute("opacity", shown ? "1" : "0");
+
+    if (t < tCombat) return hitch > 0.5 ? "a slow frame · dt stopped at 100 ms" : `requestAnimationFrame · dt ${steady.toFixed(1)} ms`;
+    if (t < tWorld) return `yokai ${ENEMY[Math.floor(t * 1.4) % ENEMY.length]} · oni ${Math.round(health * 100)}% hp · phase ${phaseIndex + 1} of 3`;
+    if (t < tRender) return world < 0.4 ? "instancedmesh · one mesh, every tree" : "particle pool · petals reused, none created";
+    if (t < tAudio) return render < 0.5 ? "three.js · aces filmic tone mapping" : "pixel ratio capped at 2 · frame on the cloth";
+    if (t < tSave) return paths.faders.map((bus) => `${bus.name} ${bus.level}`).join(" · ");
+    return badU > 0.2 ? "bad json or missing fields · save reset, game still starts" : "localstorage · version 1 · checked on load";
+  };
+};
+
+export const drivers: Record<string, Mount> = { roaster, referee, fieldcase, automaton, lantern };
+

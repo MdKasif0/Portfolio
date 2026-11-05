@@ -67,7 +67,7 @@ export function ArchitectureSection() {
 
       <div className="arch-panel" id="arch-panel" role="tabpanel" aria-labelledby={`arch-tab-${system.id}`} key={system.id}>
         <p className="arch-summary" data-layer="text">{system.summary}</p>
-        <MachineFigure system={system} number={active + 1} />
+        <MachineFigure machine={system.machine} name={system.name} label={`Fig. ${active + 1}`} />
 
         <dl className="arch-numbers">
           {system.facts.map((fact) => (

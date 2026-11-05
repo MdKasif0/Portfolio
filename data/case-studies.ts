@@ -1,4 +1,4 @@
-import { cookieDiagram, crimsonDiagram, gitRoastedDiagram, type Diagram, type SystemFact, type TradeOff } from "@/data/systems";
+import { automatonMachine, lanternMachine, roasterMachine, type Machine, type SystemFact, type TradeOff } from "@/data/systems";
 
 /**
  * Case studies. Every fact comes from the project's source code, its commit history or a
@@ -34,8 +34,8 @@ export type CaseStudy = {
   problemHeadline: string;
   problem: string[];
   architectureHeadline: string;
-  diagram: Diagram;
-  diagramNote: string;
+  machine: Machine;
+  machineNote: string;
   figures: Media[];
   decisionsHeadline: string;
   decisions: TradeOff[];
@@ -83,9 +83,9 @@ export const caseStudies: CaseStudy[] = [
       "So I split the product in two. Everything that can be calculated gets calculated: stars, consistency, quality, community, activity. The model is handed that result and only writes about it, going after the weakest category first.",
       "That split decided the rest of the system: what gets fetched, how much of it reaches the model, and what happens when the model misbehaves."
     ],
-    architectureHeadline: "One request, five stops.",
-    diagram: gitRoastedDiagram,
-    diagramNote: "A single server action runs this whole path. The model only sees data that has already been fetched, capped and scored.",
+    architectureHeadline: "One request, seven stops.",
+    machine: roasterMachine,
+    machineNote: "A single server action runs this whole path. The model only sees data that has already been fetched, capped and scored. The machine is an illustration, slowed down so you can follow it: real roasts take about 2 seconds.",
     figures: [
       {
         kind: "image",
@@ -210,8 +210,8 @@ export const caseStudies: CaseStudy[] = [
       "I built the macOS app in SwiftUI and SpriteKit, then wrote a separate C# version for Windows."
     ],
     architectureHeadline: "How she finds her way around a desktop she can't read.",
-    diagram: cookieDiagram,
-    diagramNote: "The macOS architecture. The Windows version is a separate C# implementation of the same behavior.",
+    machine: automatonMachine,
+    machineNote: "The macOS architecture, drawn as a machine and slowed down so you can follow it. The Windows version is a separate C# implementation of the same behavior.",
     figures: [
       {
         kind: "video",
@@ -346,8 +346,8 @@ if let engine = behaviorEngine {
       "Without a commercial engine, the loop, combat, AI, world generation, audio and saves all had to be built as my own systems on top of Three.js."
     ],
     architectureHeadline: "Everything runs through one loop.",
-    diagram: crimsonDiagram,
-    diagramNote: "Each system is its own TypeScript module, updated in order by the game loop.",
+    machine: lanternMachine,
+    machineNote: "Each system is its own TypeScript module, updated by the game loop. The rig is an illustration of one frame, slowed down so you can follow it: the real thing runs this about 60 times a second.",
     figures: [
       {
         kind: "video",

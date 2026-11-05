@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CaseStudyMedia } from "@/components/case-study-media";
+import { MachineFigure } from "@/components/machines/machine-figure";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
 import { caseStudies, caseStudyFor, type Media } from "@/data/case-studies";
 import { portfolioContent } from "@/data/content";
-import { nodeKindLabels, type Diagram } from "@/data/systems";
 
 type Props = { params: { slug: string } };
 
@@ -32,26 +32,6 @@ function Figure({ media, number, priority }: { media: Media; number?: number; pr
       <CaseStudyMedia media={media} priority={priority} />
       <figcaption>{number ? <span>Fig. {number}</span> : null}{media.caption}</figcaption>
     </figure>
-  );
-}
-
-/** The request path, drawn as one line through the system. Stacked stops happen side by side. */
-function RequestPath({ diagram, label }: { diagram: Diagram; label: string }) {
-  return (
-    <ol className="cs-path" aria-label={label} style={{ "--cs-stops": diagram.columns.length } as React.CSSProperties}>
-      {diagram.columns.map((stop, index) => (
-        <li className="cs-stop" key={stop[0].title}>
-          <span className="cs-stop-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-          {stop.map((node) => (
-            <div className={`cs-node is-${node.kind}`} key={node.title}>
-              <h3>{node.title}</h3>
-              <p>{node.note}</p>
-              <span className="cs-node-kind">{nodeKindLabels[node.kind]}</span>
-            </div>
-          ))}
-        </li>
-      ))}
-    </ol>
   );
 }
 
@@ -139,8 +119,8 @@ export default function CaseStudyPage({ params }: Props) {
 
           <section className="cs-section">
             <SectionHead label="The architecture" title={study.architectureHeadline} />
-            <RequestPath diagram={study.diagram} label={`${study.title} architecture`} />
-            <p className="cs-footnote">{study.diagramNote}</p>
+            <MachineFigure machine={study.machine} name={study.title} label="The machine" />
+            <p className="cs-footnote">{study.machineNote}</p>
           </section>
         </div>
 

@@ -108,4 +108,4 @@ No unprovided email address, award, year, or project statistic is fabricated. Le
 
 ## Machine drawings
 
-The machines in "A look under the surface" are built with the MIT-licensed [Anatomy](https://github.com/wheresryan22/anatomy) kit, kept in `tools/figures/kit`. Edit a machine in `tools/figures/*.mjs`, then run `node tools/figures/build.mjs` to regenerate `public/figures/*.json`. Their steps and wording live in `data/systems.ts`, and their motion in `components/machines/drivers.ts`.
+The machines in "A look under the surface" and on the case study pages are built with the MIT-licensed [Anatomy](https://github.com/wheresryan22/anatomy) kit, kept in `tools/figures/kit`. Edit a machine in `tools/figures/*.mjs`, then run `node tools/figures/build.mjs` to regenerate `public/figures/*.json`. Their steps and wording live in `data/systems.ts`, and their motion in `components/machines/drivers.ts`.

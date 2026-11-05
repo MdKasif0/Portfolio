@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from "react";
 import { drivers } from "@/components/machines/drivers";
 import { schedule, type Figure, type Pose } from "@/components/machines/runtime";
-import type { System } from "@/data/systems";
+import type { Machine } from "@/data/systems";
 import "@/components/machines/iso.css";
 
 const cache = new Map<string, Promise<Figure>>();
@@ -16,8 +16,7 @@ const loadFigure = (id: string) => {
  * One machine and its stations. The drawing is plain SVG markup built by tools/figures; a pure pose
  * function moves it. The clock only runs while it's on screen, and reduced motion gets still frames.
  */
-export function MachineFigure({ system, number }: { system: System; number: number }) {
-  const { machine } = system;
+export function MachineFigure({ machine, name, label }: { machine: Machine; name: string; label: string }) {
   const frame = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const readout = useRef<HTMLSpanElement>(null);
@@ -144,7 +143,7 @@ export function MachineFigure({ system, number }: { system: System; number: numb
     <div className="machine iso" data-figure={machine.figure}>
       <div className="machine-frame" ref={frame} onPointerMove={onPointerMove} onPointerLeave={onPointerLeave} data-layer="card" data-kind="machine-frame">
         <div className="machine-corners" aria-hidden="true">
-          <span>Fig. {number}</span>
+          <span>{label}</span>
           <span>{machine.object}</span>
         </div>
         <div className={`machine-stage${ready ? " is-ready" : ""}`} ref={stage} onClick={onStageClick} style={{ aspectRatio: "1040 / 600" } as CSSProperties} />
@@ -159,7 +158,7 @@ export function MachineFigure({ system, number }: { system: System; number: numb
 
       <div className="machine-rail">
         <span className="machine-progress" aria-hidden="true"><span ref={bar} /></span>
-        <ol className="machine-stations" ref={list} aria-label={`${system.name}: the path of one request`}>
+        <ol className="machine-stations" ref={list} aria-label={`${name}: the path through the system`}>
           {machine.stations.map((item, index) => (
             <li key={item.title} style={{ flexGrow: item.seconds }}>
               <button type="button" aria-pressed={index === station} onClick={() => jump(index)}>
@@ -176,6 +175,11 @@ export function MachineFigure({ system, number }: { system: System; number: numb
         <p className="machine-maps">In the machine: {current.object}</p>
         <p>{current.note}</p>
       </div>
+
+      {/* Every step in the page's text, for screen readers, search engines and anyone reading without the tour. */}
+      <ol className="machine-all">
+        {machine.stations.map((item) => <li key={item.title}>{item.title}: {item.note} (In the machine: {item.object}.)</li>)}
+      </ol>
     </div>
   );
 }
