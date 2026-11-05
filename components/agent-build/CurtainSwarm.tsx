@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, type MutableRefObject } from "react";
 import { AGENT_COLORS } from "@/components/agent-build/engine/agent";
+import { FULL_STOP, SIGNATURE_STROKES, SIGNATURE_VIEWBOX, sampleAt, strokeOutline, strokeSlice, strokeTimeline } from "@/components/agent-build/signature";
 
 /**
- * The opening shot before the build: a "Kasif." signature is hand-drawn in one second
- * (a red light streak runs ahead of a glowing pen that leaves white ink), DEVELOPER lands
- * underneath, and two loose groups of agent cursors circle it clockwise the whole time.
+ * The opening shot before the build: a calligraphic "Kasif." signature is written in 1.5 seconds
+ * (a red light streak runs ahead of a glowing pen that leaves white ink), DEVELOPER surfaces
+ * beneath its closing flourish as the pen passes over each letter, and two loose groups of agent cursors circle it clockwise the whole time.
  *
  * The cursors move like hands on a mouse, not like a formation: they stay upright as real
  * pointers do, and each one travels in its own quick bursts, with a slight curve, a small
@@ -38,27 +39,16 @@ const AGENT_TIP = { x: 1.5 * AGENT_SCALE, y: 1.2 * (19 / 20) };
 
 export type SwarmHandoff = { take: (agentId: number) => { x: number; y: number } | null };
 
-/**
- * Signature strokes (viewBox 50 36 450 236), drawn in order. Each has a start and duration
- * in ms. `ink: false` is the brand-red full stop, which pops in instead of being drawn.
- */
-const STROKES: { d: string; at: number; ms: number; ink?: false }[] = [
-  // K: lead-in flourish swinging up into the stem, then the stem
-  { d: "M 70 176 C 26 160, 44 92, 132 70 C 170 61, 200 56, 218 46 C 196 96, 162 164, 130 226", at: 0, ms: 230 },
-  // K arm and leg, flowing on into a, s, i and the looped f
-  { d: "M 300 56 C 256 96, 204 130, 178 140 C 202 150, 214 176, 222 198 C 226 212, 238 214, 252 202 C 262 192, 270 180, 274 170 C 258 160, 236 174, 238 196 C 240 214, 264 204, 276 178 L 268 206 C 270 214, 282 210, 294 196 C 302 186, 308 172, 306 166 C 314 182, 324 194, 314 206 C 306 214, 292 210, 292 204 C 304 210, 322 200, 334 180 L 326 206 C 328 214, 340 210, 350 198 C 364 174, 380 120, 394 78 C 402 54, 384 48, 376 72 C 362 114, 350 194, 336 252 C 332 266, 320 262, 326 248 C 336 228, 362 214, 384 206", at: 230, ms: 500 },
-  // i dot
-  { d: "M 340 160 l 4 -5", at: 730, ms: 30 },
-  // underline swoosh, swept in from the right with a small loop at the end
-  { d: "M 480 204 C 400 214, 270 224, 160 232 C 200 230, 214 240, 206 250 C 198 258, 186 248, 198 238", at: 760, ms: 180 },
-  // the red full stop, like the KASIF. wordmark
-  { d: "M 404 202 l 0.1 0", at: 940, ms: 60, ink: false }
-];
-/** DEVELOPER lands letter by letter as the signature finishes. */
-const DEVELOPER_AT = 940;
-const DEVELOPER_STEP = 42;
-/** Longest the red streak runs ahead of the pen, in viewBox units. */
-const STREAK_MAX = 120;
+/** The signature's pen strokes take this long; the red full stop lands in the time left after them. */
+const WRITE_MS = 1440;
+const SIGNATURE_MS = 1500;
+const TIMELINE = strokeTimeline(WRITE_MS);
+/** The stroke that carries the closing flourish over DEVELOPER. */
+const FLOURISH = 1;
+/** DEVELOPER's letters never arrive closer together than this, so the word still reads as a sweep. */
+const LETTER_MIN_GAP = 34;
+/** How far the red streak runs ahead of the pen, in samples of the line. */
+const STREAK_SAMPLES = 46;
 
 /** One hand movement along the circle: a burst from `from` to `to` over t0..t1, then a pause until `rest`. */
 type Flick = { t0: number; t1: number; rest: number; from: number; to: number; bow: number };
@@ -67,8 +57,6 @@ type Cursor = { id: number; flock: number; index: number; color: string; jitter:
 
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
-/** A pen speeds up through the middle of a stroke and eases into its ends. */
-const pen = (t: number) => (1 - Math.cos(Math.PI * t)) / 2;
 /** The minimum-jerk profile of a practised hand movement: a smooth start, a fast middle, a soft stop. */
 const reachProfile = (t: number) => t * t * t * (10 + t * (6 * t - 15));
 
@@ -148,8 +136,9 @@ export function CurtainSwarm({ durationMs, building, handoff, trayPoint, onDone 
     const inks = Array.from(mark.querySelectorAll<SVGPathElement>(".sig-ink"));
     const streaks = Array.from(mark.querySelectorAll<SVGPathElement>(".sig-streak"));
     const nib = mark.querySelector<SVGCircleElement>(".sig-nib");
-    const lengths = inks.map((path) => path.getTotalLength());
-    inks.forEach((path, i) => { path.style.strokeDasharray = `${lengths[i]} ${lengths[i] + 1}`; path.style.strokeDashoffset = String(lengths[i]); });
+    const fullStop = mark.querySelector<SVGCircleElement>(".sig-dot");
+    const halo = mark.querySelector<SVGCircleElement>(".sig-halo");
+    const reached = SIGNATURE_STROKES.map(() => -1);
     const curtain = mark.parentElement;
 
     let width = 0, height = 0, rx = 0, ry = 0;
@@ -159,11 +148,28 @@ export function CurtainSwarm({ durationMs, building, handoff, trayPoint, onDone 
       canvas.width = width * dpr; canvas.height = height * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const markBox = mark.getBoundingClientRect();
-      rx = Math.min(width * 0.4, Math.max(150, markBox.width / 2 + 100));
+      rx = Math.min(width * 0.46, Math.max(150, markBox.width / 2 + 90));
       ry = Math.min(height * 0.44, Math.max(markBox.height / 2 + 56, rx * 0.45));
     };
     resize();
     window.addEventListener("resize", resize);
+
+    // Each letter of DEVELOPER surfaces as the closing flourish passes over it.
+    const flourish = SIGNATURE_STROKES[FLOURISH];
+    const turnStart = Math.floor(flourish.xs.length * 0.7);
+    let sweepStart = turnStart;
+    for (let i = turnStart; i < flourish.xs.length; i++) if (flourish.xs[i] < flourish.xs[sweepStart]) sweepStart = i;
+    const svgBox = mark.querySelector("svg")?.getBoundingClientRect();
+    let previous = 0;
+    mark.querySelectorAll<HTMLElement>(".agent-signature-role span").forEach((letter) => {
+      const box = letter.getBoundingClientRect();
+      const x = svgBox ? SIGNATURE_VIEWBOX.x + ((box.left + box.width / 2 - svgBox.left) / svgBox.width) * SIGNATURE_VIEWBOX.width : 0;
+      let i = sweepStart;
+      while (i < flourish.xs.length - 1 && flourish.xs[i] < x) i++;
+      const at = Math.max(TIMELINE[FLOURISH].at + TIMELINE[FLOURISH].ms * flourish.times[i], previous + LETTER_MIN_GAP);
+      letter.style.animationDelay = `${Math.round(at)}ms`;
+      previous = at;
+    });
 
     /** Where a cursor's hand has it at time t (ms). Everything is a function of t, so the handoff can ask any time. */
     const orbit = (c: Cursor, t: number) => {
@@ -238,31 +244,32 @@ export function CurtainSwarm({ durationMs, building, handoff, trayPoint, onDone 
       if (curtain) curtain.style.backgroundColor = buildingAt.current === null ? "" : `rgba(5,5,10,${1 - easeOut(clamp01((t - buildingAt.current) / FADE_MS))})`;
 
       // Signature: the red streak runs ahead along the stroke, the pen follows and leaves ink.
-      let nibAt: DOMPoint | null = null;
-      STROKES.forEach((stroke, i) => {
-        const u = clamp01((t - stroke.at) / stroke.ms);
-        const ink = inks[i], streak = streaks[i], length = lengths[i];
-        if (stroke.ink === false) {
-          ink.style.strokeDashoffset = "0";
-          ink.style.opacity = String(u);
-          ink.style.transform = `scale(${u ? 1 + 1.4 * (1 - easeOut(u)) : 0})`;
-          return;
+      let nibAt: { x: number; y: number } | null = null;
+      SIGNATURE_STROKES.forEach((stroke, i) => {
+        const u = clamp01((t - TIMELINE[i].at) / TIMELINE[i].ms);
+        if (u <= 0) return;
+        const sample = sampleAt(stroke, u);
+        if (sample !== reached[i]) {
+          reached[i] = sample;
+          inks[i].setAttribute("d", strokeOutline(stroke, sample));
         }
-        const drawn = length * pen(u);
-        const ahead = length * pen(clamp01(u * 1.3 + 0.06));
-        ink.style.strokeDashoffset = String(length - drawn);
-        // Zero-length dashes still paint their round caps, so hide what hasn't started yet.
-        ink.style.opacity = u > 0 ? "1" : "0";
-        const lead = u > 0 && u < 1 ? Math.min(STREAK_MAX, Math.max(0, ahead - drawn)) : 0;
-        streak.style.strokeDasharray = `${lead} ${length * 2}`;
-        streak.style.strokeDashoffset = String(-drawn);
-        streak.style.opacity = lead > 0.5 ? "1" : "0";
-        if (u > 0 && u < 1) nibAt = ink.getPointAtLength(drawn);
+        if (u < 1) {
+          streaks[i].setAttribute("d", strokeSlice(stroke, sample, sample + STREAK_SAMPLES));
+          nibAt = { x: stroke.xs[sample], y: stroke.ys[sample] };
+        } else if (streaks[i].getAttribute("d")) {
+          streaks[i].setAttribute("d", "");
+        }
       });
       if (nib) {
-        const at = nibAt as DOMPoint | null;
+        const at = nibAt as { x: number; y: number } | null;
         nib.style.opacity = at ? "1" : "0";
         if (at) { nib.setAttribute("cx", String(at.x)); nib.setAttribute("cy", String(at.y)); }
+      }
+      if (fullStop) {
+        const u = clamp01((t - WRITE_MS) / (SIGNATURE_MS - WRITE_MS));
+        fullStop.style.opacity = String(u);
+        fullStop.style.transform = `scale(${u ? 1 + 1.4 * (1 - easeOut(u)) : 0})`;
+        if (halo) halo.style.opacity = String(u);
       }
 
       // Cursors: circle until an agent takes one over; the rest glide into the tray.
@@ -286,20 +293,28 @@ export function CurtainSwarm({ durationMs, building, handoff, trayPoint, onDone 
 
   return <>
     <div ref={markRef} className="agent-signature">
-      <svg className="agent-signature-svg" viewBox="50 36 450 236" fill="none" role="img" aria-label="Kasif">
+      <svg className="agent-signature-svg" viewBox={`${SIGNATURE_VIEWBOX.x} ${SIGNATURE_VIEWBOX.y} ${SIGNATURE_VIEWBOX.width} ${SIGNATURE_VIEWBOX.height}`} fill="none" role="img" aria-label="Kasif">
         <defs>
-          <linearGradient id="sig-silver" x1="0" y1="0" x2="1" y2="1">
+          {/* In page units, so the shading stays put while the ink's shape grows. */}
+          <linearGradient id="sig-silver" gradientUnits="userSpaceOnUse" x1="20" y1="14" x2="676" y2="314">
             <stop offset="0" stopColor="#ffffff" />
-            <stop offset=".55" stopColor="#e9e9ef" />
-            <stop offset="1" stopColor="#b9b9c6" />
+            <stop offset=".55" stopColor="#eeeef3" />
+            <stop offset="1" stopColor="#c4c4d0" />
           </linearGradient>
+          <radialGradient id="sig-halo">
+            <stop offset="0" stopColor="#E5322D" stopOpacity=".62" />
+            <stop offset=".4" stopColor="#E5322D" stopOpacity=".2" />
+            <stop offset="1" stopColor="#E5322D" stopOpacity="0" />
+          </radialGradient>
         </defs>
-        {STROKES.map((stroke, i) => <path key={`s${i}`} className="sig-streak" d={stroke.d} />)}
-        {STROKES.map((stroke, i) => <path key={`i${i}`} className={stroke.ink === false ? "sig-ink sig-dot" : "sig-ink"} d={stroke.d} />)}
-        <circle className="sig-nib" r="2.4" cx="0" cy="0" />
+        {SIGNATURE_STROKES.map((_, i) => <path key={`s${i}`} className="sig-streak" />)}
+        {SIGNATURE_STROKES.map((_, i) => <path key={`i${i}`} className="sig-ink" fill="url(#sig-silver)" />)}
+        <circle className="sig-halo" cx={FULL_STOP.x} cy={FULL_STOP.y} r={FULL_STOP.r * 3.6} />
+        <circle className="sig-dot" cx={FULL_STOP.x} cy={FULL_STOP.y} r={FULL_STOP.r} />
+        <circle className="sig-nib" r="3" cx="0" cy="0" />
       </svg>
       <span className="agent-signature-role" aria-label="Developer">
-        {"DEVELOPER".split("").map((letter, i) => <span key={i} style={{ animationDelay: `${DEVELOPER_AT + i * DEVELOPER_STEP}ms` }}>{letter}</span>)}
+        {"DEVELOPER".split("").map((letter, i) => <span key={i}>{letter}</span>)}
       </span>
     </div>
     <canvas ref={canvasRef} className="agent-curtain-swarm" />

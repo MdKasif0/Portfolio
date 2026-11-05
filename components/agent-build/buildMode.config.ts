@@ -8,7 +8,7 @@ export const buildModeConfig = {
   speedDefault: 1,
   mobileSpeedDefault: 2,
   /** The opening curtain: the Kasif signature draws while cursors orbit it, then they burst out as the build starts. */
-  autoStartMs: 3000,
+  autoStartMs: 3400,
   autoDismissMs: 6000,
   runOncePerSession: false,
   soundDefault: false,

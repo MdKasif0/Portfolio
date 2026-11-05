@@ -555,15 +555,17 @@ html.has-custom-cursor .rp.is-idle, html.has-custom-cursor .rp.is-idle * { curso
 @keyframes agent-card-flash { 0% { box-shadow: inset 0 0 0 1px rgba(242,80,62,.9); } 100% { box-shadow: inset 0 0 0 1px rgba(242,80,62,0); } }
 .agent-build-curtain { position: fixed; z-index: 110; inset: 0; display: grid; place-items: center; background: #05050a; }
 .agent-build-curtain.is-handoff { pointer-events: none; }
-.agent-signature { position: absolute; top: 50%; left: 50%; display: flex; container-type: inline-size; width: min(62vw, 440px, 88vh); flex-direction: column; align-items: flex-end; transform: translate(-50%,-50%); will-change: transform, opacity; }
-.agent-signature-svg { display: block; width: 100%; height: auto; overflow: visible; }
-.sig-ink { opacity: 0; stroke: url(#sig-silver); stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 3px rgba(255,255,255,.28)); }
-.sig-dot { stroke: #E5322D; stroke-width: 9; transform-box: fill-box; transform-origin: center; filter: drop-shadow(0 0 6px rgba(229,50,45,.85)); }
-.sig-streak { opacity: 0; stroke: #ff3b30; stroke-width: 2.8; stroke-linecap: round; stroke-dasharray: 0 9999; filter: drop-shadow(0 0 4px rgba(229,50,45,.95)) drop-shadow(0 0 10px rgba(229,50,45,.55)); }
+.agent-signature { position: absolute; top: 50%; left: 50%; container-type: inline-size; width: min(76vw, 620px, 110vh); transform: translate(-50%,-50%); will-change: transform, opacity; }
+/* The glow sits on the whole drawing because Safari ignores CSS filters on elements inside an SVG. */
+.agent-signature-svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 0 2px rgba(255,255,255,.24)); }
+.sig-dot { fill: #E5322D; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.sig-halo { fill: url(#sig-halo); opacity: 0; }
+.sig-streak { stroke: #ff3b30; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 4px rgba(229,50,45,.95)) drop-shadow(0 0 10px rgba(229,50,45,.55)); }
 .sig-nib { fill: #fff; opacity: 0; filter: drop-shadow(0 0 4px #fff) drop-shadow(0 0 9px rgba(255,120,110,.8)); }
-.agent-signature-role { display: flex; margin: 8px 5% 0 0; font: 400 19cqw/1.02 var(--font-display), Impact, sans-serif; letter-spacing: .012em; filter: drop-shadow(0 0 18px rgba(229,50,45,.42)); }
-.agent-signature-role span { color: transparent; background: linear-gradient(180deg, #F2503E 0%, #D93025 48%, #9E1B18 100%); -webkit-background-clip: text; background-clip: text; opacity: 0; animation: sig-letter .32s cubic-bezier(.16,1,.3,1) both; }
-@keyframes sig-letter { from { opacity: 0; filter: blur(5px); transform: translateY(5px); } to { opacity: 1; filter: blur(0); transform: none; } }
+/* Tucked under the closing flourish, right of the f's descender. Coordinates follow the signature's artwork. */
+.agent-signature-role { position: absolute; top: 76.5%; left: 63.4%; display: flex; font: 400 3.35cqw/1 var(--font-display), Impact, sans-serif; letter-spacing: 0; white-space: nowrap; filter: drop-shadow(0 0 10px rgba(229,50,45,.38)); }
+.agent-signature-role span { margin-right: .46em; color: transparent; background: linear-gradient(180deg, #F2503E 0%, #E5322D 55%, #B3201C 100%); -webkit-background-clip: text; background-clip: text; opacity: 0; animation: sig-letter .56s cubic-bezier(.16,1,.3,1) both; }
+@keyframes sig-letter { 0% { opacity: 0; filter: blur(4px) brightness(1.6); transform: translate(-.3em, -.7em); } 55% { opacity: 1; filter: blur(0) brightness(1.5); } 100% { opacity: 1; filter: blur(0) brightness(1); transform: none; } }
 .agent-curtain-swarm { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .agent-control-bar { position: fixed; z-index: 122; right: 16px; bottom: max(18px, env(safe-area-inset-bottom)); left: 16px; display: flex; width: max-content; max-width: calc(100vw - 32px); min-height: 54px; align-items: center; justify-content: center; gap: 14px; margin-inline: auto; padding: 8px 11px 8px 14px; border: 1px solid rgba(255,255,255,.12); border-radius: 999px; background: rgba(11,11,18,.85); box-shadow: 0 12px 40px rgba(0,0,0,.4); color: #f5f5f5; font-size: 10px; letter-spacing: .01em; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
 .agent-count { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
@@ -2461,7 +2463,13 @@ a, button, label, input, textarea, select, summary, [role="slider"], [role="swit
 
 /* Landscape phones: the intro signature and DEVELOPER stay clear of the control bar. */
 @media (max-height: 520px) {
-  .agent-signature { top: 44%; width: min(62vw, 68vh); }
+  .agent-signature { top: 44%; width: min(62vw, 112vh); }
+}
+
+/* On a phone the signature is small, so DEVELOPER gets a little more size to stay readable. */
+@media (max-width: 700px) {
+  .agent-signature-role { font-size: 3.7cqw; }
+  .agent-signature-role span { margin-right: .36em; }
 }
 
 /* Bright page content must not ghost through the reel on small screens. */
