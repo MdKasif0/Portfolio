@@ -448,6 +448,8 @@ export function MagneticCursor({
               borderRadius: radius,
               backgroundColor: cursorColor,
               mixBlendMode: blendMode,
+              // Lifts it above page transitions, which would otherwise show it as a frozen snapshot.
+              viewTransitionName: "site-cursor",
               opacity: 0,
               pointerEvents: "none",
               willChange: "transform",
@@ -464,7 +466,7 @@ export function MagneticCursor({
           </div>
           <span ref={youRef} className="mc-you" aria-hidden="true">YOU</span>
           {Array.from({ length: RIPPLE_POOL }, (_, index) => (
-            <span key={index} ref={(node) => { rippleRefs.current[index] = node; }} className="mc-ripple" aria-hidden="true" />
+            <span key={index} ref={(node) => { rippleRefs.current[index] = node; }} className="mc-ripple" style={{ viewTransitionName: `site-ripple-${index}` }} aria-hidden="true" />
           ))}
         </>,
         document.body

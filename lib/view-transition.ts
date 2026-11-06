@@ -31,14 +31,16 @@ export function morphTo(link: HTMLElement, navigate: () => void) {
   name(link.querySelector<HTMLElement>("[data-vt-title]"), "cs-title");
   root.dataset.vt = "leaving";
 
+  // The browser paints nothing until this callback ends, cursor included, so its waits stay short.
+  // A route that isn't ready in time arrives a moment later, without the morph.
   const transition = document.startViewTransition(async () => {
-    await Promise.race([new Promise<void>((resolve) => { settle = resolve; navigate(); }), wait(2500)]);
+    await Promise.race([new Promise<void>((resolve) => { settle = resolve; navigate(); }), wait(700)]);
     settle = null;
     named.forEach((element) => element.style.removeProperty("view-transition-name"));
     root.dataset.vt = "arriving";
-    // The header image has to be painted before the new state is captured.
+    // A header image that's already loaded gets painted before the new state is captured. A slow one fades in afterwards.
     const art = document.querySelector<HTMLImageElement>(".cs-hero-art img");
-    if (art) await Promise.race([art.decode().catch(() => undefined), wait(450)]);
+    if (art) await Promise.race([art.decode().catch(() => undefined), wait(120)]);
   });
   // The browser can abandon the animation (a phone's viewport resizing, say). The navigation still happens.
   transition.ready.catch(() => undefined);
