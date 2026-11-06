@@ -21,7 +21,7 @@ const THEMES = {
 const CARDS = [
   { file: "gitroasted", kind: "Case study", title: "GitRoasted", theme: "ember", art: "public/projects/gitroasted.webp", value: "~2.1s", label: "Median live roast. The score comes from code, the words from an LLM." },
   { file: "cookie", kind: "Case study", title: "Cookie", theme: "brand", art: "public/projects/cookie.webp", value: "10 days", label: "From first commit to shipping on macOS and Windows." },
-  { file: "shadow-of-the-crimson-gate", kind: "Case study", title: "Shadow of the Crimson Gate", theme: "moon", art: "public/projects/shadow-of-the-crimson-gate.webp", value: "59.9 FPS", label: "A real action game, running in a browser tab." },
+  { file: "shadow-of-the-crimson-gate", kind: "Case study", title: "Shadow of the Crimson Gate", theme: "moon", art: "public/projects/shadow-of-the-crimson-gate.webp", value: "237 KB", label: "of JavaScript to start a real action game in a browser tab." },
   { file: "notes", kind: "From the workshop", title: "Engineering notes", theme: "brand", value: "4 notes", label: "Real bugs and bad calls, with the code that caused them.", text: true },
   { file: "note-fallback-list-with-one-model", kind: "Engineering note · GitRoasted", title: "My fallback list only held one model", theme: "ember", value: "1", label: "Model in my two-model fallback list", text: true },
   { file: "note-should-be-secured-in-production", kind: "Engineering note · GitRoasted", title: "“Should be secured in production” was in production", theme: "ember", value: "347", label: "Days a demo rule stayed live", text: true },

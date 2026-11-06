@@ -137,6 +137,18 @@
 828
 ]
 },
+"/case-studies/crimson/combat.jpg": {
+"name": "case-studies-crimson-combat",
+"widths": [
+96,
+256,
+384,
+640,
+828,
+1080,
+1440
+]
+},
 "/case-studies/crimson/gate.jpg": {
 "name": "case-studies-crimson-gate",
 "widths": [

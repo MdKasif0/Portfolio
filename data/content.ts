@@ -218,7 +218,7 @@ export const portfolioContent = {
         href: "https://shadow-of-the-crimson-gate.netlify.app/",
         githubHref: "https://github.com/MdKasif0/Shadow-of-the-Crimson-Gate",
         liveHref: "https://shadow-of-the-crimson-gate.netlify.app/",
-        overview: "Real-time katana combat with dashes and combos, multi-phase yokai boss fights, moonlit atmospheric lighting and layered sound, all running in the browser on a custom Three.js engine with saved progress.",
+        overview: "Real-time third-person katana combat with dashes and combos, multi-phase yokai boss fights, moonlit atmospheric lighting and layered sound, all running in the browser on a custom Three.js engine with saved progress.",
         role: "Game design · Engine & graphics programming",
         stack: ["Three.js", "TypeScript", "WebGL", "Web Audio API"],
         art: "crimson",

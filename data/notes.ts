@@ -115,8 +115,8 @@ if minX <= maxX {
     projectHref: "/work/shadow-of-the-crimson-gate",
     keyNumber: { value: "15 min", label: "How long the fix lasted" },
     blocks: [
-      { kind: "p", text: "Lanterns line the paths in Shadow of the Crimson Gate, and each one is a prefab with a real point light inside it. It's what makes the world glow at night:" },
-      { kind: "code", file: "src/game/world/LanternGenerator.ts", href: "https://github.com/MdKasif0/Shadow-of-the-Crimson-Gate/blob/main/src/game/world/LanternGenerator.ts", lang: "ts", code: `const pointLight = new THREE.PointLight(0xffaa44, 1, 8);
+      { kind: "p", text: "Lanterns line the paths in Shadow of the Crimson Gate, and each one used to be a prefab with a real point light inside it. It's what made the world glow at night:" },
+      { kind: "code", file: "src/game/world/LanternGenerator.ts", href: "https://github.com/MdKasif0/Shadow-of-the-Crimson-Gate/blob/e8251f1/src/game/world/LanternGenerator.ts", lang: "ts", code: `const pointLight = new THREE.PointLight(0xffaa44, 1, 8);
 pointLight.position.set(0, 2.5, 0);
 prefab.add(pointLight);` },
       { kind: "h", text: "Why that gets expensive" },
@@ -129,8 +129,8 @@ const lanternCount = 2; // Reduced drastically to avoid shader light limits` },
       { kind: "p", text: "It solved the problem and removed the reason to walk those paths at night. Fifteen minutes later they were back, in a commit whose message simply says it's for environment density." },
       { kind: "code", file: "Commit 60a9ae5, 01:16", href: "https://github.com/MdKasif0/Shadow-of-the-Crimson-Gate/commit/60a9ae5", lang: "ts", code: `const numLanterns = 8;
 const lanternCount = 20; // Increased for expanded world` },
-      { kind: "h", text: "Where that leaves it" },
-      { kind: "p", text: "I chose the look, and I still owe the fix. The game holds 59.9 FPS in my test at 1080p on an Apple M5, which is a fast machine and says little about the integrated GPU in a cheap laptop. The real answer is a small pool of lights that follow the player to the nearest lanterns, while the rest glow through the emissive material they already have. Until that exists, I'd rather say so here than let a commit message that says “fix” stand for it." }
+      { kind: "h", text: "The real fix, in November" },
+      { kind: "p", text: "I chose the look and owed the fix for almost three months. It finally landed in the game's visual overhaul: a small pool of real lights, from two to six depending on the graphics setting, that moves to the lanterns nearest the player. The rest glow through their own materials and sprites, so the world stays lit and the shader only ever pays for a few lights." }
     ]
   }
 ];

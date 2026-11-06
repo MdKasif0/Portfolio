@@ -324,10 +324,10 @@ if let engine = behaviorEngine {
     project: "Shadow of the Crimson Gate",
     theme: "moon",
     title: "Shadow of the Crimson Gate",
-    deck: "A Japanese dark-fantasy action game that opens from a link. Katana combat, yokai, a three-phase boss and saved progress, running in a browser tab on Three.js and my own TypeScript systems.",
+    deck: "A Japanese dark-fantasy action game that opens from a link. Third-person katana combat, yokai, a three-phase boss and saved progress, running in a browser tab on Three.js and my own TypeScript systems.",
     description: "How a Japanese dark-fantasy action game runs in a browser tab on Three.js and TypeScript: combat, boss AI, performance decisions and what broke along the way.",
     cover: "/projects/shadow-of-the-crimson-gate.webp",
-    coverAlt: "A torii gate under a moonlit sky in Shadow of the Crimson Gate",
+    coverAlt: "The game's title beside a crimson temple gate with teal doors, lanterns and a full moon",
     year: "2026",
     role: "Game design, engine and graphics programming",
     stack: ["Three.js", "TypeScript", "WebGL", "Web Audio API", "Vite"],
@@ -337,23 +337,23 @@ if let engine = behaviorEngine {
       kind: "image",
       src: "/case-studies/crimson/menu.jpg",
       width: 1800,
-      height: 1012,
-      alt: "The title screen: a crimson temple gate between snow-covered trees under a teal sky",
-      caption: "The title screen, running in the browser."
+      height: 1013,
+      alt: "The title screen: the game's title and menu beside a crimson temple gate with teal doors, stone lanterns and a full moon",
+      caption: "The new title screen, running in the browser."
     },
     demo: {
       label: "Play it here",
-      note: "This is the real game, in a frame. Click inside to control it. Starting a new game loads about 11 MB of audio.",
+      note: "This is the real game, in a frame. Click inside to control it. Starting a new game loads about 6 MB of audio.",
       touchNote: "The game needs a keyboard and mouse, so try this one on a computer.",
       needsKeyboard: true
     },
     facts: [
-      { value: "59.9", label: "FPS during gameplay at 1080p on an Apple M5", source: "Measured" },
-      { value: "191 KB", label: "Compressed JavaScript at first load", source: "Measured" },
-      { value: "16,242", label: "Lines of TypeScript across 150 files", source: "From the code" },
+      { value: "237 KB", label: "Compressed JavaScript at first load", source: "Measured" },
+      { value: "46", label: "Average FPS during gameplay at 1080p on an Apple M5 MacBook Air", source: "Measured" },
+      { value: "19,895", label: "Lines of TypeScript across 163 files", source: "From the code" },
       { value: "3", label: "Phases in the Crimson Oni boss fight", source: "From the code" }
     ],
-    factsNote: "Measured on the live game in November 2026 over 600 frames (95th percentile 17.1 ms). An M5 is a fast machine and the 60 Hz limit caps the result, so this isn't a figure for low-end hardware.",
+    factsNote: "Measured on the live game in November 2026 after the visual overhaul: five back-to-back runs of 600 frames averaged 43–49 FPS, with a median frame of 16.7 ms and a 95th percentile of 33 ms. This laptop has no fan and slows as it warms up. An earlier run on a cooler machine held 60.",
     problemHeadline: "It had to feel like a real game and still open from a link.",
     problem: [
       "Most browser games feel like browser games. I wanted weight: katana combat with dashes and combos, enemies that behave differently, and a boss that changes as the fight goes on.",
@@ -368,10 +368,18 @@ if let engine = behaviorEngine {
         kind: "video",
         src: "/case-studies/crimson/gate.mp4",
         poster: "/case-studies/crimson/gate.jpg",
-        width: 1800,
-        height: 1012,
-        alt: "The player walks toward a red torii gate at night as the chapter title appears",
-        caption: "Chapter one, captured from the live game. The moonlit darkness is the look I was going for."
+        width: 1280,
+        height: 720,
+        alt: "The camera sweeps down over sakura trees to a red torii gate as the chapter title appears, then the ronin fights a yokai beside the gate",
+        caption: "The new third-person opening and the first fight, two moments captured from the live game."
+      },
+      {
+        kind: "image",
+        src: "/case-studies/crimson/combat.jpg",
+        width: 1600,
+        height: 900,
+        alt: "The ronin lands a glowing ink slash on a yokai beside the torii gate, with a damage number, enemy health bar and the player's health bar on screen",
+        caption: "A hit in that fight: the ink slash, damage number, enemy bar and new HUD."
       }
     ],
     decisionsHeadline: "The calls that shaped it.",
@@ -379,19 +387,19 @@ if let engine = behaviorEngine {
       {
         chose: "Three.js with my own game systems",
         over: "A full game engine",
-        why: "It keeps the first load to 191 KB of compressed JavaScript, and I control the whole frame.",
+        why: "It keeps the first load to 237 KB of compressed JavaScript, and I control the whole frame.",
         cost: "Combat, AI, cameras and saves were all mine to build and debug."
       },
       {
-        chose: "Instanced meshes and particle pools",
+        chose: "Instanced and merged meshes, plus particle pools",
         over: "One object per tree, rock and petal",
-        why: "One draw call can render thousands of instances, and pooled particles avoid creating and collecting objects in the middle of a fight.",
-        cost: "Individual instances are harder to animate and change."
+        why: "Rocks and path stones are instanced, each tree merges into a few meshes that share materials, and pooled particles avoid creating and collecting objects in the middle of a fight.",
+        cost: "Individual pieces are harder to animate and change."
       },
       {
         chose: "Frame-safety limits",
         over: "Trusting the browser's timing",
-        why: "Delta time is capped at 100 ms so a hitch can't throw enemies through walls, pixel ratio is capped at 2, and the game pauses when the tab is hidden.",
+        why: "Delta time is capped at 100 ms so a hitch can't throw enemies through walls, pixel ratio is capped at 1.5, and the game pauses when the tab is hidden.",
         cost: "A long stall briefly slows the game instead of catching up."
       },
       {
@@ -420,7 +428,7 @@ this.renderCallback();`,
         date: "Aug 2026",
         title: "Too many lanterns for the shader",
         what: "Giving every lantern a real point light ran into shader light limits, so I cut the world's 20 lanterns to 2 and the arena's 8 to none.",
-        fix: "That emptied the world, so I restored them 15 minutes later. It runs well on a fast laptop, but a proper fix is still owed."
+        fix: "That emptied the world, so I restored them 15 minutes later. The proper fix came in November: a small pool of real lights that moves to the lanterns nearest the player, while the rest glow on their own."
       },
       {
         date: "Aug 2026",
@@ -444,16 +452,16 @@ this.renderCallback();`,
         date: "Aug 2026",
         title: "Synthesized audio didn't last a day",
         what: "I added procedural boss audio on August 29 and replaced it on August 30.",
-        fix: "It's now sample-based: a registry, routing buses and 81 WAV files, with footsteps by terrain and ambience by zone."
+        fix: "The effects are sample-based now: a registry, routing buses and 81 audio files, with footsteps by terrain and ambience by zone."
       }
     ],
     results: [
       "Playable in a browser tab, with four chapters, dialogue, saved progress and a three-phase final boss.",
-      "A steady 60 FPS in my gameplay test on a fast laptop, with graphics and VFX settings for slower machines.",
-      "Fully open source, with 264 commits on GitHub."
+      "An average of 43–49 FPS in my gameplay test on a fan-less laptop, with automatic quality scaling and graphics and VFX settings for slower machines.",
+      "Fully open source, with 275 commits on GitHub."
     ],
     next: [
-      "Load audio progressively. Starting a new game currently fetches about 11 MB of samples.",
+      "Get back to a steady 60 FPS on a fan-less laptop now that post-processing is in.",
       "Test and publish frame rates on mid-range and low-end laptops.",
       "Finish save migration, which currently only updates the version number."
     ]

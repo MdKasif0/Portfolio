@@ -57,9 +57,9 @@ export const lanternMachine: Machine = {
   stations: [
     { title: "One game loop", object: "the crankshaft and the dial with a stop pin", note: "One requestAnimationFrame loop drives the whole game, updating and then rendering. A slow frame can only push delta time up to the pin at 100 ms, so a hitch slows the game instead of throwing enemies through walls.", parts: ["loop", "dt"], seconds: 3.8 },
     { title: "Combat and AI", object: "three cams and the health column", note: "Dashes, combos and hitboxes sit alongside state machines for the yokai and the Crimson Oni. The boss changes phase at 70% and 35% health, which the third cam shows by growing another lobe.", parts: ["cams", "boss"], seconds: 4.2 },
-    { title: "World and VFX", object: "the tree tray, its lever and the petal ring", note: "Every tree on the tray is the same mesh, placed by one action: an InstancedMesh is one draw call. Particles come from a pool, so petals are reused rather than created and collected in the middle of a fight.", parts: ["forest"], seconds: 3.8 },
-    { title: "Three.js renderer", object: "the lantern and screen", note: "WebGL with ACES filmic tone mapping turns the raw frame into the final picture. Pixel ratio is capped at 2, so a very sharp display can't quietly double the work.", parts: ["lantern", "screen"], seconds: 4 },
-    { title: "Audio engine", object: "the mixing desk", note: "Web Audio buses over 81 WAV samples, with ambience by zone. These faders sit at the real levels from the code: master 0.7, music 0.5, ambience 0.6, SFX 0.8 and UI 0.5.", parts: ["audio"], seconds: 3.2 },
+    { title: "World and VFX", object: "the tree tray, its lever and the petal ring", note: "Every piece on the tray is the same mesh, placed by one action, the way the game places its rocks and path stones: an InstancedMesh is one draw call. Particles come from a pool, so petals are reused rather than created and collected in the middle of a fight.", parts: ["forest"], seconds: 3.8 },
+    { title: "Three.js renderer", object: "the lantern and screen", note: "WebGL with ACES filmic tone mapping turns the raw frame into the final picture. Pixel ratio is capped at 1.5, so a very sharp display can't quietly double the work.", parts: ["lantern", "screen"], seconds: 4 },
+    { title: "Audio engine", object: "the mixing desk", note: "Web Audio buses over 81 audio samples, with ambience by zone. These faders sit at the real levels from the code: master 0.7, music 0.5, ambience 0.6, SFX 0.8 and UI 0.5.", parts: ["audio"], seconds: 3.2 },
     { title: "Versioned save", object: "the stamped tin", note: "Progress goes to localStorage with a version number. On load, broken JSON or missing fields reset the save, so a damaged file can't stop the game from starting.", parts: ["save"], seconds: 3.2 }
   ]
 };
@@ -143,27 +143,27 @@ export const systems: System[] = [
     machine: lanternMachine,
     facts: [
       { value: "100ms", label: "Cap on delta time, so a slow frame can't break the game", source: "From the code" },
-      { value: "59.9", label: "FPS during gameplay at 1080p on an Apple M5", source: "Measured" },
-      { value: "191 KB", label: "Compressed JavaScript at first load", source: "Measured" },
+      { value: "46", label: "Average FPS during gameplay at 1080p on an Apple M5 MacBook Air", source: "Measured" },
+      { value: "237 KB", label: "Compressed JavaScript at first load", source: "Measured" },
       { value: "3", label: "Boss phases, changing at 70% and 35% health", source: "From the code" }
     ],
     tradeOffs: [
       {
         chose: "Three.js with my own game systems",
         over: "A full game engine",
-        why: "It keeps the first load to 191 KB of compressed JavaScript, and I control the whole frame.",
+        why: "It keeps the first load to 237 KB of compressed JavaScript, and I control the whole frame.",
         cost: "Combat, AI, cameras and saves were all mine to build and debug."
       },
       {
-        chose: "Instanced meshes and particle pools",
+        chose: "Instanced and merged meshes, plus particle pools",
         over: "One object per tree, rock and petal",
-        why: "One draw call can render thousands of instances, and pooled particles avoid creating and collecting objects in the middle of a fight.",
-        cost: "Individual instances are harder to animate and change."
+        why: "Rocks and path stones are instanced, each tree merges into a few meshes that share materials, and pooled particles avoid creating and collecting objects in the middle of a fight.",
+        cost: "Individual pieces are harder to animate and change."
       },
       {
         chose: "Frame-safety limits",
         over: "Trusting the browser's timing",
-        why: "Delta time is capped at 100 ms, pixel ratio is capped at 2, and the game pauses when the tab is hidden.",
+        why: "Delta time is capped at 100 ms, pixel ratio is capped at 1.5, and the game pauses when the tab is hidden.",
         cost: "A long stall briefly slows the game instead of catching up."
       }
     ],
