@@ -10,7 +10,8 @@ const CACHE_MINUTES = 30;
 const CELL = 11;
 const STEP = 14;
 const TOP = 16;
-const LEVEL_COLORS = ["rgba(255,255,255,.055)", "#5c1a18", "#982320", "#d92b26", "#ff6a5b"];
+// The colours live in CSS (.gh-graph), so the light theme can set its own.
+const LEVEL_COLORS = [0, 1, 2, 3, 4].map((level) => `var(--gh-level-${level})`);
 // Written out, because browsers disagree on short month names ("Sep", "Sept") and the page is built on a server.
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const formatDate = (date: Date) => `${date.getUTCDate()} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`;

@@ -6,6 +6,7 @@ import { anton } from "@/app/fonts";
 import { portfolioContent } from "@/data/content";
 import { useMotionPreference } from "@/components/motion-shell";
 import { useAgentBuild } from "@/components/agent-build/BuildProvider";
+import { useScheme } from "@/lib/theme";
 
 const socialNames: Record<string, string> = { X: "X / Twitter" };
 
@@ -14,7 +15,7 @@ function IstClock() { const [time,setTime]=useState(""); useEffect(()=>{const up
 
 /** `base` is "/" on other pages, so its links lead back to the home page's sections. */
 export function SiteFooter({ base = "" }: { base?: string }) {
-  const { motionEnabled } = useMotionPreference(); const { replayBuild, scrollToTop, buildWillRun } = useAgentBuild(); const gap = useDotGap();
+  const { motionEnabled } = useMotionPreference(); const { replayBuild, scrollToTop, buildWillRun } = useAgentBuild(); const gap = useDotGap(); const scheme = useScheme();
   const backToTop = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     scrollToTop();
@@ -47,7 +48,7 @@ export function SiteFooter({ base = "" }: { base?: string }) {
     columns={columns}
     ruleStart={ruleStart}
     onBackToTop={backToTop}
-    palette={{ background:"transparent", ink:"#E5322D", warm:"#F7F7F8", text:"#C9C9D2" }}
+    palette={scheme === "light" ? { background:"transparent", ink:"#D42A25", warm:"#15141A", text:"#45434A" } : { background:"transparent", ink:"#E5322D", warm:"#F7F7F8", text:"#C9C9D2" }}
     fontFamily={`${anton.style.fontFamily}, Anton, Impact, sans-serif`}
     fontWeight={400}
     monoFamily="var(--font-body), system-ui, sans-serif"

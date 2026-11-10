@@ -297,9 +297,10 @@ export function CurtainSwarm({ durationMs, building, handoff, trayPoint, onDone 
         <defs>
           {/* In page units, so the shading stays put while the ink's shape grows. */}
           <linearGradient id="sig-silver" gradientUnits="userSpaceOnUse" x1="20" y1="14" x2="676" y2="314">
-            <stop offset="0" stopColor="#ffffff" />
-            <stop offset=".55" stopColor="#eeeef3" />
-            <stop offset="1" stopColor="#c4c4d0" />
+            {/* Colours from CSS (.agent-signature-svg), so the light theme writes in dark ink. */}
+            <stop offset="0" style={{ stopColor: "var(--sig-silver-0)" }} />
+            <stop offset=".55" style={{ stopColor: "var(--sig-silver-1)" }} />
+            <stop offset="1" style={{ stopColor: "var(--sig-silver-2)" }} />
           </linearGradient>
           <radialGradient id="sig-halo">
             <stop offset="0" stopColor="#E5322D" stopOpacity=".62" />

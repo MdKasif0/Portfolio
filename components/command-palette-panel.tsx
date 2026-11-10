@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import { usePathname, useRouter } from "next/navigation";
 import { useAgentBuild } from "@/components/agent-build/BuildProvider";
 import { useMotionPreference } from "@/components/motion-shell";
+import { getScheme, setScheme } from "@/lib/theme";
 import { caseStudies, caseStudyForProject } from "@/data/case-studies";
 import { portfolioContent } from "@/data/content";
 import { notes } from "@/data/notes";
@@ -63,6 +64,14 @@ export function CommandPalettePanel({ onClose, onPlayReel }: { onClose: () => vo
       { id: "reel", group: "Do", label: "Play the reel", hint: "4 films", keywords: "video showreel film", run: () => { onClose(); onPlayReel(); } },
       ...(services.bookHref ? [{ id: "book", group: "Do", label: services.bookLabel, hint: "Cal.com ↗", keywords: "call meeting schedule", run: open(services.bookHref) }] : []),
       ...(pathname === "/" && motionEnabled ? [{ id: "replay", group: "Do", label: "Replay the build", keywords: "intro film", run: () => { onClose(); replayBuild(); } }] : []),
+      { id: "theme", group: "Do", label: getScheme() === "light" ? "Switch to the dark theme" : "Switch to the light theme", keywords: "light dark mode colour color appearance", run: () => {
+        onClose();
+        // After the palette has closed, so it isn't in the captured page. The ink starts at the nav's theme button.
+        window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+          const button = document.querySelector<HTMLElement>(".theme-toggle")?.getBoundingClientRect();
+          setScheme(getScheme() === "light" ? "dark" : "light", button && button.width ? { x: button.left + button.width / 2, y: button.top + button.height / 2 } : undefined);
+        }));
+      } },
       { id: "motion", group: "Do", label: motionEnabled ? "Turn motion off" : "Turn motion on", keywords: "animation reduce", run: () => { setMotionEnabled(!motionEnabled); onClose(); } },
       ...contact.socials.map((social) => ({ id: `social-${social.label}`, group: "Do", label: `Open ${social.label}`, hint: `${social.value} ↗`, run: open(social.href) }))
     ];

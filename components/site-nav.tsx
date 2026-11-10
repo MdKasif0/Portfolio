@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { portfolioContent } from "@/data/content";
 import { openPalette } from "@/components/command-palette";
 import { useMotionPreference } from "@/components/motion-shell";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 /** `base` is "/" on other pages, so its links lead back to the home page's sections. */
 export function SiteNav({ base = "" }: { base?: string }) {
@@ -113,6 +114,7 @@ export function SiteNav({ base = "" }: { base?: string }) {
             >
               <span /><span />
             </button>
+            <ThemeToggle />
             <button
               className="motion-toggle"
               data-magnetic

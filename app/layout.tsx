@@ -5,6 +5,7 @@ import { CommandPalette } from "@/components/command-palette";
 import { MotionShell } from "@/components/motion-shell";
 import SiteCursor from "@/components/site-cursor";
 import { SiteAnalytics } from "@/components/site-analytics";
+import { schemeInitScript } from "@/lib/theme-script";
 import "./globals.css";
 
 const { identity, about, contact, work, siteUrl } = portfolioContent;
@@ -107,7 +108,8 @@ const structuredData = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${anton.variable} ${jakarta.variable} ${caveat.variable} ${mono.variable}`}>
+    <html lang="en" className={`${anton.variable} ${jakarta.variable} ${caveat.variable} ${mono.variable}`} suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: schemeInitScript }} /></head>
       <body><SiteAnalytics /><MotionShell><SiteCursor>{children}</SiteCursor><CommandPalette /></MotionShell><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></body>
     </html>
   );
