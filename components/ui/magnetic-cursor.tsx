@@ -317,11 +317,16 @@ export function MagneticCursor({
     // P10: pooled red ripple. Keyboard-activated clicks (detail 0) have no position and are skipped.
     const onClick = (event: MouseEvent) => {
       if (!event.isTrusted || event.detail === 0 || mode === "native" || !shown) return;
-      const ripple = ripples[rippleIndex++ % ripples.length];
+      const index = rippleIndex++ % ripples.length;
+      const ripple = ripples[index];
       if (!ripple) return;
       gsap.killTweensOf(ripple);
+      // Named only while it plays, so it stays live above a page transition. Idle named ripples would add
+      // to a Chrome bug: with any named element on a page scrolled past about 7,500px, a view transition
+      // draws the old page blank (the theme switch drops these names, see globals.css).
+      ripple.style.viewTransitionName = `site-ripple-${index}`;
       gsap.set(ripple, { x: event.clientX, y: event.clientY, xPercent: -50, yPercent: -50, scale: 0, opacity: 0.6 });
-      gsap.to(ripple, { scale: 1, opacity: 0, duration: 0.45, ease: "power2.out" });
+      gsap.to(ripple, { scale: 1, opacity: 0, duration: 0.45, ease: "power2.out", onComplete: () => { ripple.style.viewTransitionName = ""; } });
     };
 
     const tick = () => {
@@ -466,7 +471,7 @@ export function MagneticCursor({
           </div>
           <span ref={youRef} className="mc-you" aria-hidden="true">YOU</span>
           {Array.from({ length: RIPPLE_POOL }, (_, index) => (
-            <span key={index} ref={(node) => { rippleRefs.current[index] = node; }} className="mc-ripple" style={{ viewTransitionName: `site-ripple-${index}` }} aria-hidden="true" />
+            <span key={index} ref={(node) => { rippleRefs.current[index] = node; }} className="mc-ripple" aria-hidden="true" />
           ))}
         </>,
         document.body

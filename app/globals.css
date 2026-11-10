@@ -2793,6 +2793,10 @@ html[data-motion="ready"] .palette-panel { animation: palette-panel-in .32s var(
 @media (max-width: 640px) { .theme-toggle { width: 35px; height: 35px; } }
 html[data-ink-vt]::view-transition-group(root) { animation: none; }
 html[data-ink-vt]::view-transition-old(root), html[data-ink-vt]::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+/* Chrome draws the old page blank in a view transition when any element has its own transition name and
+   the page is scrolled past roughly 7,500px. So the theme switch drops the cursor's names, and hides the
+   cursor for the moment the ink takes rather than leave a frozen copy of it in the captured pages. */
+html[data-ink-vt] .magnetic-cursor, html[data-ink-vt] .mc-ripple, html[data-ink-vt] .mc-you { view-transition-name: none !important; opacity: 0 !important; }
 
 /* Light theme, hand-tuned on top of the generated rules. */
 html[data-scheme="light"] .collab-logo:not([src*="kimi"]) { filter: invert(1) hue-rotate(180deg); }
