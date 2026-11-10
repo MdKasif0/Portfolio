@@ -109,8 +109,9 @@ const structuredData = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${anton.variable} ${jakarta.variable} ${caveat.variable} ${mono.variable}`} suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{ __html: schemeInitScript }} /></head>
-      <body><SiteAnalytics /><MotionShell><SiteCursor>{children}</SiteCursor><CommandPalette /></MotionShell><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></body>
+      {/* The theme script opens <body> rather than sitting in a hand-written <head>: Netlify adds an HTML
+          comment to <head>, and React then fails to hydrate it. Here it still runs before anything paints. */}
+      <body><script dangerouslySetInnerHTML={{ __html: schemeInitScript }} /><SiteAnalytics /><MotionShell><SiteCursor>{children}</SiteCursor><CommandPalette /></MotionShell><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></body>
     </html>
   );
 }
