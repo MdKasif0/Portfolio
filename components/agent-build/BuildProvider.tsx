@@ -13,6 +13,7 @@ import {
 import { usePathname } from "next/navigation";
 import { track } from "@/lib/analytics";
 import { HWF_PRINT_SOFT } from "@/components/ui/halftone-wordmark-footer";
+import { showcaseTheme } from "@/lib/theme-showcase";
 import { buildModeConfig } from "@/components/agent-build/buildMode.config";
 import { BuildInspector } from "@/components/agent-build/BuildInspector";
 import { ControlBar } from "@/components/agent-build/ControlBar";
@@ -447,6 +448,14 @@ export function BuildProvider({ children, motionEnabled, scrollTo, cancelScroll 
     }, 650);
     return () => window.clearTimeout(timer);
   }, [cleanup, phase]);
+
+  // Once the film has handed over and glided back to the top, show off the theme switch.
+  useEffect(() => {
+    if (phase !== "done" || takeoverRef.current || !motionEnabled || window.location.pathname !== "/") return;
+    const controller = new AbortController();
+    void showcaseTheme(controller.signal);
+    return () => controller.abort();
+  }, [phase, motionEnabled]);
 
   useEffect(() => () => {
     if (finishTimerRef.current !== null) window.clearTimeout(finishTimerRef.current);
