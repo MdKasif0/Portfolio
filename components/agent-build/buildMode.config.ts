@@ -7,6 +7,8 @@ export const buildModeConfig = {
   /** Default playback speed (desktop). The film is tuned to ~50s at 1x. */
   speedDefault: 1,
   mobileSpeedDefault: 2,
+  /** Between the hero and the footer the film plays this much faster than the chosen speed. The hero, the footer wordmark and the finale play at the chosen speed. */
+  middlePace: 2,
   /** The opening curtain: the Kasif signature draws while cursors orbit it, then they burst out as the build starts. */
   autoStartMs: 3400,
   autoDismissMs: 6000,

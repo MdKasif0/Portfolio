@@ -130,6 +130,11 @@ export class BuildEngine {
   private retiredBusy = 0;
   private retiredIdle = 0;
   private finished = false;
+  // Pace by zone: the hero and the footer wordmark play at the chosen speed, everything between at
+  // twice that. `zonePace` eases toward its target so the change never jolts.
+  private baseSpeed = 1;
+  private zonePace = 1;
+  private zoneEdges: { heroBottom: number; footerTop: number; at: number } | null = null;
   private debugPanel: HTMLElement | null = null;
   private lastDebug = 0;
   private tray: AssetTray | null = null;
@@ -175,7 +180,27 @@ export class BuildEngine {
   }
 
   setSpeed(speed: number) {
-    this.clock.speed = speed;
+    this.baseSpeed = speed;
+    this.clock.speed = speed * this.zonePace;
+  }
+
+  /** 1 on the hero, on the footer and during the finale; `middlePace` in between. */
+  private zoneTarget() {
+    if (this.finale !== "none") return 1;
+    const now = this.clock.realTime;
+    if (!this.zoneEdges || now - this.zoneEdges.at > 500) {
+      const edge = (selector: string, side: "top" | "bottom", fallback: number) => {
+        const box = document.querySelector(selector)?.getBoundingClientRect();
+        return box ? box[side] + window.scrollY : fallback;
+      };
+      this.zoneEdges = { heroBottom: edge("#top", "bottom", 0), footerTop: edge("#footer", "top", Infinity), at: now };
+    }
+    const vh = this.vh();
+    const top = this.options.isTouring() ? this.cameraTop : window.scrollY;
+    // Still mostly on the hero, or mostly on the footer.
+    if (top < this.zoneEdges.heroBottom - vh * 0.5) return 1;
+    if (top + vh > this.zoneEdges.footerTop + vh * 0.5) return 1;
+    return C.middlePace;
   }
 
   start() {
@@ -728,6 +753,8 @@ export class BuildEngine {
 
   private frame(dt: number) {
     const { plan } = this.options;
+    this.zonePace += (this.zoneTarget() - this.zonePace) * Math.min(1, dt / 350);
+    this.clock.speed = this.baseSpeed * this.zonePace;
     for (const job of plan.jobs) if (job.instant && job.status === "ready") this.complete(job);
 
     // Quality governor: trim optional chrome (tool rows, sparks, sweeps) when frames run long.
