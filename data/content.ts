@@ -26,31 +26,6 @@ export const portfolioContent = {
     reelMetadata: "AI · BACKEND",
     reels: [
       {
-        id: "audacity",
-        title: "Audacity",
-        tagline: "Every idea ships",
-        description: "A 30-second trailer cut on the beat. Every idea ships: GitRoasted, Cookie and Shadow of the Crimson Gate with the real numbers behind them, five more projects in five beats, then the award, twenty brands and the site building itself.",
-        duration: 30,
-        poster: "/reel/kasif-audacity-poster.jpg",
-        thumb: "/reel/kasif-audacity-thumb.jpg",
-        sources: [
-          { height: 2160, label: "4K", src: "/reel/kasif-audacity-2160.mp4" },
-          { height: 1080, label: "1080p", src: "/reel/kasif-audacity-1080.mp4" },
-          { height: 720, label: "720p", src: "/reel/kasif-audacity-720.mp4" }
-        ],
-        previews: { src: "/reel/kasif-audacity-previews.jpg", columns: 10, rows: 6, interval: 0.5 },
-        chapters: [
-          { title: "Every idea", start: 0 },
-          { title: "The developer", start: 5 },
-          { title: "GitRoasted", start: 7 },
-          { title: "Cookie", start: 11 },
-          { title: "Crimson Gate", start: 15 },
-          { title: "The range", start: 19 },
-          { title: "The proof", start: 22 },
-          { title: "Your idea", start: 26 }
-        ]
-      },
-      {
         id: "kasif",
         title: "KASIF",
         tagline: "Every idea can ship",
@@ -155,6 +130,31 @@ export const portfolioContent = {
           { title: "The roast", start: 33 },
           { title: "The fixes", start: 35 },
           { title: "Try it", start: 42 }
+        ]
+      },
+      {
+        id: "audacity",
+        title: "Audacity",
+        tagline: "Every idea ships",
+        description: "A 30-second trailer cut on the beat. Every idea ships: GitRoasted, Cookie and Shadow of the Crimson Gate with the real numbers behind them, five more projects in five beats, then the award, twenty brands and the site building itself.",
+        duration: 30,
+        poster: "/reel/kasif-audacity-poster.jpg",
+        thumb: "/reel/kasif-audacity-thumb.jpg",
+        sources: [
+          { height: 2160, label: "4K", src: "/reel/kasif-audacity-2160.mp4" },
+          { height: 1080, label: "1080p", src: "/reel/kasif-audacity-1080.mp4" },
+          { height: 720, label: "720p", src: "/reel/kasif-audacity-720.mp4" }
+        ],
+        previews: { src: "/reel/kasif-audacity-previews.jpg", columns: 10, rows: 6, interval: 0.5 },
+        chapters: [
+          { title: "Every idea", start: 0 },
+          { title: "The developer", start: 5 },
+          { title: "GitRoasted", start: 7 },
+          { title: "Cookie", start: 11 },
+          { title: "Crimson Gate", start: 15 },
+          { title: "The range", start: 19 },
+          { title: "The proof", start: 22 },
+          { title: "Your idea", start: 26 }
         ]
       }
     ],
