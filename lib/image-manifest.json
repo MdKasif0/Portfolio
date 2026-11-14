@@ -42,8 +42,25 @@
 384
 ]
 },
+"/brands/fishaudio.png": {
+"name": "brands-fishaudio",
+"widths": [
+96,
+256,
+384,
+640
+]
+},
 "/brands/hellyeah.png": {
 "name": "brands-hellyeah",
+"widths": [
+96,
+256,
+384
+]
+},
+"/brands/hopper.png": {
+"name": "brands-hopper",
 "widths": [
 96,
 256,
@@ -56,6 +73,22 @@
 96
 ]
 },
+"/brands/madeforcollab.png": {
+"name": "brands-madeforcollab",
+"widths": [
+96,
+256,
+384
+]
+},
+"/brands/molted.png": {
+"name": "brands-molted",
+"widths": [
+96,
+256,
+384
+]
+},
 "/brands/moonshot.png": {
 "name": "brands-moonshot",
 "widths": [
@@ -64,6 +97,15 @@
 384,
 640,
 828
+]
+},
+"/brands/releasestack.png": {
+"name": "brands-releasestack",
+"widths": [
+96,
+256,
+384,
+640
 ]
 },
 "/brands/shift.png": {
@@ -91,6 +133,21 @@
 },
 "/brands/tinyfish.png": {
 "name": "brands-tinyfish",
+"widths": [
+96,
+256,
+384
+]
+},
+"/brands/treg.png": {
+"name": "brands-treg",
+"widths": [
+96,
+256
+]
+},
+"/brands/unfair.png": {
+"name": "brands-unfair",
 "widths": [
 96,
 256,

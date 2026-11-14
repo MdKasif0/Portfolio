@@ -283,7 +283,7 @@ export const portfolioContent = {
     countSuffix: "+",
     countLabel: "brand collaborations",
     /** Split in two for the rows. Logos are captured from each brand's own site, with neutral ink turned white for the dark background. */
-    rowSplit: 7,
+    rowSplit: 10,
     brands: [
       { name: "HellYeah.ai", href: "https://www.hellyeahai.com/", logo: "/brands/hellyeah.png", width: 129, height: 24 },
       { name: "Moonshot AI", href: "https://www.moonshot.ai/", logo: "/brands/moonshot.png", width: 153, height: 25 },
@@ -292,12 +292,19 @@ export const portfolioContent = {
       { name: "AgentMail", href: "https://www.agentmail.to/", logo: "/brands/agentmail.png", width: 144, height: 26 },
       { name: "Context.dev", href: "https://www.context.dev/", logo: "/brands/contextdev.png", width: 147, height: 23 },
       { name: "Yapper.so", href: "https://yapper.so/", logo: "/brands/yapper.png", width: 116, height: 24 },
+      { name: "Molted", href: "https://www.molted.net/", logo: "/brands/molted.png", width: 110, height: 28 },
+      { name: "Fish Audio", href: "https://fish.audio/", logo: "/brands/fishaudio.png", width: 169, height: 23 },
+      { name: "Treg", href: "https://treg.to/", logo: "/brands/treg.png", width: 78, height: 30 },
       { name: "SuperApp", href: "https://superapp.dev/", logo: "/brands/superapp.png", width: 123, height: 32 },
       { name: "daily.dev", href: "https://daily.dev/", logo: "/brands/dailydev.png", width: 136, height: 24 },
       { name: "AgentID", href: "https://www.agentid.com/", logo: "/brands/agentid.png", width: 123, height: 28 },
       { name: "Shift", href: "https://www.shiftapp.nyc/", logo: "/brands/shift.png", width: 86, height: 24 },
       { name: "Blackbox AI", href: "https://www.blackbox.ai/", logo: "/brands/blackbox.png", width: 130, height: 20 },
-      { name: "Kimi", href: "https://www.kimi.com/", logo: "/brands/kimi.png", width: 30, height: 30, label: "Kimi" }
+      { name: "Kimi", href: "https://www.kimi.com/", logo: "/brands/kimi.png", width: 30, height: 30, label: "Kimi" },
+      { name: "Unfair.so", href: "https://unfair.so/", logo: "/brands/unfair.png", width: 102, height: 30 },
+      { name: "ReleaseStack", href: "https://www.thereleasestack.com/", logo: "/brands/releasestack.png", width: 157, height: 30 },
+      { name: "Made For Collab", href: "https://www.madeforcollab.com/", logo: "/brands/madeforcollab.png", width: 146, height: 38 },
+      { name: "Hopper", href: "https://withhopper.com/", logo: "/brands/hopper.png", width: 108, height: 28 }
     ] as Brand[]
   },
   recognition: {
