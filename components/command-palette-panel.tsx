@@ -61,7 +61,7 @@ export function CommandPalettePanel({ onClose, onPlayReel }: { onClose: () => vo
           onClose();
         }
       },
-      { id: "reel", group: "Do", label: "Play the reel", hint: "4 films", keywords: "video showreel film", run: () => { onClose(); onPlayReel(); } },
+      { id: "reel", group: "Do", label: "Play the reel", hint: "5 films", keywords: "video showreel film", run: () => { onClose(); onPlayReel(); } },
       ...(services.bookHref ? [{ id: "book", group: "Do", label: services.bookLabel, hint: "Cal.com ↗", keywords: "call meeting schedule", run: open(services.bookHref) }] : []),
       ...(pathname === "/" && motionEnabled ? [{ id: "replay", group: "Do", label: "Replay the build", keywords: "intro film", run: () => { onClose(); replayBuild(); } }] : []),
       { id: "theme", group: "Do", label: getScheme() === "light" ? "Switch to the dark theme" : "Switch to the light theme", keywords: "light dark mode colour color appearance", run: () => {

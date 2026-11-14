@@ -16,7 +16,7 @@ PUBLIC = ROOT / "public"
 OUT = PUBLIC / "img"
 # Keep in step with images.deviceSizes and images.imageSizes in next.config.mjs.
 WIDTHS = [96, 256, 384, 640, 828, 1080, 1440, 1920]
-SOURCES = ["projects/*.webp", "case-studies/**/*.jpg", "hero-cutout.webp", "brands/*.png", "logo-mark.png", "reel/kasif-reel-thumb.jpg"]
+SOURCES = ["projects/*.webp", "case-studies/**/*.jpg", "hero-cutout.webp", "brands/*.png", "logo-mark.png", "reel/kasif-reel-thumb.jpg", "reel/kasif-audacity-thumb.jpg"]
 
 
 def build():

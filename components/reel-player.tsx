@@ -133,6 +133,8 @@ export function ReelPlayer({ onContact, onClose }: { onContact: () => void; onCl
   const source = sourceFor(film, height);
   const chapterIndex = chapterAt(film, time);
   const chapter = film.chapters[chapterIndex];
+  // A film with licensed music carries a credit; one without simply has none.
+  const credit = (film as { credit?: { track: string; artist: string; license: string; href: string; licenseHref: string } }).credit;
 
   const filmRef = useRef(film);
   filmRef.current = film;
@@ -857,9 +859,9 @@ export function ReelPlayer({ onContact, onClose }: { onContact: () => void; onCl
       </section>
 
       <footer className="reel-footer">
-        {"credit" in film && film.credit ? (
+        {credit ? (
           <p className="reel-credit">
-            Music: <a href={film.credit.href} target="_blank" rel="noreferrer">{film.credit.track}</a> by {film.credit.artist}, licensed under <a href={film.credit.licenseHref} target="_blank" rel="noreferrer">{film.credit.license}</a>
+            Music: <a href={credit.href} target="_blank" rel="noreferrer">{credit.track}</a> by {credit.artist}, licensed under <a href={credit.licenseHref} target="_blank" rel="noreferrer">{credit.license}</a>
           </p>
         ) : null}
         <p className="reel-keys" aria-hidden="true"><kbd>Space</kbd> Play <kbd>←</kbd><kbd>→</kbd> {SKIP} seconds <kbd>N</kbd> Next <kbd>M</kbd> Mute <kbd>F</kbd> Fullscreen</p>

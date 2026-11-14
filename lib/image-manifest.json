@@ -343,6 +343,14 @@
 1440
 ]
 },
+"/reel/kasif-audacity-thumb.jpg": {
+"name": "reel-kasif-audacity-thumb",
+"widths": [
+96,
+256,
+384
+]
+},
 "/reel/kasif-reel-thumb.jpg": {
 "name": "reel-kasif-reel-thumb",
 "widths": [
