@@ -19,6 +19,7 @@
   <img src="https://img.shields.io/badge/Lenis-smooth_scroll-f5f5f5?style=flat-square&labelColor=05050a" alt="Lenis" />
   <img src="https://img.shields.io/badge/View_Transitions-API-e5322d?style=flat-square&labelColor=05050a" alt="View Transitions" />
   <img src="https://img.shields.io/badge/Netlify-CDN-00c7b7?style=flat-square&logo=netlify&logoColor=white" alt="Netlify" />
+  <a href="LICENSE"><img src="https://img.shields.io/badge/code-MIT-f5f5f5?style=flat-square&labelColor=05050a" alt="Code: MIT" /></a>
 </p>
 
 <p align="center">
@@ -379,6 +380,10 @@ These outputs are checked in. Run a tool again after changing its source. Set `C
 </details>
 
 <br />
+
+## ◆ License
+
+The **source code** is open source under the [MIT License](LICENSE): learn from it, borrow the Build Mode engine or the ink transition, ship something of your own. The **personal content and brand** (the KASIF name and logo, the avatar, the writing, the screenshots and the films) are © Md Kasif Uddin, all rights reserved. Third-party material keeps its own terms. The [LICENSE](LICENSE) file has the details.
 
 ## ◆ Credits
 

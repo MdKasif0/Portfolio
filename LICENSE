@@ -1,0 +1,88 @@
+KASIF Portfolio — License
+Copyright (c) 2026 Md Kasif Uddin
+
+This repository holds two kinds of material under different terms:
+
+  1. The source code, which is open source under the MIT License (Part A).
+  2. The personal content and brand, which are not (Part B).
+
+Third-party components keep their own licenses (Part C). If a file falls
+under more than one part, the more specific part applies.
+
+
+PART A. SOURCE CODE: MIT LICENSE
+================================================================================
+
+"The Software" in this Part means the source code in this repository: the
+TypeScript, TSX, JavaScript, CSS, Python and configuration files, including the
+Build Mode engine, the ink theme transition, the light-scheme PostCSS plugin,
+the reel player and the build tools. It does not include the material listed
+in Part B.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of the Software and associated documentation files, to deal in the Software
+without restriction, including without limitation the rights to use, copy,
+modify, merge, publish, distribute, sublicense, and/or sell copies of the
+Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+PART B. PERSONAL CONTENT AND BRAND: ALL RIGHTS RESERVED
+================================================================================
+
+Copyright (c) 2026 Md Kasif Uddin. All rights reserved.
+
+The following are not licensed under Part A, and no permission to copy,
+modify, distribute or reuse them is granted:
+
+  - The name "KASIF", the "KASIF." wordmark, the K logo mark and the
+    signature, wherever they appear.
+  - The avatar and portrait artwork (public/hero-cutout.*, and every image
+    derived from it).
+  - Written content: the copy in data/content.ts, data/case-studies.ts,
+    data/notes.ts and data/systems.ts, and the CV in tools/cv/ and
+    public/cv.pdf.
+  - Project screenshots, covers, captures and clips in public/projects/,
+    public/case-studies/, public/work/ and public/img/.
+  - The films, posters and previews in public/reel/, and the images in
+    docs/readme/.
+  - Certificates in public/certificates/ and share cards in public/og/.
+
+You may link to the live site and quote short passages with attribution.
+Forks made to study or learn from the code may keep this material only for
+private, local use; anything published from a fork must replace it with your
+own.
+
+
+PART C. THIRD-PARTY MATERIAL
+================================================================================
+
+These components are not the author's work and remain under their own terms:
+
+  - Anatomy isometric figure kit (tools/figures/kit/), copyright (c) 2026
+    Ryan, MIT License. See tools/figures/kit/LICENSE.
+  - Fonts: Anton, Plus Jakarta Sans, Caveat and JetBrains Mono, each under
+    the SIL Open Font License 1.1. Copies in tools/fonts/ are redistributed
+    under that license.
+  - Brand logos in public/brands/ are trademarks of their respective owners,
+    shown only to identify past collaborations. No endorsement is implied and
+    no rights in them are granted.
+  - Music: "Electron Wake [techno]" by Hardcore Scm, CC BY 3.0
+    (https://creativecommons.org/licenses/by/3.0/), used in the original
+    KASIF reel. The "Audacity" reel uses a track from HeyGen's music library
+    under HeyGen's terms.
+  - npm dependencies are installed from the registry and keep their own
+    licenses; none are bundled in this repository's source.
+
+For permissions beyond these terms, contact mdkasifuddin123@gmail.com.
