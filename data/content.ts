@@ -156,6 +156,29 @@ export const portfolioContent = {
           { title: "The proof", start: 22 },
           { title: "Your idea", start: 26 }
         ]
+      },
+      {
+        id: "roast-me",
+        title: "Roast Me",
+        tagline: "Emotional damage. No subscription fee.",
+        description: "A 26-second cut for GitRoasted. Three green squares and a “senior engineer” bio, then a live roast of @totally-a-10x-dev: the score climbs to 342, the roast types itself out, and the share card is ready to post.",
+        duration: 26.005,
+        poster: "/reel/roast-me-poster.jpg",
+        thumb: "/reel/roast-me-thumb.jpg",
+        sources: [
+          { height: 1080, label: "1080p", src: "/reel/roast-me-1080.mp4" },
+          { height: 720, label: "720p", src: "/reel/roast-me-720.mp4" }
+        ],
+        previews: { src: "/reel/roast-me-previews.jpg", columns: 10, rows: 6, interval: 0.5 },
+        chapters: [
+          { title: "3 green squares", start: 0 },
+          { title: "Roast me", start: 2.25 },
+          { title: "Roasting", start: 7 },
+          { title: "The score", start: 9 },
+          { title: "The roast", start: 13 },
+          { title: "The card", start: 19 },
+          { title: "GitRoasted", start: 21.75 }
+        ]
       }
     ],
     reelContactLabel: "Let's talk",
@@ -529,7 +552,7 @@ export const portfolioContent = {
     offerClear: "Clear",
     reelKicker: "The reel",
     reelTitle: "WATCH IT RUN.",
-    reelMeta: "Five launch films, from 21 seconds to 86",
+    reelMeta: "Six launch films, from 21 seconds to 86",
     modalLabel: "Play the reel",
     reelModalKicker: "KASIF / SHOWREEL"
   },

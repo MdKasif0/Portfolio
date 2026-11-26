@@ -65,7 +65,7 @@
     <td width="33%" valign="top"><h3>⚙️ Systems as machines</h3>GitRoasted, Cookie and Crimson Gate drawn as interactive isometric machines. Click a part, see the code it stands for.</td>
   </tr>
   <tr>
-    <td valign="top"><h3>🎬 Showreel player</h3>Five launch films in a custom player: chapters, scrub previews, 4K/1080p/720p sources, picture-in-picture and autoplay queue.</td>
+    <td valign="top"><h3>🎬 Showreel player</h3>Six launch films in a custom player: chapters, scrub previews, 4K/1080p/720p sources, picture-in-picture and autoplay queue.</td>
     <td valign="top"><h3>📚 Case studies &amp; notes</h3>Three long-form case studies and four engineering notes, morphing in from the Work cards with the View Transitions API.</td>
     <td valign="top"><h3>📈 Built in the open</h3>A GitHub contribution graph snapshotted at build time and refreshed live, plus real X posts with their view counts.</td>
   </tr>
@@ -145,7 +145,7 @@ flowchart TB
     shell["MotionShell<br/>Lenis · reduced motion"]
     build["Build Mode<br/>compiler · agents · clock"]
     theme["Ink theme switch<br/>View Transitions"]
-    reel["Reel player<br/>5 films"]
+    reel["Reel player<br/>6 films"]
     live["Live GitHub graph<br/>refreshed from the API"]
     shell --> build & theme & reel & live
   end
@@ -328,7 +328,7 @@ tools/
   postcss/light-scheme.cjs  Generates the light theme
   github/ · images/ · figures/ · cv/ · share-cards/
 public/
-  reel/                     The five films, posters and scrub previews
+  reel/                     The six films, posters and scrub previews
   img/                      Pre-sized WebP variants
   projects/ · case-studies/ · brands/ · og/ · figures/
 docs/readme/                The images in this README
